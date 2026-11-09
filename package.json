@@ -1,0 +1,47 @@
+{
+  "name": "future-center",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "npm run build -w shared && node scripts/dev.mjs",
+    "dev:server": "npm run build -w shared && node scripts/dev.mjs --server",
+    "dev:client": "node scripts/dev.mjs --client",
+    "build": "npm run clean && npm run build -w shared && npm run build -w server && npm run build -w client",
+    "typecheck": "npm run build -w shared && npm run typecheck -w server && npm run typecheck -w client",
+    "test": "npm run build -w shared && vitest run",
+    "test:e2e": "playwright test",
+    "db:start": "node scripts/database.mjs",
+    "manage": "node --env-file=.env scripts/manage.mjs",
+    "start": "node --env-file=.env server/dist/index.js",
+    "admin:create": "npm run build -w shared && node --import tsx scripts/admin.ts --local",
+    "admin:set": "node --import tsx scripts/set-admin.ts",
+    "admin:delete": "node --import tsx scripts/delete-admin.ts",
+    "account:reset": "node --import tsx scripts/admin.ts --reset",
+    "format": "prettier --write \"{client,server,shared,scripts,tests}/**/*.{ts,tsx,js,mjs,css,json,html}\" \"*.{json,ts,md}\"",
+    "format:check": "prettier --check \"{client,server,shared,scripts,tests}/**/*.{ts,tsx,js,mjs,css,json,html}\" \"*.{json,ts,md}\"",
+    "clean": "node scripts/clean-build.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^22.19.0",
+    "@types/supertest": "^6.0.3",
+    "prettier": "3.6.2",
+    "supertest": "^7.1.4",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.8"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "mongodb": "^7.0.0"
+  }
+}

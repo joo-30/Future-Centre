@@ -1,0 +1,504 @@
+/* ==========================================================================
+   Future Center — Luxury Medical Footer (Dark Emerald Concept)
+   ========================================================================== */
+
+.site-footer {
+  background: #051f18;
+  color: #c9dcce;
+  border-top: 1px solid #0e3b2e;
+  direction: rtl;
+  position: relative;
+  overflow: hidden;
+  margin-top: 40px;
+}
+
+/* 1. Pre-Footer Action Banner */
+.footer-cta-banner {
+  background: linear-gradient(135deg, #093326 0%, #114a39 50%, #083023 100%);
+  border-bottom: 1px solid #1a5c48;
+  padding: 38px 24px;
+  position: relative;
+}
+
+.footer-cta-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.footer-cta-text {
+  max-width: 720px;
+}
+
+.footer-cta-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #7ee3b5;
+  background: rgba(126, 227, 181, 0.12);
+  border: 1px solid rgba(126, 227, 181, 0.25);
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+
+.footer-cta-kicker .sparkle-icon {
+  color: #d4af37;
+}
+
+.footer-cta-title {
+  font-size: clamp(20px, 3.2vw, 28px);
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.35;
+  margin: 0 0 8px;
+}
+
+.footer-cta-desc {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #b5d5be;
+  margin: 0;
+}
+
+.footer-cta-action {
+  flex-shrink: 0;
+}
+
+.footer-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #d4af37 0%, #f3ce5a 100%);
+  color: #122b1c;
+  font-size: 15px;
+  font-weight: 800;
+  padding: 14px 28px;
+  border-radius: 14px;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.footer-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 26px rgba(212, 175, 55, 0.45);
+  background: linear-gradient(135deg, #deb73c 0%, #fae07a 100%);
+  color: #061c10;
+}
+
+/* 2. Main Footer Wrap & Grid */
+.footer-main-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 56px 24px 44px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr 1.1fr 1.3fr;
+  gap: 40px;
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-col-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 18px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #134636;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-col-title::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  right: 0;
+  width: 28px;
+  height: 2px;
+  background: #d4af37;
+  border-radius: 2px;
+}
+
+/* Column 1: Brand & Doctor */
+.col-brand .footer-brand-header {
+  margin-bottom: 14px;
+}
+
+.col-brand .footer-brand-header a {
+  text-decoration: none;
+}
+
+.col-brand .footer-brand-header .brand {
+  gap: 12px;
+}
+
+.col-brand .footer-brand-header .brand strong {
+  color: #ffffff !important;
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.col-brand .footer-brand-header .brand span {
+  color: #7ee3b5 !important;
+  font-size: 12.5px;
+}
+
+.footer-bio {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #9cbda5;
+  margin: 0 0 20px;
+}
+
+.footer-bio strong {
+  color: #ffffff;
+}
+
+.doctor-emaso-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #092c22;
+  border: 1px solid #175440;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.doctor-emaso-badge .badge-icon {
+  color: #d4af37;
+  flex-shrink: 0;
+}
+
+.doctor-emaso-badge strong {
+  display: block;
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.doctor-emaso-badge span {
+  font-size: 11.5px;
+  color: #83b693;
+}
+
+/* Column 2: Links List */
+.footer-links-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.footer-links-list li a {
+  color: #b1ceb9;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.footer-links-list li a::before {
+  content: '‹';
+  color: #558765;
+  font-size: 15px;
+  font-weight: 800;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.footer-links-list li a:hover {
+  color: #ffffff;
+  transform: translateX(-4px);
+}
+
+.footer-links-list li a:hover::before {
+  color: #d4af37;
+}
+
+/* Column 3: Services List */
+.footer-services-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-services-list li {
+  font-size: 13px;
+  line-height: 1.55;
+  color: #9cbda5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.footer-services-list li::before {
+  content: '•';
+  color: #4b8a65;
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Column 4: Contact & Hours */
+.footer-contact-items {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #b1ceb9;
+}
+
+.contact-item .item-icon {
+  color: #7ee3b5;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.contact-item strong {
+  display: block;
+  color: #ffffff;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.contact-item span {
+  color: #9cbda5;
+  font-size: 12px;
+}
+
+.phones-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.phone-link {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  transition: color 0.15s ease;
+}
+
+.phone-link:hover {
+  color: #7ee3b5;
+}
+
+.phone-sep {
+  color: #558765;
+}
+
+.footer-social-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.social-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.social-btn.whatsapp-btn {
+  background: #25d366;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.25);
+}
+
+.social-btn.whatsapp-btn:hover {
+  background: #20ba5a;
+  transform: translateY(-1px);
+}
+
+.social-btn.contact-btn {
+  background: #0d382c;
+  color: #c9dcce;
+  border: 1px solid #1a5744;
+}
+
+.social-btn.contact-btn:hover {
+  background: #14493a;
+  color: #ffffff;
+  border-color: #246e57;
+}
+
+/* 3. Bottom Sub-Footer Bar */
+.footer-bottom-bar {
+  background: #031510;
+  border-top: 1px solid #0a2d23;
+  padding: 18px 24px;
+}
+
+.footer-bottom-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.copyright-text {
+  font-size: 12.5px;
+  color: #74947d;
+  margin: 0;
+}
+
+.footer-legal-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+}
+
+.footer-legal-nav a {
+  color: #8eb397;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-legal-nav a:hover {
+  color: #ffffff;
+}
+
+.legal-dot {
+  color: #3b5e48;
+}
+
+.footer-motto {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #a7ccafe8;
+}
+
+.footer-motto .motto-heart {
+  color: #d4af37;
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+
+/* Tablet (<= 1024px) */
+@media (max-width: 1024px) {
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 36px 30px;
+  }
+}
+
+/* Mobile (<= 768px) */
+@media (max-width: 768px) {
+  .site-footer {
+    margin-top: 24px;
+  }
+  .footer-cta-container {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    gap: 20px;
+  }
+  .footer-cta-text {
+    text-align: center;
+  }
+  .footer-cta-action {
+    width: 100%;
+  }
+  .footer-btn-primary {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 20px;
+  }
+  .footer-main-wrap {
+    padding: 40px 18px 32px;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .footer-bottom-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  .footer-legal-nav {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+/* Small Mobile (<= 360px) */
+@media (max-width: 360px) {
+  .footer-main-wrap {
+    padding: 30px 12px 24px;
+  }
+  .footer-cta-banner {
+    padding: 28px 12px;
+  }
+  .footer-cta-title {
+    font-size: 19px;
+  }
+  .footer-cta-desc {
+    font-size: 13px;
+  }
+  .footer-btn-primary {
+    font-size: 13.5px;
+    padding: 12px 16px;
+  }
+  .phones-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .phone-sep {
+    display: none;
+  }
+  .social-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

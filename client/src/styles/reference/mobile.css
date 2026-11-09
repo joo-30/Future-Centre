@@ -1,0 +1,247 @@
+/* Mobile is a separate composition: choose the appointment first, then contact details. */
+.mobile-body {
+  background: var(--cream);
+}
+.mobile-page {
+  max-width: 430px;
+  margin: auto;
+  min-height: 1080px;
+  background: var(--cream);
+}
+.mobile-head {
+  height: 83px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e2e6d9;
+  background: var(--white);
+}
+.mobile-head .brand-symbol {
+  height: 40px;
+  width: 40px;
+}
+.mobile-head .brand strong {
+  font-size: 17px;
+}
+.mobile-head .brand small {
+  font-size: 10px;
+}
+.mobile-head .menu-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 10px;
+  color: #667b5d;
+  gap: 3px;
+}
+.mobile-content {
+  padding: 24px 20px;
+}
+.mobile-topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #667b5d;
+  margin-bottom: 18px;
+}
+.mobile-topline .step-pill {
+  display: flex;
+  gap: 5px;
+}
+.step-pill i {
+  height: 4px;
+  width: 23px;
+  border-radius: 5px;
+  background: #dce4d2;
+}
+.step-pill i:first-child {
+  background: var(--forest);
+}
+.mobile-content h1 {
+  font-size: 28px;
+  letter-spacing: -0.9px;
+}
+.mobile-content > p {
+  font-size: 15px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.9;
+}
+.mobile-service {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--white);
+  border: 1px solid #dce5d2;
+  border-radius: 13px;
+  padding: 16px;
+  margin: 24px 0;
+}
+.mobile-service .symbol {
+  height: 37px;
+  width: 37px;
+  background: #eef3e0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6d8b4d;
+  flex-shrink: 0;
+}
+.mobile-service strong {
+  font-size: 16px;
+  font-weight: 500;
+  display: block;
+}
+.mobile-service small {
+  font-size: 12px;
+  color: #667b5d;
+  display: block;
+  margin-top: 5px;
+}
+.mobile-service .change {
+  margin-right: auto;
+  font-size: 12px;
+  color: #658445;
+}
+.mobile-calendar {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  padding: 18px;
+}
+.mobile-calendar .calendar-head strong {
+  font-size: 16px;
+}
+.mobile-calendar .days {
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
+}
+.mobile-calendar .day {
+  min-height: 82px;
+}
+.mobile-calendar .day small {
+  font-size: 11px;
+}
+.mobile-calendar .day b {
+  font-size: 23px;
+}
+.mobile-calendar .month-caption {
+  font-size: 11px;
+  color: #667b5d;
+  text-align: center;
+  margin-top: 15px;
+}
+.mobile-calendar .times {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  margin-top: 10px;
+}
+.mobile-calendar .time {
+  min-height: 65px;
+  font-size: 17px;
+  border-radius: 10px;
+}
+.mobile-calendar .time small {
+  font-size: 11px;
+}
+.mobile-calendar .legend {
+  gap: 14px;
+  font-size: 11px;
+  margin-top: 21px;
+  flex-wrap: wrap;
+}
+.mobile-calendar .time-title {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 22px 0 11px;
+}
+.mobile-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 20px 3px;
+  font-size: 13px;
+  color: #667b5d;
+  line-height: 1.9;
+}
+.mobile-info .icon {
+  width: 17px;
+  height: 17px;
+  margin-top: 3px;
+}
+.mobile-bottom {
+  padding: 20px;
+  background: var(--white);
+  border-top: 1px solid #dfe5d5;
+  margin-top: 0;
+}
+.mobile-bottom .selected-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 17px;
+}
+.selected-summary .date-value {
+  font-size: 14px;
+  font-weight: 500;
+}
+.selected-summary small {
+  font-size: 11px;
+  color: #667b5d;
+  display: block;
+  margin-top: 4px;
+}
+.mobile-bottom .btn {
+  font-size: 17px;
+  min-height: 55px;
+  border-radius: 12px;
+}
+.mobile-bottom .btn-wa {
+  width: 55px;
+  height: 55px;
+  border: 1px solid #c9d7bb;
+  background: #f6f8ee;
+  color: var(--forest);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mobile-bottom .bottom-actions {
+  display: flex;
+  gap: 10px;
+}
+.mobile-bottom .bottom-actions .btn {
+  flex: 1;
+}
+.mobile-bottom .foot-hint {
+  text-align: center;
+  font-size: 11px;
+  color: #667b5d;
+  margin-top: 15px;
+}
+.mobile-bottom .foot-hint .link {
+  font-size: 11px;
+  color: #527542;
+}
+@media (max-width: 700px) {
+  .site-head {
+    height: 72px;
+    margin: 0;
+    padding: 0;
+  }
+  .site-head nav,
+  .site-head .head-actions {
+    display: none;
+  }
+  .site-head .brand strong {
+    font-size: 17px;
+  }
+  .menu-mobile {
+    display: block;
+  }
+}

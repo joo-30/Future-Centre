@@ -1,0 +1,12 @@
+node_modules/
+**/dist/
+.local/
+.env*
+artifacts/
+playwright-report/
+test-results/
+client/public/
+design-concepts/
+Future-Center-UX-Pack*/
+*.zip
+package-lock.json

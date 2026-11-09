@@ -1,0 +1,20 @@
+@media (prefers-reduced-motion: reduce) {
+  .console-sidebar {
+    transition: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .console-sidebar {
+    visibility: hidden;
+  }
+  .console-sidebar.is-open {
+    visibility: visible;
+  }
+  .member-nav nav {
+    scrollbar-width: thin;
+  }
+  .clinic-console .skip-link:focus {
+    top: 10px;
+  }
+}

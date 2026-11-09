@@ -1,0 +1,80 @@
+/* Modern Quick Login Panel */
+.quick-login-panel {
+  margin: 18px 0 24px;
+  padding: 14px 16px;
+  border: 1px dashed #b7d6c3;
+  border-radius: 16px;
+  background: #f2f8f4;
+}
+
+.quick-login-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #17654e;
+  margin-bottom: 10px;
+}
+
+.quick-login-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.quick-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #d1e2d7;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: right;
+  font-family: inherit;
+}
+
+.quick-login-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(22, 101, 78, 0.12);
+  border-color: #166852;
+}
+
+.quick-btn-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.quick-role-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #166852;
+}
+
+.quick-login-btn bdi {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0c3328;
+}
+
+.quick-arrow {
+  color: #7b9487;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.quick-login-btn:hover:not(:disabled) .quick-arrow {
+  color: #166852;
+  transform: translateX(-3px);
+}
+
+@media (max-width: 480px) {
+  .quick-login-grid {
+    grid-template-columns: 1fr;
+  }
+}
