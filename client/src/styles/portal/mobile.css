@@ -526,7 +526,7 @@
     overflow-x: clip;
   }
   .console-sidebar {
-    width: min(290px, 85vw);
+    width: min(305px, 88vw);
     transform: translateX(110%);
     transition: transform 0.2s ease, visibility 0.2s ease;
     z-index: 80;

@@ -158,7 +158,7 @@ export function AdminLayout() {
               <span className="doctor-online-pulse" title="متصل الآن" />
             </div>
             <div className="doctor-profile-details">
-              <strong className="doctor-name">د. رنا ياسر الشوري</strong>
+              <strong className="doctor-name">د. رنا ياسر الشورى</strong>
               <span className="doctor-role-tag">المدير الطبي · {user?.name || 'المدير العام'}</span>
             </div>
           </div>

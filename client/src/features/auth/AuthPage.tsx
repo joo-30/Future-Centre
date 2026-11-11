@@ -126,12 +126,12 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
       <section className="access-form-area">
         <header className="access-top">
           <Brand />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div className="access-top-actions">
             <PwaInstallButton variant="auth" />
-            <Link className="access-back-pill" to="/">
-            <span>العودة للرئيسية</span>
-            <ArrowLeft size={16} />
-          </Link>
+            <Link className="access-back-pill" to="/" title="العودة للصفحة الرئيسية">
+              <span>العودة للرئيسية</span>
+              <ArrowLeft size={16} />
+            </Link>
           </div>
         </header>
 
@@ -141,14 +141,14 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
             <div className="mob-doctor-photo-wrap">
               <img
                 src="/assets/dr-rana.jpg"
-                alt="د. رنا ياسر الشوري - استشاري التغذية العلاجية"
+                alt="د. رنا ياسر الشورى - استشاري التغذية العلاجية"
                 className="mob-doctor-photo"
               />
               <span className="mob-online-badge" title="العيادة متاحة للمتابعة" />
             </div>
             <div className="mob-doctor-info">
               <div className="mob-doctor-name-row">
-                <h3>د. رنا ياسر الشوري</h3>
+                <h3>د. رنا ياسر الشورى</h3>
                 <span className="mob-verified-badge">
                   <Check size={11} />
                   <span>معتمدة</span>
@@ -466,7 +466,7 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
         <div className="showcase-bg-wrap">
           <img
             src="/assets/dr-rana.jpg"
-            alt="د. رنا ياسر الشوري - استشاري التغذية العلاجية ونحت القوام"
+            alt="د. رنا ياسر الشورى - استشاري التغذية العلاجية ونحت القوام"
             className="showcase-img"
           />
           <div className="showcase-gradient-overlay" />
@@ -478,7 +478,7 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
         <div className="showcase-bottom-area">
           <div className="showcase-doctor-pill">
             <Award size={16} className="pill-award-icon" />
-            <strong>د. رنا ياسر الشوري</strong>
+            <strong>د. رنا ياسر الشورى</strong>
             <span className="pill-dot">·</span>
             <span className="pill-spec">استشاري التغذية العلاجية (EMASO)</span>
             <span className="pill-dot">·</span>

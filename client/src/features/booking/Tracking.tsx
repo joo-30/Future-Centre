@@ -354,7 +354,7 @@ export function Tracking() {
               أهلاً بكِ يا {a.firstName}.. نعتذر عن عدم إمكانية اعتماد هذا التوقيت
             </h1>
             <p className="track-hero-desc">
-              راجع فريق عيادة د. رنا الشوري طلب حجزكِ بعناية، وللأسف هذا الموعد غير متاح حالياً بجدول المركز.
+              راجع فريق عيادة د. رنا الشورى طلب حجزكِ بعناية، وللأسف هذا الموعد غير متاح حالياً بجدول المركز.
               يسعدنا جداً اختيار موعد بديل فوري يناسبكِ أو التنسيق المباشر معنا عبر واتساب.
             </p>
           </div>
@@ -389,7 +389,7 @@ export function Tracking() {
               أهلاً بكِ يا {a.firstName}.. موعدكِ مؤكد في مركز المستقبل! 🌿
             </h1>
             <p className="track-hero-desc">
-              تم تأكيد واعتماد موعدكِ بنجاح في عيادة د. رنا الشوري. نتطلع لاستقبالكِ بكل ترحاب وتأكيد حضوركِ عبر التذكرة الذكية أدناه.
+              تم تأكيد واعتماد موعدكِ بنجاح في عيادة د. رنا الشورى. نتطلع لاستقبالكِ بكل ترحاب وتأكيد حضوركِ عبر التذكرة الذكية أدناه.
             </p>
           </div>
         </div>
@@ -425,7 +425,7 @@ export function Tracking() {
                   </div>
                   <div>
                     <div className="clinic-doctor-name-row">
-                      <strong>د. رنا ياسر الشوري</strong>
+                      <strong>د. رنا ياسر الشورى</strong>
                       <span className="clinic-verified-chip">
                         <Check size={11} />
                         طبيبة معتمدة
@@ -465,7 +465,7 @@ export function Tracking() {
                 {catalog?.clinic.whatsapp && (
                   <WhatsAppLink
                     phone={catalog.clinic.whatsapp}
-                    message={`أهلاً عيادة د. رنا الشوري، بخصوص طلبي رقم #${a.reference}، أود التنسيق لتحديد موعد بديل يناسبني.`}
+                    message={`أهلاً عيادة د. رنا الشورى، بخصوص طلبي رقم #${a.reference}، أود التنسيق لتحديد موعد بديل يناسبني.`}
                     className="btn-clinic-whatsapp"
                   >
                     <WhatsAppIcon size={18} />
@@ -524,7 +524,7 @@ export function Tracking() {
                   {catalog?.clinic?.whatsapp && (
                     <WhatsAppLink
                       phone={catalog.clinic.whatsapp}
-                      message={`أهلاً عيادة د. رنا الشوري، أود الاستفسار والمتابعة بخصوص طلب الموعد رقم #${a.reference}.`}
+                      message={`أهلاً عيادة د. رنا الشورى، أود الاستفسار والمتابعة بخصوص طلب الموعد رقم #${a.reference}.`}
                       className="tfc-wa-link"
                     >
                       <WhatsAppIcon size={14} />

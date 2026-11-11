@@ -425,7 +425,7 @@ export function Account() {
               <p>للتغذية العلاجية وتنسيق القوام</p>
             </div>
             <div class="doc">
-              <h3>دكتورة د. رنا ياسر الشوري</h3>
+              <h3>دكتورة د. رنا ياسر الشورى</h3>
               <p>أخصائية التغذية العلاجية والسمنة وتنسيق القوام</p>
             </div>
           </div>
@@ -465,7 +465,7 @@ export function Account() {
             </div>
             <div class="ftr-sig">
               <span style="font-size: 11px; color: #627b61;">إشراف وتوقيع:</span><br>
-              <span class="sig-name">دكتورة د. رنا ياسر الشوري</span>
+              <span class="sig-name">دكتورة د. رنا ياسر الشورى</span>
             </div>
           </div>
         </div>
@@ -969,7 +969,7 @@ export function Account() {
                             <Award size={13} />
                             خطة معتمدة
                           </span>
-                          <span className="rx-doctor-tag">إشراف: دكتورة د. رنا ياسر الشوري</span>
+                          <span className="rx-doctor-tag">إشراف: دكتورة د. رنا ياسر الشورى</span>
                         </div>
                         <div className="rx-date-stamp">
                           <CalendarDays size={14} />
@@ -1105,7 +1105,7 @@ export function Account() {
                   <div>
                     <h3>روشتاتك وبرامجك الغذائية المعتمدة.</h3>
                     <p>
-                      عند إعداد دكتورة د. رنا ياسر الشوري لخطتك الغذائية، ستظهر الروشتة هنا تلقائياً بتفاصيل الوجبات اليومية والمقاييس مع إمكانية طباعتها أو تحميلها كـ PDF في أي وقت.
+                      عند إعداد دكتورة د. رنا ياسر الشورى لخطتك الغذائية، ستظهر الروشتة هنا تلقائياً بتفاصيل الوجبات اليومية والمقاييس مع إمكانية طباعتها أو تحميلها كـ PDF في أي وقت.
                     </p>
                   </div>
                 </div>

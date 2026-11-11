@@ -148,9 +148,9 @@ export function AdminStories() {
       await adminApi.saveStory({ id: s.id, featured: !s.featured });
       await client.invalidateQueries({ queryKey: ['admin', 'stories'] });
       await client.invalidateQueries({ queryKey: ['public', 'stories'] });
-      setMessage(s.featured ? 'تم إزالة التمييز.' : 'تم تمييز القصة في صدارة المعرض.');
+      setMessage(s.featured ? 'تمت إزالة القصة من صدارة المعرض وإعادتها للترتيب العادي.' : 'تم تثبيت القصة في صدارة المعرض لتظهر أولاً بالواجهة.');
     } catch (err) {
-      setError((err as Error).message || 'تعذر تمييز القصة.');
+      setError((err as Error).message || 'تعذر تعديل حالة تثبيت القصة.');
     }
   };
 
@@ -616,12 +616,16 @@ export function AdminStories() {
 
                 <button
                   type="button"
-                  className="btn-story-action is-outline"
+                  className={`btn-story-action is-outline ${s.featured ? 'is-featured-active' : ''}`}
                   onClick={() => void handleToggleFeatured(s)}
-                  title="تمييز في صدارة المعرض"
+                  title={
+                    s.featured
+                      ? 'إلغاء تثبيت القصة في صدارة المعرض وإعادتها للترتيب العادي'
+                      : 'تثبيت القصة في صدارة المعرض والصفحة الرئيسية'
+                  }
                 >
                   <Award size={14} color={s.featured ? '#059669' : '#64748b'} />
-                  <span>{s.featured ? 'إلغاء التمييز' : 'تمييز'}</span>
+                  <span>{s.featured ? 'إلغاء التثبيت' : 'تثبيت بالصدارة'}</span>
                 </button>
 
                 <button
@@ -1190,7 +1194,7 @@ export function AdminStories() {
                     name="featured"
                     defaultChecked={editing.featured ?? false}
                   />
-                  <span>تمييز القصة في صدارة المعرض (رئيسية)</span>
+                  <span>تثبيت القصة في صدارة المعرض (تظهر أولاً بالواجهة)</span>
                 </label>
               </div>
             </div>

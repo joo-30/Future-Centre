@@ -8,7 +8,7 @@ export function About() {
       <div className="detail-page-grid about-page">
         <div>
           <PublicIntro kicker="فلسفة الرعاية" title="نبدأ بفهمك، ونكمل معك.">
-            مركز المستقبل للتغذية العلاجية وتنسيق القوام تحت إشراف دكتورة د. رنا ياسر الشوري.
+            مركز المستقبل للتغذية العلاجية وتنسيق القوام تحت إشراف دكتورة د. رنا ياسر الشورى.
           </PublicIntro>
           <div className="prose">
             <p>
@@ -27,7 +27,7 @@ export function About() {
           <img
             className="doctor-image about-page-photo"
             src="/assets/dr-rana.jpg"
-            alt="دكتورة د. رنا ياسر الشوري - أخصائية التغذية العلاجية وتنسيق القوام"
+            alt="دكتورة د. رنا ياسر الشورى - أخصائية التغذية العلاجية وتنسيق القوام"
             loading="lazy"
           />
           <div className="doctor-badge-floating">
@@ -43,7 +43,7 @@ export function About() {
           <Leaf size={16} />
           <span>المؤهلات والاعتمادات الرسمية</span>
         </div>
-        <h2>دكتورة د. رنا ياسر الشوري</h2>
+        <h2>دكتورة د. رنا ياسر الشورى</h2>
         <p className="about-doc-sub">
           أخصائية التغذية العلاجية والسمنة وتنسيق القوام · عضو الجمعية المصرية لدراسة السمنة (EMASO)
         </p>

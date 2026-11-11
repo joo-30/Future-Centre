@@ -8,10 +8,10 @@
   position: fixed;
   inset-block: 0;
   inset-inline-start: 0;
-  width: 272px;
+  width: 292px;
   background: linear-gradient(180deg, #062b22 0%, #041f18 100%);
   color: #edf1df;
-  padding: 22px 18px 20px;
+  padding: 22px 16px 20px;
   display: flex;
   flex-direction: column;
   z-index: 30;
@@ -83,15 +83,16 @@
 .console-sidebar nav a {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 13.5px;
+  gap: 9px;
+  font-size: 12.8px;
   font-weight: 700;
   min-height: 44px;
-  padding: 10px 14px;
+  padding: 9px 11px;
   border-radius: 12px;
   color: #b5d5c5;
   text-decoration: none;
   white-space: nowrap;
+  letter-spacing: -0.15px;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
 }
@@ -103,11 +104,14 @@
 .console-sidebar nav a .nav-item-label {
   flex: 1;
   min-width: 0;
+  white-space: nowrap;
 }
 .console-sidebar nav a .nav-item-arrow {
-  margin-inline-start: 4px;
+  width: 0;
   opacity: 0;
+  margin: 0;
   flex-shrink: 0;
+  overflow: hidden;
   transition: all 0.18s ease;
   color: #10664f;
 }
@@ -130,7 +134,9 @@
   color: #0d5c46 !important;
 }
 .console-sidebar nav a.active .nav-item-arrow {
+  width: 16px;
   opacity: 1 !important;
+  margin-inline-start: 4px;
 }
 
 /* Badges */
@@ -138,9 +144,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 7px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
   border-radius: 999px;
   font-size: 11px;
   font-weight: 800;
@@ -276,7 +282,7 @@
   border-color: #dc2626;
 }
 .console-body {
-  margin-inline-start: 272px;
+  margin-inline-start: 292px;
   flex: 1;
   min-width: 0;
 }

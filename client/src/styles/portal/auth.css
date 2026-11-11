@@ -16,9 +16,10 @@ button:disabled {
   display: grid;
   grid-template-columns: minmax(460px, 1fr) minmax(520px, 1.15fr);
   min-height: 100dvh;
-  background: #fafbf8;
+  background: #f8faf6;
   color: #1a2e26;
   direction: rtl;
+  font-family: 'Alexandria', sans-serif;
 }
 
 .access-form-area {
@@ -36,30 +37,59 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 16px;
   margin-bottom: 22px;
+}
+
+.access-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .access-back-pill {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 9px 18px;
   border-radius: 9999px;
-  background: #f1f5ee;
-  border: 1px solid #e2ebd9;
-  color: #1b493c;
+  background: #ffffff;
+  border: 1.5px solid #d2e3cc;
+  color: #06382c;
+  font-family: 'Alexandria', sans-serif;
   font-size: 13.5px;
-  font-weight: 500;
+  font-weight: 700;
   text-decoration: none;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(6, 56, 44, 0.05);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.access-back-pill span {
+  white-space: nowrap;
+  line-height: 1;
+  display: inline-block;
+}
+
+.access-back-pill svg {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
 }
 
 .access-back-pill:hover {
-  background: #e5eedf;
-  color: #0c3328;
-  transform: translateX(2px);
-  border-color: #cbdcc0;
+  background: #06382c;
+  border-color: #06382c;
+  color: #ffffff;
+  transform: translateX(-3px);
+  box-shadow: 0 6px 18px rgba(6, 56, 44, 0.18);
+}
+.access-back-pill:hover svg {
+  transform: translateX(-2px);
+  color: #34d399;
 }
 
 /* ==========================================================================
@@ -1038,7 +1068,41 @@ button:disabled {
   }
 }
 
+@media (max-width: 640px) {
+  .access-top {
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .access-top-actions {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .access-top .head-pwa-btn {
+    padding: 7px 10px;
+  }
+  .access-top .head-pwa-btn span {
+    display: none;
+  }
+  .access-back-pill {
+    padding: 6px 12px;
+    font-size: 12.5px;
+    gap: 5px;
+  }
+}
+
 @media (max-width: 420px) {
+  .access-top {
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .access-top-actions {
+    gap: 6px;
+  }
+  .access-back-pill {
+    padding: 5px 10px;
+    font-size: 12px;
+    gap: 4px;
+  }
   .access-form-area {
     padding: 14px 12px 30px;
   }
@@ -1074,5 +1138,97 @@ button:disabled {
   .auth-submit-btn {
     font-size: 15px;
     min-height: 50px;
+  }
+}
+
+
+/* ==========================================================================
+   ULTRA-RESPONSIVE FIX FOR 320PX (Galaxy Fold & iPhone SE)
+   ========================================================================== */
+@media (max-width: 440px) {
+  .access-form-area {
+    padding: 12px 10px 24px !important;
+    max-width: 100% !important;
+  }
+  .access-top {
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+  }
+  /* Hide the PWA button in login topbar on very small screens to give full room to back button */
+  .access-top .head-pwa-btn {
+    display: none !important;
+  }
+  .access-top .brand-sub {
+    display: none !important;
+  }
+  .access-top .brand-symbol img {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .access-top .brand-name {
+    font-size: 14.5px !important;
+  }
+  .access-back-pill {
+    padding: 7px 12px !important;
+    font-size: 12px !important;
+    gap: 6px !important;
+    background: #ffffff !important;
+    border: 1.5px solid #d2e3cc !important;
+    color: #06382c !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+  }
+  .mobile-doctor-hero {
+    padding: 12px 10px !important;
+    border-radius: 16px !important;
+    margin-bottom: 14px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+  .mob-hero-top {
+    gap: 10px !important;
+    min-width: 0 !important;
+  }
+  .mob-doctor-photo-wrap {
+    width: 54px !important;
+    height: 66px !important;
+    border-radius: 12px !important;
+    flex-shrink: 0 !important;
+  }
+  .mob-doctor-info {
+    flex: 1 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+  .mob-doctor-name-row h3 {
+    font-size: 13.5px !important;
+  }
+  .mob-doctor-specialty {
+    font-size: 10.5px !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    line-height: 1.35 !important;
+  }
+  .mob-rating-pill {
+    font-size: 10.5px !important;
+    flex-wrap: wrap !important;
+  }
+  .mob-hero-perks {
+    gap: 3px !important;
+    padding-top: 8px !important;
+  }
+  .mob-perk-item {
+    font-size: 8.5px !important;
+    gap: 2px !important;
+    padding: 2px 0 !important;
+    white-space: nowrap !important;
+    letter-spacing: -0.2px !important;
+  }
+  .mob-perk-item svg {
+    width: 10px !important;
+    height: 10px !important;
+    flex-shrink: 0 !important;
   }
 }

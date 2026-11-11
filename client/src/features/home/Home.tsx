@@ -49,7 +49,7 @@ export function Home() {
               <Leaf size={14} className="hero-badge-sparkle" />
               <span>مركز المستقبل للتغذية العلاجية</span>
               <span className="hero-badge-dot" />
-              <small>إشراف د. رنا الشوري</small>
+              <small>إشراف د. رنا الشورى</small>
             </div>
             <h1 className="hero-main-title">
               صحتكِ تبدأ
@@ -83,20 +83,56 @@ export function Home() {
               </span>
             </div>
           </div>
-          <div className="hero-scene">
-            <img
-              src="/assets/hero-sculpture.png"
-              alt="تكوين نحتي مستوحى من هوية مركز المستقبل"
-              width="1536"
-              height="1024"
-              fetchPriority="high"
-            />
-            <div className="scene-caption">كل خطة تبدأ بالإنسان.</div>
-            <div className="scene-detail">
-              <Leaf />
-              <div>
-                <strong>على مقاس يومك.</strong>
-                <small>تغذية واقعية · عادات تستمر</small>
+          <div className="hero-doctor-showcase" aria-label="بطاقة إشراف د. رنا ياسر الشورى">
+            <div className="hds-glow-layer" />
+            <div className="hds-card">
+              {/* Top Verified Badges Bar */}
+              <div className="hds-top-bar">
+                <span className="hds-badge-verified">
+                  <ShieldCheck size={14} />
+                  <span>طبيبة معتمدة · EMASO</span>
+                </span>
+                <span className="hds-badge-pulse">
+                  <span className="hds-pulse-dot" />
+                  <span>العيادة متاحة للمتابعة</span>
+                </span>
+              </div>
+
+              <img
+                src="/assets/dr-rana.jpg"
+                alt="د. رنا ياسر الشورى - استشاري التغذية العلاجية ونحت القوام"
+                className="hds-photo"
+                width="1200"
+                height="1500"
+                fetchPriority="high"
+              />
+              <div className="hds-overlay" />
+
+              {/* Bottom Information Panel */}
+              <div className="hds-details">
+                <div className="hds-identity">
+                  <h2 className="hds-name">د. رنا ياسر الشورى</h2>
+                  <p className="hds-title">استشاري التغذية العلاجية ونحت القوام</p>
+                  <p className="hds-association">عضو الجمعية المصرية لدراسة السمنة (EMASO)</p>
+                </div>
+
+                {/* Built-in Metrics Strip (Zero Collisions) */}
+                <div className="hds-stats-strip">
+                  <div className="hds-stat-box">
+                    <span className="hds-stat-val">+5,000</span>
+                    <span className="hds-stat-txt">حالة ناجحة</span>
+                  </div>
+                  <div className="hds-stat-divider" />
+                  <div className="hds-stat-box">
+                    <span className="hds-stat-val">InBody</span>
+                    <span className="hds-stat-txt">فحص سريري</span>
+                  </div>
+                  <div className="hds-stat-divider" />
+                  <div className="hds-stat-box">
+                    <span className="hds-stat-val">100%</span>
+                    <span className="hds-stat-txt">خطط مخصصة</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -402,7 +438,7 @@ export function Home() {
             <div className="doctor-image-frame">
               <img
                 src="/assets/dr-rana.jpg"
-                alt="د. رنا ياسر الشوري - أخصائية التغذية العلاجية بمركز المستقبل"
+                alt="د. رنا ياسر الشورى - أخصائية التغذية العلاجية بمركز المستقبل"
                 className="doctor-image"
                 width="1200"
                 height="1500"
@@ -424,7 +460,7 @@ export function Home() {
               <Award size={14} />
               <span>إشراف طبي متخصص</span>
             </div>
-            <h2>د. رنا ياسر الشوري</h2>
+            <h2>د. رنا ياسر الشورى</h2>
             <p className="doctor-title-lead">
               أخصائية التغذية العلاجية والسمنة وتنسيق القوام · عضو الجمعية المصرية لدراسة السمنة (EMASO)
             </p>
@@ -513,7 +549,7 @@ export function Home() {
             </div>
             <h2>معرفة طبية مبسّطة تخفّف تعقيد يومكِ.</h2>
             <p className="articles-section-sub">
-              مقالات وإرشادات علمية موثوقة بإشراف د. رنا الشوري لمساعدتكِ في فهم جسدكِ واختيار غذائكِ بوعي وهدوء.
+              مقالات وإرشادات علمية موثوقة بإشراف د. رنا الشورى لمساعدتكِ في فهم جسدكِ واختيار غذائكِ بوعي وهدوء.
             </p>
           </div>
           <ButtonLink to="/articles" kind="outline" className="btn-all-articles">
@@ -543,7 +579,7 @@ export function Home() {
                     <span>قراءة {journal.minutes} دقائق</span>
                   </span>
                   <span className="jfc-dot" />
-                  <span className="jfc-author">إشراف طبي د. رنا الشوري</span>
+                  <span className="jfc-author">إشراف طبي د. رنا الشورى</span>
                 </div>
                 <h3 className="jfc-title">
                   <Link to={'/articles/' + journal.slug}>{journal.title}</Link>
