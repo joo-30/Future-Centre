@@ -18,7 +18,7 @@ export function publicAppointment(appointment: AppointmentRecord): AppointmentPu
       : '',
     price: appointment.price,
     holdUntil: appointment.holdUntil?.toISOString() ?? null,
-    history: appointment.history.map((h) => ({
+    history: (appointment.history || []).map((h) => ({
       status: h.status,
       at: new Date(h.at).toISOString(),
       message: h.message,

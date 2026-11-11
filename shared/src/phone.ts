@@ -8,8 +8,8 @@ export const arabicDigits = (value: string) =>
 export const normalizePhone = (value: string) => {
   let p = arabicDigits(value).replace(/[\s()\-]/g, '');
   if (p.startsWith('00')) p = '+' + p.slice(2);
-  if (/^01[0125]\d{8}$/.test(p)) p = '+20' + p.slice(1);
-  if (/^201[0125]\d{8}$/.test(p)) p = '+' + p;
+  if (/^01[0125]\d{7,8}$/.test(p)) p = '+20' + p.slice(1);
+  if (/^201[0125]\d{7,8}$/.test(p)) p = '+' + p;
   return p;
 };
 

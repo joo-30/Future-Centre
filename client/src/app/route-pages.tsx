@@ -58,3 +58,7 @@ export const Booking = lazy(() =>
 export const Tracking = lazy(() =>
   import('../features/booking/Tracking').then((m) => ({ default: m.Tracking })),
 );
+
+export const AdminStories = lazy(() =>
+  import('../features/admin/stories/AdminStories').then((m) => ({ default: m.AdminStories })),
+);

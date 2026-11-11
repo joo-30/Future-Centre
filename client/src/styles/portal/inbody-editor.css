@@ -1,0 +1,622 @@
+/* ==========================================================================
+   InBody Editor Pro Max & Temp Password Modal Pro
+   Future Center Clinic — Dr. Rana El-Shoury
+   Strict Standard: Apple / Stripe / Linear SaaS Aesthetic
+   ========================================================================== */
+
+/* 1. Main InBody Form Container */
+.inbody-editor-form {
+  direction: rtl;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: #0f172a;
+}
+
+/* Educational/Status Banner */
+.inbody-info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #f0fdf4;
+  border: 1.5px solid #bbf7d0;
+  border-radius: 14px;
+  padding: 12px 16px;
+}
+
+.inbody-info-icon-box {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: #063e32;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(6, 62, 50, 0.18);
+}
+
+.inbody-info-text strong {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 850;
+  color: #064e3b;
+  margin-bottom: 2px;
+}
+
+.inbody-info-text p {
+  font-size: 12px;
+  color: #047857;
+  margin: 0;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+/* Section Card */
+.inbody-section-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+
+.inbody-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.inbody-section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 850;
+  color: #0f172a;
+  white-space: nowrap !important;
+}
+
+.inbody-section-title svg {
+  color: #063e32;
+  flex-shrink: 0;
+}
+
+.inbody-section-hint {
+  font-size: 11.5px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* 2. Grid & Modern Metric Input Fields */
+.inbody-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 520px) {
+  .inbody-inputs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.inbody-field-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.inbody-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.inbody-field-label {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
+}
+
+.inbody-field-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.inbody-field-tag.is-required {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+/* Input Box with Leading Icon on Right and Unit Badge on Left (RTL) */
+.inbody-input-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.inbody-input-leading-icon {
+  position: absolute;
+  right: 12px;
+  color: #94a3b8;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: color 0.15s ease;
+}
+
+.inbody-pro-input {
+  width: 100% !important;
+  height: 44px !important;
+  padding-right: 36px !important;
+  padding-left: 48px !important;
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 11px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  outline: none !important;
+  font-variant-numeric: tabular-nums !important;
+  direction: ltr !important;
+  text-align: right !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-sizing: border-box !important;
+}
+
+.inbody-pro-input:focus {
+  background: #ffffff !important;
+  border-color: #063e32 !important;
+  box-shadow: 0 0 0 3px rgba(6, 62, 50, 0.1) !important;
+}
+
+.inbody-pro-input:focus ~ .inbody-input-leading-icon,
+.inbody-input-box:focus-within .inbody-input-leading-icon {
+  color: #063e32 !important;
+}
+
+.inbody-unit-badge {
+  position: absolute;
+  left: 10px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 800;
+  pointer-events: none;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.inbody-input-box:focus-within .inbody-unit-badge {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+/* Patient Textarea */
+.inbody-pro-textarea {
+  width: 100% !important;
+  padding: 10px 12px !important;
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 11px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  outline: none !important;
+  line-height: 1.5 !important;
+  resize: vertical !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease !important;
+}
+
+.inbody-pro-textarea:focus {
+  background: #ffffff !important;
+  border-color: #063e32 !important;
+  box-shadow: 0 0 0 3px rgba(6, 62, 50, 0.1) !important;
+}
+
+/* 3. Automatic Notification & Dispatch Card */
+.inbody-notify-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.06);
+}
+
+.inbody-notify-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inbody-notify-icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: #10b981;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.inbody-notify-text strong {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 850;
+  color: #064e3b;
+}
+
+.inbody-notify-text span {
+  font-size: 11px;
+  color: #047857;
+  font-weight: 600;
+}
+
+.inbody-notify-badge {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid #6ee7b7;
+  color: #065f46;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* 4. Action Buttons */
+.inbody-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.btn-inbody-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #063e32 0%, #047857 100%);
+  color: #ffffff;
+  border: none;
+  font-size: 13.5px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(6, 62, 50, 0.22);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-inbody-submit:hover:not(:disabled) {
+  background: linear-gradient(135deg, #053329 0%, #059669 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 5px 16px rgba(6, 62, 50, 0.3);
+}
+
+.btn-inbody-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* 5. InBody Post-Save Success Modal & WhatsApp Share Dialog */
+.inbody-success-dialog {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  padding: 8px 4px;
+  direction: rtl;
+}
+
+.inbody-success-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  background: #ecfdf5;
+  border: 2px solid #6ee7b7;
+  color: #047857;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);
+}
+
+.inbody-success-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: #063e32;
+}
+
+.inbody-success-desc {
+  margin: 0;
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.inbody-metrics-summary-card {
+  width: 100%;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  text-align: center;
+}
+
+.inbody-metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.inbody-metric-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.inbody-metric-value {
+  font-size: 15px;
+  font-weight: 850;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+}
+
+.btn-inbody-whatsapp-share {
+  width: 100%;
+  height: 46px;
+  border-radius: 12px;
+  background: #25d366;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 850;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  box-shadow: 0 3px 12px rgba(37, 211, 102, 0.3);
+  transition: all 0.15s ease;
+}
+
+.btn-inbody-whatsapp-share:hover {
+  background: #20bd5a;
+  transform: translateY(-1.5px);
+}
+
+.btn-inbody-done-close {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  font-size: 12.5px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-inbody-done-close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* ==========================================================================
+   6. Temporary Password Reset Modal Pro (Image 2 Redesign)
+   ========================================================================== */
+
+.pwd-modal-content {
+  direction: rtl;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pwd-patient-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  gap: 10px;
+}
+
+.pwd-patient-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #063e32;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.pwd-patient-name {
+  font-size: 13.5px;
+  font-weight: 850;
+  color: #0f172a;
+  margin: 0;
+}
+
+.pwd-patient-phone {
+  font-size: 12px;
+  color: #64748b;
+  direction: ltr;
+  font-variant-numeric: tabular-nums;
+}
+
+.pwd-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.pwd-leading-icon {
+  position: absolute;
+  right: 12px;
+  color: #94a3b8;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.pwd-modern-input {
+  width: 100% !important;
+  height: 46px !important;
+  padding-right: 38px !important;
+  padding-left: 78px !important;
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  outline: none !important;
+  direction: ltr !important;
+  text-align: right !important;
+  transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+}
+
+.pwd-modern-input:focus {
+  background: #ffffff !important;
+  border-color: #063e32 !important;
+  box-shadow: 0 0 0 3px rgba(6, 62, 50, 0.1) !important;
+}
+
+.pwd-generate-quick-btn {
+  position: absolute;
+  left: 8px;
+  padding: 4px 9px;
+  border-radius: 7px;
+  background: #e2e8f0;
+  border: none;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  z-index: 2;
+  transition: all 0.15s ease;
+}
+
+.pwd-generate-quick-btn:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+/* Password Success Dialog */
+.pwd-success-card {
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  text-align: center;
+}
+
+.pwd-credential-box {
+  width: 100%;
+  background: #ffffff;
+  border: 1.5px dashed #10b981;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pwd-code-display {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 17px;
+  font-weight: 900;
+  color: #064e3b;
+  direction: ltr;
+  letter-spacing: 1px;
+}
+
+.btn-pwd-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  font-size: 11.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-pwd-copy:hover {
+  background: #d1fae5;
+}
+
+.btn-pwd-wa-share {
+  width: 100%;
+  height: 44px;
+  border-radius: 11px;
+  background: #25d366;
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 850;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  box-shadow: 0 3px 10px rgba(37, 211, 102, 0.25);
+  transition: all 0.15s ease;
+}
+
+.btn-pwd-wa-share:hover {
+  background: #20bd5a;
+  transform: translateY(-1px);
+}

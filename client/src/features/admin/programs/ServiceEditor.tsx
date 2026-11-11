@@ -9,7 +9,7 @@ import {
   Heart,
   Leaf,
   Shield,
-  Star,
+  Award,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '../../../components/ui';
@@ -163,8 +163,8 @@ export function ServiceEditor({ service: s, onSaved }: { service: Service; onSav
                 className={`svc-pill-btn ${featured ? 'active-featured' : ''}`}
                 onClick={() => setFeatured(true)}
               >
-                <Star size={15} />
-                <span>برنامج مميز (Featured)</span>
+                <Award size={15} />
+                <span>باقة رئيسية موصى بها</span>
                 {featured && <CheckCircle2 size={15} className="pill-check" />}
               </button>
               <button

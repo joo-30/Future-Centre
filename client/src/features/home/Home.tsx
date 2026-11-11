@@ -5,16 +5,18 @@ import {
   Award,
   BookOpen,
   Check,
+  ChevronDown,
   Clock,
   Compass,
   Flame,
   Heart,
   HeartHandshake,
+  HelpCircle,
   Leaf,
   MapPin,
   MessageCircle,
   ShieldCheck,
-  Sparkles,
+  TrendingUp,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -24,10 +26,12 @@ import { useCatalog } from '../../hooks/useCatalog';
 import { formatPrice } from '../../lib/api';
 import { CareGuideQuiz } from './components/CareGuideQuiz';
 import { Faq } from './components/Faq';
+import { SuccessStoriesSection } from './components/SuccessStoriesSection';
 
 export function Home() {
   const { data, isPending, error, refetch } = useCatalog();
   const [interest, setInterest] = useState<Service | null>(null);
+  const [showMonthlyDetails, setShowMonthlyDetails] = useState(false);
   if (isPending) return <Loading />;
   if (error || !data)
     return (
@@ -42,7 +46,7 @@ export function Home() {
         <div className="home-hero">
           <div className="hero-copy">
             <div className="hero-badge-pill">
-              <Sparkles size={14} className="hero-badge-sparkle" />
+              <Leaf size={14} className="hero-badge-sparkle" />
               <span>مركز المستقبل للتغذية العلاجية</span>
               <span className="hero-badge-dot" />
               <small>إشراف د. رنا الشوري</small>
@@ -152,7 +156,7 @@ export function Home() {
       <section className="about-section">
         <div className="about-bg-glow" aria-hidden="true" />
         <div className="kicker kicker--on-dark">
-          <Sparkles size={14} />
+          <Heart size={14} />
           <span>فلسفة الرعاية</span>
         </div>
         <div className="about-head">
@@ -208,7 +212,7 @@ export function Home() {
               <div className="cmc-top">
                 <span className="cmc-step">03</span>
                 <span className="cmc-icon-wrap">
-                  <Sparkles size={20} />
+                  <TrendingUp size={20} />
                 </span>
               </div>
               <div className="cmc-content">
@@ -243,7 +247,7 @@ export function Home() {
         <div className="section-top">
           <div>
             <div className="kicker">
-              <Sparkles size={14} />
+              <Compass size={14} />
               <span>اختاري بدايتكِ الصحية</span>
             </div>
             <h2>برامج واضحة. رعاية تناسبكِ.</h2>
@@ -251,16 +255,13 @@ export function Home() {
               اختاري البرنامج الأنسب لأهدافكِ، وسيتواصل معكِ فريق المركز لتأكيد الموعد وكافة التفاصيل هاتفياً دون أي دفع إلكتروني مسبق.
             </p>
           </div>
-          {data.clinic.demoPrices && (
-            <span className="pill small">أسعار توضيحية لحين الاعتماد</span>
-          )}
         </div>
 
         <div className="program-layout-pro">
           {monthly && (
             <article className="program-feature-pro">
               <div className="pfp-badge-top">
-                <Sparkles size={14} />
+                <Award size={14} />
                 <span>البرنامج الأكثر طلباً وتفضيلاً بالمركز</span>
               </div>
 
@@ -283,28 +284,61 @@ export function Home() {
                 </div>
               </div>
 
-              {/* What is included checklist */}
-              <div className="pfp-includes">
-                <span className="pfp-includes-title">ما يشمله البرنامج شهرياً:</span>
-                <div className="pfp-includes-grid">
-                  <div className="pfp-inc-item">
-                    <Check size={16} className="pfp-check" />
-                    <span>{monthly.sessions} جلسات كشف واستشارة دورية خاصة مع د. رنا</span>
-                  </div>
-                  <div className="pfp-inc-item">
-                    <Check size={16} className="pfp-check" />
-                    <span>فحص InBody متقدم لتحليل كتلة الدهون والعضلات ومعدل الحرق</span>
-                  </div>
-                  <div className="pfp-inc-item">
-                    <Check size={16} className="pfp-check" />
-                    <span>خطة تغذية علاجية مخصصة لأكلات بيتكِ تتجدد أسبوعياً</span>
-                  </div>
-                  <div className="pfp-inc-item">
-                    <Check size={16} className="pfp-check" />
-                    <span>متابعة ودعم مستمر عبر واتساب للإجابة عن استفساراتكِ</span>
+              {/* Simplified Preview Highlights & Expandable Details */}
+              <div className="pfp-preview-highlights">
+                <span className="pfp-highlight-pill">
+                  <Check size={14} />
+                  <span>{monthly.sessions} جلسات دورية مع د. رنا</span>
+                </span>
+                <span className="pfp-highlight-pill">
+                  <Check size={14} />
+                  <span>فحص InBody سريري متقدم</span>
+                </span>
+                <span className="pfp-highlight-pill">
+                  <Check size={14} />
+                  <span>خطة أسبوعية لأكلات بيتكِ</span>
+                </span>
+                <span className="pfp-highlight-pill">
+                  <Check size={14} />
+                  <span>متابعة ودعم مستمر عبر واتساب</span>
+                </span>
+              </div>
+
+              <div className="pfp-toggle-wrap">
+                <button
+                  type="button"
+                  className="pfp-toggle-details-btn"
+                  onClick={() => setShowMonthlyDetails((prev) => !prev)}
+                  aria-expanded={showMonthlyDetails}
+                >
+                  <span>{showMonthlyDetails ? 'إخفاء التفاصيل الموسعة' : 'عرض ما يشمله البرنامج بالتفصيل'}</span>
+                  <ChevronDown size={16} className={`pfp-toggle-arrow ${showMonthlyDetails ? 'is-open' : ''}`} />
+                </button>
+              </div>
+
+              {showMonthlyDetails && (
+                <div className="pfp-includes pfp-includes-expandable">
+                  <span className="pfp-includes-title">تفاصيل ما يشمله البرنامج شهرياً:</span>
+                  <div className="pfp-includes-grid">
+                    <div className="pfp-inc-item">
+                      <Check size={16} className="pfp-check" />
+                      <span>{monthly.sessions} جلسات كشف واستشارة دورية خاصة مع د. رنا</span>
+                    </div>
+                    <div className="pfp-inc-item">
+                      <Check size={16} className="pfp-check" />
+                      <span>فحص InBody متقدم لتحليل كتلة الدهون والعضلات ومعدل الحرق</span>
+                    </div>
+                    <div className="pfp-inc-item">
+                      <Check size={16} className="pfp-check" />
+                      <span>خطة تغذية علاجية مخصصة لأكلات بيتكِ تتجدد أسبوعياً</span>
+                    </div>
+                    <div className="pfp-inc-item">
+                      <Check size={16} className="pfp-check" />
+                      <span>متابعة ودعم مستمر عبر واتساب للإجابة عن استفساراتكِ</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               <div className="pfp-footer">
                 <button className="btn-program-primary" onClick={() => setInterest(monthly)}>
@@ -380,7 +414,7 @@ export function Home() {
               </div>
             </div>
             <div className="doctor-under-badge">
-              <Sparkles size={16} />
+              <Award size={16} />
               <span>خبرة معتمدة في التغذية الإكلينيكية ونحت القوام</span>
             </div>
           </div>
@@ -463,6 +497,9 @@ export function Home() {
           </div>
         </div>
       </section>
+
+      {/* قصص وتجارب النجاح والتحولات */}
+      <SuccessStoriesSection />
 
       {/* مرشد البداية التفاعلي مع د. رنا */}
       <CareGuideQuiz whatsappNumber={data.clinic.whatsapp} />
@@ -561,7 +598,7 @@ export function Home() {
         <div className="close-content-pro">
           <div className="close-faq-col">
             <div className="kicker">
-              <Sparkles size={14} />
+              <HelpCircle size={14} />
               <span>قبل الخطوة الأولى</span>
             </div>
             <h2 className="close-faq-title">
@@ -578,7 +615,7 @@ export function Home() {
           <div className="final-invite-pro">
             <div className="fip-glow" aria-hidden="true" />
             <span className="fip-badge">
-              <Sparkles size={13} />
+              <Leaf size={13} />
               <span>بدايتكِ تبدأ الآن</span>
             </span>
             <span className="fip-latin" lang="en" dir="ltr">

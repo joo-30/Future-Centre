@@ -96,7 +96,7 @@ export const api = {
     }),
 };
 export const formatPrice = (n: number | null) =>
-  n === null ? 'يحدد بعد الاستشارة' : new Intl.NumberFormat('ar-EG').format(n);
+  n === null ? 'يحدد بعد الاستشارة' : new Intl.NumberFormat('en-US').format(n);
 export function addDays(date: string, count: number) {
   const d = new Date(date + 'T12:00:00Z');
   d.setUTCDate(d.getUTCDate() + count);
@@ -116,7 +116,7 @@ export const dateLabel = (
   if (!date) return '';
   const d = date.includes('T') ? new Date(date) : new Date(date + 'T12:00:00Z');
   if (isNaN(d.getTime())) return date;
-  return new Intl.DateTimeFormat('ar-EG', { timeZone: 'Africa/Cairo', ...options }).format(d);
+  return new Intl.DateTimeFormat('ar-EG-u-nu-latn', { timeZone: 'Africa/Cairo', ...options }).format(d);
 };
 
 export const fullDateLabel = (date: string) =>
@@ -146,8 +146,13 @@ export function relativeDateLabel(date: string): string {
   return shortDateLabel(date);
 }
 export function timeLabel(time: string) {
-  const [h, m] = time.split(':').map(Number);
-  return `${new Intl.NumberFormat('ar-EG', { minimumIntegerDigits: 2 }).format(h % 12 || 12)}:${new Intl.NumberFormat('ar-EG', { minimumIntegerDigits: 2, useGrouping: false }).format(m)} ${h < 12 ? 'ص' : 'م'}`;
+  if (!time) return '';
+  const parts = time.split(':');
+  const h = Number(parts[0]);
+  const m = Number(parts[1]) || 0;
+  const formattedH = h % 12 || 12;
+  const formattedM = m < 10 ? `0${m}` : `${m}`;
+  return `${formattedH}:${formattedM} ${h < 12 ? 'ص' : 'م'}`;
 }
 export function formatWhatsAppPhone(phone: string): string {
   let p = (phone || '')

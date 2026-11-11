@@ -7,6 +7,7 @@ import {
   Calculator,
   Calendar,
   Check,
+  CheckCircle2,
   ChevronDown,
   Clock,
   Copy,
@@ -23,7 +24,7 @@ import {
   Ruler,
   Scale,
   Search,
-  Sparkles,
+  ShieldCheck,
   Trash2,
   UserPlus,
   Users,
@@ -36,6 +37,8 @@ import { StatusBadge } from '../../../components/StatusBadge';
 import { WhatsAppIcon } from '../../../components/icons/WhatsAppIcon';
 import { Button, ErrorState, Loading, Modal } from '../../../components/ui';
 import {
+  addDays,
+  today,
   dateLabel,
   formatPrice,
   fullDateLabel,
@@ -51,6 +54,7 @@ import { DietPrescriptionModal, type PrescriptionData } from '../prescription/Di
 import { InBodyEditor } from './InBodyEditor';
 import { PatientHistoryDrawer } from './PatientHistoryDrawer';
 import { SubscriptionEditor } from './SubscriptionEditor';
+import { RenewalRadarSection, type SubFilterType } from './RenewalRadarSection';
 
 const INTEREST_STATUS_MAP: Record<
   string,
@@ -172,6 +176,34 @@ export function AdminPatients() {
   const client = useQueryClient();
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState(searchParams.get('tab') || 'requests');
+  const [subFilter, setSubFilter] = useState<SubFilterType>(
+    searchParams.get('radar') === 'expiring' ? 'expiring' : 'all'
+  );
+
+  useEffect(() => {
+    if (searchParams.get('radar') === 'expiring') {
+      setTab('subscriptions');
+      setSubFilter('expiring');
+    }
+  }, [searchParams]);
+
+  const handleQuickRenew = (s: Subscription) => {
+    const currentEnd = s.endDate || today();
+    const nextStart = currentEnd > today() ? currentEnd : today();
+    setEditing({
+      userId: s.userId || null,
+      name: s.name,
+      phone: s.phone,
+      programId: s.programId,
+      price: s.price,
+      sessionsTotal: s.sessionsTotal || 4,
+      sessionsUsed: 0,
+      startDate: nextStart,
+      endDate: addDays(nextStart, 30),
+      status: 'active',
+      notes: `تجديد اشتراك سابق (#${s.reference})`,
+    });
+  };
 
   useEffect(() => {
     const tabParam = searchParams.get('tab');
@@ -605,7 +637,7 @@ export function AdminPatients() {
                         </span>
                         {r.status === 'new' && (
                           <span className="unread-lead-flag">
-                            <Sparkles size={11} />
+                            <CheckCircle2 size={11} />
                             جديد
                           </span>
                         )}
@@ -698,81 +730,25 @@ export function AdminPatients() {
         ) : subscriptions.error ? (
           <ErrorState message="تعذر تحميل الاشتراكات." onRetry={() => void subscriptions.refetch()} />
         ) : (
-          <div className="admin-request-list">
-            {!subscriptions.data?.subscriptions.length && <Empty title="لا توجد اشتراكات مسجلة." />}
-            {subscriptions.data?.subscriptions.map((s) => (
-              <article key={s.id} className="request-card-pro subscription-card-pro">
-                <div className="request-card-header">
-                  <div className="request-patient-profile">
-                    <span className="request-avatar-circle">{s.name.slice(0, 1)}</span>
-                    <div>
-                      <div className="request-name-row">
-                        <h3 className="request-patient-name">{s.name}</h3>
-                        <span className={`user-type-tag ${s.userId ? 'is-user' : 'is-guest'}`}>
-                          {s.userId ? 'حساب مريض' : 'اشتراك ضيف'}
-                        </span>
-                      </div>
-                      <div className="request-patient-subtags">
-                        <span className="request-date-tag">
-                          <Calendar size={11} />
-                          <span>{dateLabel(s.startDate)} — {dateLabel(s.endDate)}</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <StatusBadge status={s.status} />
-                </div>
-
-                <div className="request-card-body">
-                  <div className="request-program-box">
-                    <Leaf size={15} className="request-program-icon" />
-                    <span className="request-program-title">{s.programTitle}</span>
-                  </div>
-
-                  <div className="subscription-ledger-pro">
-                    <div className="ledger-sessions">
-                      <span className="detail-label">الجلسات</span>
-                      <strong>
-                        {s.sessionsUsed} <small>/ {s.sessionsTotal} مستخدمة</small>
-                      </strong>
-                    </div>
-                    <div className="ledger-price">
-                      <span className="detail-label">السعر المتفق عليه</span>
-                      <span className="detail-price-value">
-                        {s.price !== null ? formatPrice(s.price) + ' ج.م' : 'غير محدد'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="request-card-footer" style={{ justifyContent: 'stretch', gap: '8px' }}>
-                  <Button
-                    icon={false}
-                    kind="primary"
-                    onClick={() =>
-                      setHistoryPatient({
-                        identifier: s.userId || s.phone || s.name,
-                        name: s.name,
-                      })
-                    }
-                    style={{ background: '#183d33', color: '#fff', flex: 1, justifyContent: 'center' }}
-                  >
-                    <FolderHeart size={15} />
-                    الملف الطبي
-                  </Button>
-                  <Button
-                    icon={false}
-                    kind="outline"
-                    onClick={() => setEditing(s)}
-                    style={{ flex: 1, justifyContent: 'center' }}
-                  >
-                    <Pencil size={15} />
-                    إدارة الاشتراك والجلسات
-                  </Button>
-                </div>
-              </article>
-            ))}
-          </div>
+          <RenewalRadarSection
+            subscriptions={subscriptions.data?.subscriptions || []}
+            onQuickRenew={handleQuickRenew}
+            onEdit={setEditing}
+            onHistory={setHistoryPatient}
+            onDelete={async (s) => {
+              if (window.confirm(`هل أنتِ متأكدة من حذف اشتراك "${s.name}" نهائياً؟`)) {
+                try {
+                  await adminApi.deleteSubscription(s.id);
+                  setMessage('تم حذف الاشتراك بنجاح.');
+                  refreshAdmin(client);
+                } catch (err) {
+                  alert((err as Error).message || 'تعذر حذف الاشتراك.');
+                }
+              }
+            }}
+            subFilter={subFilter}
+            setSubFilter={setSubFilter}
+          />
         )
       ) : tab === 'patients' ? (
         patients.isPending ? (
@@ -1167,7 +1143,7 @@ export function AdminPatients() {
                 {r.doctorNotes && (
                   <div className="inbody-doc-notes">
                     <div className="doc-notes-title">
-                      <Sparkles size={13} />
+                      <CheckCircle2 size={13} />
                       <span>توجيه وملاحظات الطبيب:</span>
                     </div>
                     <p>{r.doctorNotes}</p>
@@ -1450,9 +1426,10 @@ export function AdminPatients() {
           )}
         </div>
       ) : null}
-      <p className="field-hint mt-6">
-        تسجيل الاشتراكات وقياسات الـ InBody توثيق للمتابعة السريرية والجلسات داخل المركز.
-      </p>
+      <div className="admin-portal-footnote">
+        <ShieldCheck size={14} className="footnote-icon" />
+        <span>تسجيل الاشتراكات وقياسات الـ InBody توثيق للمتابعة السريرية والجلسات داخل المركز.</span>
+      </div>
       <Modal
         open={inbodyModal}
         onClose={() => setInbodyModal(false)}
@@ -1519,51 +1496,86 @@ export function AdminPatients() {
         title="تعيين كلمة مرور مؤقتة للمريض"
       >
         {resetTarget && (
-          <div className="reset-password-modal" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <p style={{ margin: 0, color: 'var(--text-muted, #666)' }}>
-              يمكنك تعيين كلمة مرور جديدة للمريض <strong>{resetTarget.name}</strong> ({resetTarget.phone}) ليتمكن من الدخول لحسابه مباشرة.
-            </p>
+          <div className="pwd-modal-content">
+            {/* Patient Profile Card */}
+            <div className="pwd-patient-badge">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="pwd-patient-avatar">
+                  {resetTarget.name.slice(0, 1)}
+                </div>
+                <div>
+                  <h4 className="pwd-patient-name">{resetTarget.name}</h4>
+                  <span className="pwd-patient-phone">{resetTarget.phone}</span>
+                </div>
+              </div>
+              <span style={{ fontSize: '11px', color: '#047857', background: '#ecfdf5', padding: '3px 8px', borderRadius: '6px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <Check size={11} strokeWidth={3} />
+                <span>حساب مسجل</span>
+              </span>
+            </div>
 
             {tempPassResult ? (
-              <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '16px' }}>
-                <span style={{ color: '#166534', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>
-                  ✓ تم تعيين كلمة المرور بنجاح!
-                </span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#fff', padding: '10px 14px', borderRadius: '6px', border: '1px solid #86efac' }}>
-                  <bdi dir="ltr" style={{ fontSize: '18px', fontWeight: 'bold', letterSpacing: '1px', flex: 1 }}>
-                    {tempPassResult.temporaryPassword}
-                  </bdi>
-                  <Button
-                    kind="light"
-                    icon={false}
+              <div className="pwd-success-card">
+                <div style={{ width: '48px', height: '48px', borderRadius: '999px', background: '#ecfdf5', border: '1.5px solid #86efac', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <CheckCircle2 size={28} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <strong style={{ fontSize: '15px', color: '#064e3b', display: 'block' }}>
+                    تم تعيين كلمة المرور بنجاح!
+                  </strong>
+                  <p style={{ fontSize: '12.5px', color: '#475569', margin: '3px 0 0' }}>
+                    يمكن للمريضة <strong>{tempPassResult.patientName}</strong> تسجيل الدخول فوراً بهذا الرمز.
+                  </p>
+                </div>
+
+                <div className="pwd-credential-box">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', textAlign: 'right' }}>
+                    <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>كلمة المرور المؤقتة:</span>
+                    <span className="pwd-code-display">{tempPassResult.temporaryPassword}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-pwd-copy"
                     onClick={async () => {
                       try {
                         await navigator.clipboard.writeText(tempPassResult.temporaryPassword);
                         setCopiedPass(true);
+                        setTimeout(() => setCopiedPass(false), 2000);
                       } catch {
                         // ignore
                       }
                     }}
                   >
-                    {copiedPass ? <Check size={16} /> : <Copy size={16} />}
-                    {copiedPass ? 'تم النسخ' : 'نسخ'}
-                  </Button>
+                    {copiedPass ? <Check size={14} /> : <Copy size={14} />}
+                    <span>{copiedPass ? 'تم النسخ ✓' : 'نسخ'}</span>
+                  </button>
                 </div>
-                <div style={{ marginTop: '14px', display: 'flex', gap: '8px' }}>
-                  <a
-                    className="btn outline"
-                    style={{ flex: 1, justifyContent: 'center', borderColor: '#25D366', color: '#128C7E' }}
-                    href={whatsappUrl(
-                      tempPassResult.phone,
-                      `أهلًا ${tempPassResult.patientName.split(' ')[0]}، تم تعيين كلمة مرور مؤقتة لحسابك في مركز المستقبل: ${tempPassResult.temporaryPassword}\nيمكنك تسجيل الدخول بها وتغييرها من إعدادات حسابك.`
-                    )}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <WhatsAppIcon size={18} color="#25D366" />
-                    إرسال للمريض عبر واتساب
-                  </a>
-                </div>
+
+                <a
+                  href={whatsappUrl(
+                    tempPassResult.phone,
+                    `أهلًا بكِ ${tempPassResult.patientName.split(' ')[0]} في مركز المستقبل للتغذية العلاجية د. رنا الشوري 🌸\n\nتم إعداد وتفعيل حسابكِ لمتابعة فحوصاتكِ ونظامكِ الغذائي:\n📱 رقم الهاتف: ${tempPassResult.phone}\n🔑 كلمة المرور المؤقتة: ${tempPassResult.temporaryPassword}\n\nيمكنكِ تسجيل الدخول وتغيير كلمة المرور في أي وقت عبر:\n${window.location.origin}/auth\n\nنسعد دائمًا بمتابعتكِ 🌿`
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-pwd-wa-share"
+                  title="إرسال بيانات الدخول للمريض عبر واتساب مباشرة"
+                >
+                  <WhatsAppIcon size={18} />
+                  <span>إرسال بيانات الدخول عبر واتساب 📲</span>
+                </a>
+
+                <button
+                  type="button"
+                  className="btn-inbody-done-close"
+                  style={{ width: '100%', marginTop: '4px' }}
+                  onClick={() => {
+                    setResetTarget(null);
+                    setTempPassResult(null);
+                  }}
+                >
+                  تم / إغلاق النافذة
+                </button>
               </div>
             ) : (
               <form
@@ -1586,33 +1598,57 @@ export function AdminPatients() {
                 }}
                 style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}
               >
-                <label className="field" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <span>كلمة مرور مخصصة (اختياري - اتركيها فارغة لتوليد عشوائي):</span>
-                  <input
-                    type="text"
-                    dir="ltr"
-                    placeholder="مثلًا: Future@2026 أو اتركيها فارغة"
-                    value={customPassword}
-                    onChange={(e) => setCustomPassword(e.target.value)}
-                    minLength={8}
-                    maxLength={64}
-                    style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #ccc' }}
-                  />
-                  <small style={{ color: 'var(--text-muted, #777)' }}>
-                    إذا تركتيها فارغة، سيقوم النظام تلقائيًا بتوليد كلمة مرور سهلة ومؤقتة.
-                  </small>
-                </label>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '8px' }}>
-                  <Button
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <label htmlFor="custom-temp-pwd" style={{ fontSize: '12.5px', fontWeight: 800, color: '#1e293b' }}>
+                      كلمة مرور مخصصة (اختياري)
+                    </label>
+                    <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
+                      أو اتركيها فارغة لتوليد آلي
+                    </span>
+                  </div>
+
+                  <div className="pwd-input-wrap">
+                    <span className="pwd-leading-icon">
+                      <KeyRound size={16} />
+                    </span>
+                    <input
+                      id="custom-temp-pwd"
+                      type="text"
+                      dir="ltr"
+                      className="pwd-modern-input"
+                      placeholder="Future@2026 أو اتركيها فارغة"
+                      value={customPassword}
+                      onChange={(e) => setCustomPassword(e.target.value)}
+                      minLength={6}
+                      maxLength={64}
+                    />
+                    <button
+                      type="button"
+                      className="pwd-generate-quick-btn"
+                      onClick={() => setCustomPassword(`Future@${new Date().getFullYear()}`)}
+                      title="اقتراح كلمة مرور نموذجية"
+                    >
+                      اقتراح Future@2026
+                    </button>
+                  </div>
+
+                  <p style={{ fontSize: '11.5px', color: '#64748b', margin: '4px 0 0', lineHeight: 1.4 }}>
+                    💡 إذا تركتِ الحقل فارغاً، سيقوم النظام تلقائياً بتوليد كلمة مرور سهلة ومؤقتة ومشاركتها معكِ لنسخها فوراً.
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '6px' }}>
+                  <button
                     type="button"
-                    kind="light"
-                    icon={false}
+                    className="btn-inbody-done-close"
                     onClick={() => setResetTarget(null)}
+                    disabled={resetBusy}
                   >
                     إلغاء
-                  </Button>
+                  </button>
                   <Button disabled={resetBusy}>
-                    {resetBusy ? 'جاري التعيين...' : 'تأكيد وحفظ كلمة المرور'}
+                    {resetBusy ? 'جاري التعيين...' : 'تأكيد وحفظ كلمة المرور 🔐'}
                   </Button>
                 </div>
               </form>

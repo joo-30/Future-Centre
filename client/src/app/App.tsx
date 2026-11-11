@@ -25,10 +25,12 @@ import {
   AdminPrograms,
   AdminSchedule,
   AdminSettings,
+  AdminStories,
   AuthPage,
   Booking,
   Tracking,
 } from './route-pages';
+
 export function App() {
   return (
     <>
@@ -57,6 +59,7 @@ export function App() {
             <Route path="capacity" element={<AdminCapacity />} />
             <Route path="schedule" element={<AdminSchedule />} />
             <Route path="settings" element={<AdminSettings />} />
+            <Route path="stories" element={<AdminStories />} />
           </Route>
           <Route element={<Layout />}>
             <Route

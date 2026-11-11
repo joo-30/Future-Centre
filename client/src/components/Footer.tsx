@@ -1,55 +1,27 @@
 import { normalizePhone } from '@future/shared';
 import {
-  ArrowLeft,
   Award,
   Clock,
   Heart,
   MapPin,
   Phone,
-  Sparkles,
 } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useCatalog } from '../hooks/useCatalog';
 import { whatsappUrl } from '../lib/api';
 import { WhatsAppIcon } from './icons/WhatsAppIcon';
 import { Brand } from './ui';
 
 export function Footer() {
-  const location = useLocation();
   const { data } = useCatalog();
   const clinic = data?.clinic;
 
-  const isBookingPage = location.pathname === '/booking';
   const primaryPhone = clinic?.phones?.[0] || '01041504201';
   const whatsappNumber = clinic?.whatsapp || '201041504201';
 
   return (
     <footer className="site-footer">
-      {/* 1. Pre-Footer Action Banner (Hidden on Booking page) */}
-      {!isBookingPage && (
-        <section className="footer-cta-banner" aria-label="دعوة لحجز موعد">
-          <div className="footer-cta-container">
-            <div className="footer-cta-text">
-              <span className="footer-cta-kicker">
-                <Sparkles size={14} className="sparkle-icon" />
-                خطوتكِ الأولى لصحة أفضل تبدأ اليوم
-              </span>
-              <h2 className="footer-cta-title">مستعدة لرحلة تغيير وزنكِ وتنسيق قوامكِ؟</h2>
-              <p className="footer-cta-desc">
-                احجزي كشفكِ مع د. رنا ياسر الشوري في مركز المستقبل، واحصلي على فحص InBody شامل وخطة غذائية مخصصة لطبيعة جسمك.
-              </p>
-            </div>
-            <div className="footer-cta-action">
-              <Link to="/booking" className="footer-btn-primary">
-                <span>احجزي موعدكِ الآن</span>
-                <ArrowLeft size={18} />
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* 2. Main Footer Multi-Column Grid */}
+      {/* Main Footer Multi-Column Grid */}
       <div className="footer-main-wrap">
         <div className="footer-grid">
           {/* Column 1: Clinic Brand & Doctor Credentials */}

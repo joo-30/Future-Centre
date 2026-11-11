@@ -7,7 +7,6 @@ import {
   Printer,
   QrCode,
   ShieldCheck,
-  Sparkles,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
@@ -384,7 +383,7 @@ export function BookingQrPass({
             </>
           ) : (
             <>
-              <Sparkles size={16} className="bqp-tip-icon" />
+              <CheckCircle2 size={16} className="bqp-tip-icon" />
               <p>
                 أظهري كود الـ QR لسكرتيرة العيادة عند الوصول لمسح بياناتك وتأكيد دورك في الكشف فوراً.
               </p>

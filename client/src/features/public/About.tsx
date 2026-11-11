@@ -1,4 +1,4 @@
-import { Sparkles } from 'lucide-react';
+import { Leaf } from 'lucide-react';
 import { PublicIntro } from '../../components/PublicIntro';
 import { ButtonLink } from '../../components/ui';
 
@@ -40,7 +40,7 @@ export function About() {
       {/* بطاقة الدكتورة والشهادات */}
       <section className="about-doctor-card">
         <div className="about-doc-kicker">
-          <Sparkles size={16} />
+          <Leaf size={16} />
           <span>المؤهلات والاعتمادات الرسمية</span>
         </div>
         <h2>دكتورة د. رنا ياسر الشوري</h2>

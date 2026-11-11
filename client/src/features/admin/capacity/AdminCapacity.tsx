@@ -15,7 +15,6 @@ import {
   RotateCcw,
   Save,
   ShieldCheck,
-  Sparkles,
   Trash2,
   TrendingUp,
   Users,
@@ -430,7 +429,7 @@ export function AdminCapacity() {
         <div className="sdc-header">
           <div className="sdc-title-group">
             <span className="sdc-kicker">
-              <Sparkles size={14} />
+              <Activity size={14} />
               {isViewingToday ? 'معاينة وضبط سعة اليوم الحالي' : 'تخصيص وضبط سعة هذا التاريخ بالذات'}
             </span>
             <h3 className="sdc-title">
@@ -790,7 +789,7 @@ export function AdminCapacity() {
 
         {/* Rolling Window Explanatory Banner */}
         <div className="forecast-rolling-notice">
-          <Sparkles size={14} className="notice-icon" />
+          <Activity size={14} className="notice-icon" />
           <span>
             <strong>تفاعل مباشر:</strong> النقر على أي يوم يحدده فوراً في البطاقة العلوية لتعديل سعته بنقرة واحدة (المدى الحالي: {upcomingDays.length} يوماً).
           </span>

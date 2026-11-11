@@ -5,7 +5,6 @@ import {
   FolderHeart,
   Printer,
   Scale,
-  Sparkles,
   User,
 } from 'lucide-react';
 import { useId, useMemo, useState } from 'react';
@@ -335,7 +334,7 @@ export function AdminBmi() {
           </div>
           {selectedPatient && (
             <span className="bpp-linked-chip">
-              <Sparkles size={13} />
+              <Activity size={13} />
               تم ربط بيانات {selectedPatient.name.split(' ')[0]}
             </span>
           )}

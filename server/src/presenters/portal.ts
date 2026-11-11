@@ -1,4 +1,4 @@
-import type { PrescriptionPublic } from '@future/shared';
+import type { PrescriptionPublic, NotificationPublic } from '@future/shared';
 import type { InBodyRecord } from '../models/inbody.model.js';
 import type { InterestRecord } from '../models/interest.model.js';
 import { type SubscriptionRecord } from '../models/subscription.model.js';
@@ -86,3 +86,41 @@ export const patientNotePublic = (n: any) => ({
   createdAt: new Date(n.createdAt).toISOString(),
 });
 
+
+export const notificationPublic = (n: any): NotificationPublic => ({
+  id: String(n._id),
+  userId: n.userId ? String(n.userId) : null,
+  patientPhone: n.patientPhone,
+  type: n.type || 'system',
+  title: n.title,
+  body: n.body,
+  link: n.link || '/account',
+  read: Boolean(n.read),
+  createdAt: n.createdAt ? new Date(n.createdAt).toISOString() : new Date().toISOString(),
+});
+
+
+export const storyPublic = (s: any) => ({
+  id: String(s._id),
+  name: s.name,
+  title: s.title,
+  age: s.age || undefined,
+  category: s.category,
+  weightLostKg: s.weightLostKg,
+  durationMonths: s.durationMonths || undefined,
+  durationText: s.durationText,
+  beforeWeight: s.beforeWeight || undefined,
+  afterWeight: s.afterWeight || undefined,
+  programTitle: s.programTitle,
+  quote: s.quote,
+  details: s.details || '',
+  imageUrl: s.imageUrl || undefined,
+  detailsImageUrl: s.detailsImageUrl || undefined,
+  additionalImages: Array.isArray(s.additionalImages) ? s.additionalImages : [],
+  storyType: s.storyType || 'transformation',
+  verified: s.verified !== false,
+  featured: Boolean(s.featured),
+  published: Boolean(s.published),
+  order: s.order || 0,
+  createdAt: s.createdAt ? new Date(s.createdAt).toISOString() : undefined,
+});

@@ -1,12 +1,51 @@
+
+/* Fixed High-Performance Mobile Navigation Drawer & Backdrop */
+.mobile-nav-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 30, 24, 0.45);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 998;
+  animation: mobileNavBackdropFade 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes mobileNavBackdropFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes mobileNavSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.menu-mobile {
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
 @media (max-width: 760px) {
   .site-head {
     height: 72px;
     margin: 0;
     padding: 0 16px;
     gap: 12px;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1001 !important;
   }
   .site-head-container {
     padding: 0;
+    position: relative;
+    z-index: 1002;
   }
   .site-head .brand strong {
     font-size: 16px;
@@ -22,10 +61,29 @@
     display: none;
   }
   .menu-mobile {
-    display: inline-flex;
+    display: inline-flex !important;
+    position: relative !important;
+    z-index: 1003 !important;
+    touch-action: manipulation !important;
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
   .mobile-navigation {
-    top: 72px;
+    display: flex !important;
+    flex-direction: column !important;
+    position: fixed !important;
+    top: 74px !important;
+    right: 14px !important;
+    left: 14px !important;
+    z-index: 999 !important;
+    background: #ffffff !important;
+    border-radius: 20px !important;
+    border: 1.5px solid rgba(7, 63, 51, 0.12) !important;
+    box-shadow: 0 20px 60px rgba(7, 63, 51, 0.25) !important;
+    max-height: calc(100vh - 90px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    animation: mobileNavSlideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
     right: 16px;
     left: 16px;
     padding: 16px 12px;
@@ -299,7 +357,12 @@
     flex-shrink: 0;
   }
   .about-section {
-    padding: 42px 23px;
+    margin: 0 14px 32px !important;
+    padding: 38px 20px !important;
+    border-radius: 24px !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 16px 40px rgba(7, 63, 51, 0.18) !important;
+    box-sizing: border-box !important;
   }
   .about-head {
     grid-template-columns: 1fr;
@@ -340,7 +403,8 @@
   }
   .programs-section,
   .articles-section,
-  .close-section {
+  .close-section,
+  .stories-section {
     padding: 43px 23px;
   }
   .section-top {

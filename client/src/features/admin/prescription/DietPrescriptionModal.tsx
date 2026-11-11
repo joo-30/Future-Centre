@@ -5,7 +5,7 @@ import {
   Pill,
   Printer,
   Send,
-  Sparkles,
+  Activity,
   Utensils,
   X,
 } from 'lucide-react';
@@ -814,7 +814,7 @@ ${d.nextDate ? `\n🗓️ *موعد المتابعة القادم:* ${dateLabel(
         {/* Quick Presets Strip (Hidden in Print) */}
         <div className="prescription-presets-strip no-print">
           <span className="presets-label">
-            <Sparkles size={14} />
+            <Activity size={14} />
             نماذج سريعة جاهزة:
           </span>
           <div className="presets-buttons">

@@ -1,4 +1,5 @@
 import {
+  Trophy,
   ArrowLeft,
   Bell,
   Calculator,
@@ -38,6 +39,7 @@ const navSections = [
     items: [
       { path: '/admin/programs', label: 'البرامج والأسعار', icon: Leaf },
       { path: '/admin/articles', label: 'المقالات الطبية', icon: FileText },
+      { path: '/admin/stories', label: 'قصص وتجارب النجاح', icon: Trophy },
       { path: '/admin/settings', label: 'إعدادات المركز', icon: Settings },
     ],
   },
@@ -157,7 +159,7 @@ export function AdminLayout() {
             </div>
             <div className="doctor-profile-details">
               <strong className="doctor-name">د. رنا ياسر الشوري</strong>
-              <span className="doctor-role-tag">المدير الطبي · حساب الإدارة</span>
+              <span className="doctor-role-tag">المدير الطبي · {user?.name || 'المدير العام'}</span>
             </div>
           </div>
 
@@ -226,13 +228,7 @@ export function AdminLayout() {
               <span>مسح كود المريض (QR)</span>
             </button>
 
-            <div className="console-user">
-              <span>
-                <strong>{user?.name}</strong>
-                <small>الإدارة</small>
-              </span>
-              <span className="avatar-large">{user?.name.slice(0, 1)}</span>
-            </div>
+            {/* User role relocated to sidebar profile card */}
             <button
               type="button"
               className="console-topbar-logout"

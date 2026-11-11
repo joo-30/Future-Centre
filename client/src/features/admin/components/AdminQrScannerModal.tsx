@@ -8,7 +8,6 @@ import {
   Loader2,
   RefreshCw,
   ScanLine,
-  Sparkles,
   Volume2,
   VolumeX,
   X,
@@ -484,7 +483,7 @@ export function AdminQrScannerModal({
                 className="btn primary qr-manual-submit-btn"
                 disabled={!manualCode.trim()}
               >
-                <Sparkles size={16} />
+                <CheckCircle2 size={16} />
                 تأكيد ومطابقة الحجز
               </button>
             </form>

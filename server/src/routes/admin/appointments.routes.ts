@@ -7,10 +7,12 @@ import { Appointment } from '../../models/appointment.model.js';
 import { Audit } from '../../models/audit.model.js';
 import { Interest } from '../../models/interest.model.js';
 import { Reservation } from '../../models/reservation.model.js';
+import { SubscriptionModel } from '../../models/subscription.model.js';
 import { User } from '../../models/user.model.js';
 import { publicAppointment } from '../../presenters/appointment.js';
 import { audit } from '../../services/audit.service.js';
 import { adminDecision } from '../../services/booking/admin-actions.js';
+import { createNotification } from '../../services/notification.service.js';
 import { appointmentAvailability } from '../../services/booking/availability.js';
 import { createBooking } from '../../services/booking/requests.js';
 import { expirePending } from '../../services/booking/reservations.js';
@@ -133,6 +135,43 @@ router.post('/appointments/:reference/decision', async (req, res) => {
     action: 'appointment.' + d.action,
     target: String(req.params.reference),
   });
+
+  // Automatically notify patient of appointment status updates
+  try {
+    const rawAppt = await Appointment.findOne({ reference: String(req.params.reference) })
+      .select('+phone userId date time service')
+      .lean();
+    if (rawAppt && (rawAppt.userId || rawAppt.phone)) {
+      let notifTitle = '';
+      let notifBody = '';
+      if (d.action === 'approve') {
+        notifTitle = 'تم تأكيد موعدك بنجاح! 📅';
+        notifBody = 'تم تأكيد حجز موعدك بتاريخ ' + rawAppt.date + ' الساعة ' + rawAppt.time + '. يسعدنا استقبالك في مركز المستقبل.';
+      } else if (d.action === 'reschedule') {
+        notifTitle = 'تعديل موعد الحجز 🕒';
+        notifBody = 'تم تعديل موعدك إلى تاريخ ' + rawAppt.date + ' الساعة ' + rawAppt.time + '.';
+      } else if (d.action === 'cancel' || d.action === 'reject') {
+        notifTitle = 'تحديث بشأن الموعد ⚠️';
+        notifBody = d.reason ? ('تم إلغاء الموعد. السبب: ' + d.reason) : 'تم إلغاء حجز موعدك لدى مركز المستقبل.';
+      } else if (d.action === 'complete') {
+        notifTitle = 'زيارتك لمركز المستقبل ✨';
+        notifBody = 'سعدنا بزيارتك اليوم لمركز المستقبل للتغذية. نتمنى لكِ دوام الصحة والعافية!';
+      }
+
+      if (notifTitle) {
+        await createNotification({
+          userId: rawAppt.userId ? String(rawAppt.userId) : undefined,
+          patientPhone: rawAppt.phone || undefined,
+          type: 'appointment',
+          title: notifTitle,
+          body: notifBody,
+          link: '/account?tab=appointments',
+        });
+      }
+    }
+  } catch (err) {
+    console.error('[Notification] Failed to create appointment notification:', err);
+  }
   res.json(result);
 });
 
@@ -141,32 +180,84 @@ router.get('/reservations', async (_req, res) =>
 );
 router.get('/overview', async (_req, res) => {
   await expirePending();
-  const today = DateTime.now().setZone('Africa/Cairo').toISODate()!;
-  const [pending, confirmedToday, changes, awaitingOutcome, newInterests, patients, confirmedTotal, todayTotal] =
-    await Promise.all([
-      Appointment.countDocuments({ status: 'pending' }),
-      Appointment.countDocuments({ status: 'confirmed', date: today }),
-      Appointment.countDocuments({
-        status: { $in: ['pending', 'confirmed'] },
-        reschedule: { $ne: null },
-      }),
-      Appointment.find({ status: 'confirmed', date: { $lte: today } })
-        .select('date time duration')
-        .lean()
-        .then(
-          (rows) =>
-            rows.filter(
-              (a) =>
-                DateTime.fromISO(`${a.date}T${a.time}`, { zone: 'Africa/Cairo' }).plus({
-                  minutes: a.duration,
-                }) <= DateTime.now(),
-            ).length,
-        ),
-      Interest.countDocuments({ status: 'new' }),
-      User.countDocuments({ role: 'patient' }),
-      Appointment.countDocuments({ status: 'confirmed' }),
-      Appointment.countDocuments({ date: today }),
-    ]);
+  const cairoNow = DateTime.now().setZone('Africa/Cairo');
+  const today = cairoNow.toISODate()!;
+  const in5Days = cairoNow.plus({ days: 5 }).toISODate()!;
+
+  const [
+    pending,
+    confirmedToday,
+    changes,
+    awaitingOutcome,
+    newInterests,
+    patients,
+    confirmedTotal,
+    todayTotal,
+    todayAppts,
+    allActiveSubs,
+    todaySubs,
+  ] = await Promise.all([
+    Appointment.countDocuments({ status: 'pending' }),
+    Appointment.countDocuments({ status: 'confirmed', date: today }),
+    Appointment.countDocuments({
+      status: { $in: ['pending', 'confirmed'] },
+      reschedule: { $ne: null },
+    }),
+    Appointment.find({ status: 'confirmed', date: { $lte: today } })
+      .select('date time duration')
+      .lean()
+      .then(
+        (rows) =>
+          rows.filter(
+            (a) =>
+              DateTime.fromISO(`${a.date}T${a.time}`, { zone: 'Africa/Cairo' }).plus({
+                minutes: a.duration,
+              }) <= DateTime.now(),
+          ).length,
+      ),
+    Interest.countDocuments({ status: 'new' }),
+    User.countDocuments({ role: 'patient' }),
+    Appointment.countDocuments({ status: 'confirmed' }),
+    Appointment.countDocuments({ date: today }),
+    Appointment.find({ date: today }).select('status price').lean(),
+    SubscriptionModel.find({ status: 'active' }).lean(),
+    SubscriptionModel.find({ startDate: today }).select('price').lean(),
+  ]);
+
+  let todayRevenue = 0;
+  let todayCompleted = 0;
+  let todayConfirmed = 0;
+  let todayPending = 0;
+
+  for (const a of todayAppts) {
+    if (a.status === 'completed') {
+      todayCompleted++;
+      if (typeof a.price === 'number') todayRevenue += a.price;
+    } else if (a.status === 'confirmed') {
+      todayConfirmed++;
+      if (typeof a.price === 'number') todayRevenue += a.price;
+    } else if (a.status === 'pending') {
+      todayPending++;
+    }
+  }
+
+  let expiringSubscriptionsCount = 0;
+  let todaySubscriptionRevenue = 0;
+
+  for (const sub of allActiveSubs) {
+    const isExpiringSessions = (sub.sessionsTotal - sub.sessionsUsed) <= 1;
+    const isExpiringDate = Boolean(sub.endDate && sub.endDate <= in5Days);
+    if (isExpiringSessions || isExpiringDate) {
+      expiringSubscriptionsCount++;
+    }
+  }
+
+  for (const s of todaySubs) {
+    if (typeof s.price === 'number') todaySubscriptionRevenue += s.price;
+  }
+
+  const totalDailyRevenue = todayRevenue + todaySubscriptionRevenue;
+
   res.json({
     pending,
     confirmedToday,
@@ -176,6 +267,14 @@ router.get('/overview', async (_req, res) => {
     patients,
     confirmedTotal,
     todayTotal,
+    todayRevenue,
+    todaySubscriptionRevenue,
+    totalDailyRevenue,
+    todayCompleted,
+    todayConfirmed,
+    todayPending,
+    activeSubscriptionsCount: allActiveSubs.length,
+    expiringSubscriptionsCount,
   });
 });
 

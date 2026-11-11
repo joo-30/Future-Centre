@@ -5,5 +5,6 @@ import { router as catalog } from './catalog.routes.js';
 import { router as patients } from './patients.routes.js';
 import { router as schedule } from './schedule.routes.js';
 import { router as settings } from './settings.routes.js';
+import { router as stories } from './stories.routes.js';
 export const adminRouter = Router();
-adminRouter.use(appointments, capacity, schedule, patients, catalog, settings);
+adminRouter.use(appointments, capacity, schedule, patients, catalog, settings, stories);

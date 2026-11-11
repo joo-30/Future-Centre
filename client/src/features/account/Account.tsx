@@ -1,10 +1,13 @@
 import type { PrescriptionPublic } from '@future/shared';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Activity,
   ArrowLeft,
   ArrowRight,
+  Bell,
   CalendarDays,
+  CheckCheck,
+  FileText,
   Check,
   CheckCircle2,
   ChevronLeft,
@@ -19,10 +22,13 @@ import {
   Printer,
   Scale,
   ShieldCheck,
-  Sparkles,
+  Smartphone,
+  Award,
   Ticket,
   UserRound,
   Utensils,
+  Volume2,
+  VolumeX,
   X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -35,6 +41,13 @@ import { Button, ButtonLink, ErrorState, Loading, Modal } from '../../components
 import { useCatalog } from '../../hooks/useCatalog';
 import { dateLabel, timeLabel, today, whatsappUrl } from '../../lib/api';
 import { accountApi, authApi } from '../../lib/portal-api';
+import { getPushPermission, requestAndSubscribePush, sendTestExternalPush } from '../../lib/push-manager';
+import {
+  isNotificationSoundEnabled,
+  playNotificationChime,
+  toggleNotificationSound,
+} from '../../lib/sound';
+import { PwaInstallButton } from '../../components/pwa/PwaInstallButton';
 import { AppointmentActions } from './components/AppointmentActions';
 import { SubscriptionCard } from './components/SubscriptionCard';
 
@@ -76,7 +89,7 @@ const ACCOUNT_TABS = [
     label: 'برامجي وطلباتي',
     shortLabel: 'برامجي وطلباتي',
     desc: 'باقات المتابعة واشتراكات البرامج العلاجية',
-    icon: Sparkles,
+    icon: Award,
     badgeKey: 'programs',
   },
   {
@@ -86,6 +99,14 @@ const ACCOUNT_TABS = [
     desc: 'تطور الوزن ونسبة الدهون والعضلات بيانيًا',
     icon: Scale,
     badgeKey: 'inbody',
+  },
+  {
+    id: 'notifications',
+    label: 'الإشعارات والتنبيهات',
+    shortLabel: 'الإشعارات',
+    desc: 'سجل التنبيهات المباشرة بالروشتات والمواعيد والفحوصات',
+    icon: Bell,
+    badgeKey: 'notifications',
   },
 ] as const;
 
@@ -108,6 +129,86 @@ export function Account() {
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [copiedRef, setCopiedRef] = useState<string | null>(null);
+  const [notifFilter, setNotifFilter] = useState<'all' | 'unread'>('all');
+  const [pushPerm, setPushPerm] = useState<NotificationPermission>(() => getPushPermission());
+  const [isEnablingPush, setIsEnablingPush] = useState(false);
+  const [isTestingPush, setIsTestingPush] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(() => isNotificationSoundEnabled());
+
+  useEffect(() => {
+    const handlePrefChange = (e: Event) => {
+      const detail = (e as CustomEvent<{ enabled: boolean }>).detail;
+      if (detail && typeof detail.enabled === 'boolean') {
+        setSoundEnabled(detail.enabled);
+      }
+    };
+    window.addEventListener('future_sound_pref_changed', handlePrefChange);
+    return () => window.removeEventListener('future_sound_pref_changed', handlePrefChange);
+  }, []);
+
+  const handleEnablePush = async () => {
+    setIsEnablingPush(true);
+    try {
+      const res = await requestAndSubscribePush();
+      setPushPerm(res.permission);
+      if (res.ok) {
+        setToast({
+          type: 'success',
+          message: 'تم تفعيل إشعارات الهاتف بنجاح! 🔔',
+          subMessage: 'ستصلكِ الآن تنبيهات النظام مباشرة على شاشة هاتفك عند صدور أي روشتة أو موعد جديد.',
+        });
+      } else if (res.permission === 'denied') {
+        setToast({
+          type: 'error',
+          message: 'الإشعارات محظورة في إعدادات المتصفح',
+          subMessage: 'يرجى فتح إعدادات المتصفح أو التطبيق وإلغاء حظر الإشعارات لهذا الموقع.',
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsEnablingPush(false);
+    }
+  };
+
+  const handleTestPush = async () => {
+    setIsTestingPush(true);
+    void playNotificationChime(true);
+    try {
+      const res = await sendTestExternalPush();
+      if (res.ok) {
+        setToast({
+          type: 'success',
+          message: 'تم إرسال إشعار تجريبي لهاتفك بنجاح! 📲',
+          subMessage: 'تفقدي ستارة الإشعارات في هاتفك الآن لرؤية التنبيه.',
+        });
+      } else {
+        setToast({
+          type: 'error',
+          message: 'تعذر إرسال الإشعار التجريبي',
+          subMessage: res.error || 'يرجى التأكد من اتصال الإنترنت وإعادة المحاولة.',
+        });
+      }
+    } finally {
+      setIsTestingPush(false);
+    }
+  };
+
+  const markNotifReadMutation = useMutation({
+    mutationFn: (id: string) => accountApi.markNotificationRead(id),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ['account'] });
+      void client.invalidateQueries({ queryKey: ['account', 'notifications'] });
+    },
+  });
+
+  const markAllNotifsMutation = useMutation({
+    mutationFn: accountApi.markAllNotificationsRead,
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ['account'] });
+      void client.invalidateQueries({ queryKey: ['account', 'notifications'] });
+    },
+  });
 
   const currentIndex = ACCOUNT_TABS.findIndex((t) => t.id === tab);
   const prevTab = currentIndex > 0 ? ACCOUNT_TABS[currentIndex - 1] : null;
@@ -217,6 +318,8 @@ export function Account() {
         return activeSubs.length;
       case 'inbody':
         return inbodyList.length;
+      case 'notifications':
+        return accountQuery.data?.unreadNotificationsCount || null;
       case 'history':
         return historyList.length;
       default:
@@ -416,10 +519,13 @@ export function Account() {
           <h1>أهلًا {user?.name.split(' ')[0]}، رعايتك مستمرة.</h1>
           <p>مواعيدك، خطتك الغذائية، وقياسات الـ InBody، محدثة مباشرة من العيادة.</p>
         </div>
-        <ButtonLink to="/booking" className="btn-heading-book">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <PwaInstallButton variant="account" />
+          <ButtonLink to="/booking" className="btn-heading-book">
           <Plus size={18} />
           <span>احجزي موعدًا جديدًا</span>
         </ButtonLink>
+        </div>
       </div>
       <div className="member-layout">
         <aside className="member-nav">
@@ -557,6 +663,30 @@ export function Account() {
           )}
           {tab === 'overview' && (
             <div className="member-overview-strip">
+              {(accountQuery.data.unreadNotificationsCount || 0) > 0 && (
+                <div
+                  className="account-notif-overview-banner"
+                  onClick={() => selectTab('notifications')}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <div className="notif-banner-lead">
+                    <span className="notif-banner-badge">
+                      <Bell size={18} />
+                    </span>
+                    <div className="notif-banner-text">
+                      <strong>لديكِ {accountQuery.data.unreadNotificationsCount} إشعار جديد بحاجة للمتابعة</strong>
+                      <p>
+                        {accountQuery.data.notifications?.find((n) => !n.read)?.title || 'تنبيه جديد بشأن خطتكِ الغذائية أو موعدك'}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="notif-banner-cta">
+                    <span>عرض التنبيهات</span>
+                    <ArrowLeft size={16} />
+                  </span>
+                </div>
+              )}
               <div className="kpi-cards-grid">
                 <div
                   className="kpi-card"
@@ -630,7 +760,7 @@ export function Account() {
                 >
                   <div className="kpi-card-top">
                     <span className="kpi-icon-wrap prog">
-                      <Sparkles size={18} />
+                      <Award size={18} />
                     </span>
                     <span className="kpi-badge">المتابعة</span>
                   </div>
@@ -836,7 +966,7 @@ export function Account() {
                       <div className="rx-card-top">
                         <div className="rx-badge-group">
                           <span className="rx-status-badge">
-                            <Sparkles size={13} />
+                            <Award size={13} />
                             خطة معتمدة
                           </span>
                           <span className="rx-doctor-tag">إشراف: دكتورة د. رنا ياسر الشوري</span>
@@ -1181,6 +1311,203 @@ export function Account() {
                   </div>
                 </div>
               )}
+            </section>
+          )}
+
+          {tab === 'notifications' && (
+            <section className="account-notifications-panel">
+              <div className="section-heading" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <h2>مركز الإشعارات والتنبيهات</h2>
+                  <span>
+                    {(accountQuery.data.notifications || []).length} إشعار مسجل
+                    {(accountQuery.data.unreadNotificationsCount || 0) > 0 && ` • ${accountQuery.data.unreadNotificationsCount} غير مقروء`}
+                  </span>
+                </div>
+                {(accountQuery.data.unreadNotificationsCount || 0) > 0 && (
+                  <button
+                    type="button"
+                    className="btn-mark-all-read"
+                    onClick={() => markAllNotifsMutation.mutate()}
+                    disabled={markAllNotifsMutation.isPending}
+                  >
+                    <CheckCheck size={16} />
+                    <span>تحديد الكل كمقروء</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Phone Push Notifications Setup Card */}
+              <div className="account-push-setup-card">
+                <div className="push-setup-main">
+                  <div className="push-setup-icon-box">
+                    <Smartphone size={24} />
+                  </div>
+                  <div>
+                    <div className="push-setup-title-row">
+                      <strong className="push-setup-title">إشعارات الهاتف الخارجية (Push Notifications)</strong>
+                      <span className={`push-setup-pill ${pushPerm === 'granted' ? 'is-granted' : 'is-idle'}`}>
+                        {pushPerm === 'granted' ? 'مفعلة ونشطة على هاتفك ✅' : 'غير مفعلة 🔔'}
+                      </span>
+                    </div>
+                    <p className="push-setup-desc">
+                      تصلكِ تنبيهات فورية على شاشة القفل وستارة إشعارات هاتفك عند نشر الروشتة أو تأكيد مواعيدك حتى عند إغلاق التطبيق.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="push-setup-actions">
+                  <button
+                    type="button"
+                    className="btn-test-sound"
+                    onClick={() => {
+                      void playNotificationChime(true);
+                      setToast({
+                        type: 'success',
+                        message: 'تم تشغيل نغمة مركز المستقبل 🎵',
+                        subMessage: 'هذه النغمة الطبية الهادئة تصدر تلقائياً عند وصول أي إشعار جديد.',
+                      });
+                    }}
+                    title="استمع إلى نغمة إشعارات مركز المستقبل"
+                  >
+                    <Volume2 size={16} />
+                    <span>سماع النغمة 🎵</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`btn-test-sound ${soundEnabled ? 'is-enabled' : 'is-muted'}`}
+                    onClick={() => {
+                      const next = toggleNotificationSound();
+                      setSoundEnabled(next);
+                      setToast({
+                        type: next ? 'success' : 'warning',
+                        message: next ? 'تم تفعيل صوت التنبيهات 🔔' : 'تم كتم صوت التنبيهات 🔕',
+                        subMessage: next ? 'ستصدر نغمة مركز المستقبل عند وصول أي إشعار جديد.' : 'لن يصدر صوت عند وصول الإشعارات داخل التطبيق.',
+                      });
+                    }}
+                    title="تفعيل أو كتم صوت التنبيهات"
+                  >
+                    {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+                    <span>{soundEnabled ? 'صوت الإشعارات: مفعّل' : 'صوت الإشعارات: مكتوم'}</span>
+                  </button>
+                  {pushPerm !== 'granted' ? (
+                    <button
+                      type="button"
+                      className="btn-enable-push"
+                      onClick={handleEnablePush}
+                      disabled={isEnablingPush}
+                    >
+                      <Bell size={16} />
+                      <span>{isEnablingPush ? 'جارِ التفعيل...' : 'تفعيل إشعارات الهاتف الآن'}</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn-test-push"
+                      onClick={handleTestPush}
+                      disabled={isTestingPush}
+                    >
+                      <Award size={16} />
+                      <span>{isTestingPush ? 'جارِ الإرسال...' : 'إرسال إشعار تجريبي لهاتفي 📲'}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {(accountQuery.data.notifications || []).length > 0 && (
+                <div className="notif-panel-filter-bar">
+                  <button
+                    type="button"
+                    className={`notif-filter-pill ${notifFilter === 'all' ? 'is-active' : ''}`}
+                    onClick={() => setNotifFilter('all')}
+                  >
+                    الكل ({(accountQuery.data.notifications || []).length})
+                  </button>
+                  <button
+                    type="button"
+                    className={`notif-filter-pill ${notifFilter === 'unread' ? 'is-active' : ''}`}
+                    onClick={() => setNotifFilter('unread')}
+                  >
+                    غير مقروءة ({(accountQuery.data.unreadNotificationsCount || 0)})
+                  </button>
+                </div>
+              )}
+
+              {(() => {
+                const allList = accountQuery.data.notifications || [];
+                const filtered = notifFilter === 'unread' ? allList.filter((n) => !n.read) : allList;
+
+                if (filtered.length === 0) {
+                  return (
+                    <div className="notif-empty-state">
+                      <div className="notif-empty-icon-wrap">
+                        <Bell size={28} />
+                      </div>
+                      <div className="notif-empty-title">
+                        {notifFilter === 'unread' ? 'لا توجد إشعارات غير مقروءة' : 'لا توجد أي إشعارات حتى الآن'}
+                      </div>
+                      <p className="notif-empty-desc">
+                        {notifFilter === 'unread'
+                          ? 'لقد اطّلعتِ على جميع التنبيهات والروشتات السابقة.'
+                          : 'عندما يقوم الفريق باعتماد روشتة جديدة، تأكيد موعدك، أو تسجيل نتائج فحصك، ستصلك تنبيهات فورية هنا.'}
+                      </p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="account-notifs-list">
+                    {filtered.map((item) => (
+                      <article
+                        key={item.id}
+                        className={`account-notif-card ${item.read ? 'is-read' : 'is-unread'}`}
+                        onClick={() => {
+                          if (!item.read) markNotifReadMutation.mutate(item.id);
+                          if (item.link) {
+                            if (item.link.startsWith('/account?tab=')) {
+                              const targetTab = item.link.split('=')[1];
+                              selectTab(targetTab);
+                            } else {
+                              window.location.href = item.link;
+                            }
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                      >
+                        <div className="account-notif-card-start">
+                          <span className={`notif-type-icon is-${item.type}`}>
+                            {item.type === 'prescription' ? (
+                              <FileText size={18} />
+                            ) : item.type === 'appointment' ? (
+                              <CalendarDays size={18} />
+                            ) : item.type === 'inbody' ? (
+                              <Scale size={18} />
+                            ) : (
+                              <Bell size={18} />
+                            )}
+                          </span>
+                          <div className="account-notif-content">
+                            <div className="account-notif-header">
+                              <h3 className="account-notif-title">{item.title}</h3>
+                              <time className="account-notif-time">{dateLabel(item.createdAt.slice(0, 10))}</time>
+                            </div>
+                            <p className="account-notif-body">{item.body}</p>
+                            {item.link && (
+                              <span className="account-notif-link-badge">
+                                <span>اضغطي للاطلاع على التفاصيل</span>
+                                <ArrowLeft size={13} />
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {!item.read && <span className="account-notif-unread-dot" title="غير مقروء" />}
+                      </article>
+                    ))}
+                  </div>
+                );
+              })()}
             </section>
           )}
 

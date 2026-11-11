@@ -2,10 +2,9 @@ import {
   Check,
   ChevronDown,
   Clock,
-  Sparkles,
-  Sun,
   Moon,
   SlidersHorizontal,
+  Sun,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -358,7 +357,7 @@ export function TimePicker({
                   className="exact-apply-btn"
                   onClick={applyExact}
                 >
-                  <Sparkles size={14} />
+                  <Clock size={14} />
                   تأكيد الوقت ({String(exactHour).padStart(2, '0')}:
                   {String(exactMinute).padStart(2, '0')} {exactPeriod === 'PM' ? 'م' : 'ص'})
                 </button>

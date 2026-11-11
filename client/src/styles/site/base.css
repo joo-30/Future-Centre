@@ -753,6 +753,19 @@ input[aria-invalid='true'] {
   background: var(--white);
   color: var(--ink);
   box-shadow: 0 25px 90px #073f3330;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+.modal::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.modal::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+.modal::-webkit-scrollbar-track {
+  background: transparent;
 }
 .modal::backdrop {
   background: #092d2677;

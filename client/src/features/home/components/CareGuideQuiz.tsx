@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, Compass, RotateCcw, Sparkles } from 'lucide-react';
+import { Check, Compass, RotateCcw, Award } from 'lucide-react';
 import { ButtonLink } from '../../../components/ui';
 import { whatsappUrl } from '../../../lib/api';
 import { WhatsAppIcon } from '../../../components/icons/WhatsAppIcon';
@@ -159,7 +159,7 @@ export function CareGuideQuiz({ whatsappNumber }: { whatsappNumber?: string }) {
         ) : (
           <div className="quiz-result-card">
             <div className="quiz-result-kicker">
-              <Sparkles size={16} />
+              <Award size={16} />
               <span>الرؤية الاسترشادية لحالتك</span>
             </div>
 

@@ -5,7 +5,7 @@ import {
   CheckCircle2,
   Flame,
   SlidersHorizontal,
-  Sparkles,
+  Activity,
   TrendingUp,
   Users,
 } from 'lucide-react';
@@ -578,7 +578,7 @@ export function CapacityAnalyticsCharts({
               return (
                 <div className="cds-content">
                   <div className="cds-date">
-                    <Sparkles size={14} className="text-forest" />
+                    <Activity size={14} className="text-forest" />
                     <strong>{dateLabel(d.date, { weekday: 'long', day: 'numeric', month: 'long' })}</strong>
                     <span className="cds-code">({d.date})</span>
                     {!d.isOpen && <span className="cds-closed-tag">عطلة أسبوعية</span>}

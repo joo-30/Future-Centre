@@ -12,7 +12,7 @@ import {
   Plus,
   Scale,
   Send,
-  Sparkles,
+  Award,
   TrendingDown,
   TrendingUp,
   X,
@@ -298,7 +298,7 @@ export function PatientHistoryDrawer({
               {/* Card 4: Active Subscription */}
               <div className="ph-kpi-card">
                 <div className="ph-kpi-icon-wrap" style={{ background: '#e0f2fe', color: '#0369a1' }}>
-                  <Sparkles size={18} />
+                  <Award size={18} />
                 </div>
                 <div className="ph-kpi-body">
                   <span className="ph-kpi-label">الاشتراك والجلسات</span>

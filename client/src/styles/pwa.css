@@ -1,0 +1,454 @@
+/* ==========================================================================
+   Future Center PWA Installation Header Button & iOS Guide Styles
+   ========================================================================== */
+
+/* 1. Header / Navbar PWA Button (Desktop) */
+.head-pwa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 15px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  background: #063e32;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(6, 62, 50, 0.2);
+}
+
+.head-pwa-btn svg {
+  color: #34d399;
+  flex-shrink: 0;
+}
+
+.head-pwa-btn:hover {
+  background: #095444;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(6, 62, 50, 0.3);
+}
+
+/* 2. Mobile Navigation Drawer PWA Item */
+.mobile-nav-pwa-wrap {
+  margin: 10px 0;
+  width: 100%;
+}
+
+.mobile-pwa-install-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px;
+  background: #063e32;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  color: #ffffff;
+  cursor: pointer;
+  text-align: right;
+  direction: rtl;
+  box-shadow: 0 4px 14px rgba(6, 62, 50, 0.22);
+  transition: all 0.2s ease;
+}
+
+.mobile-pwa-install-btn:active {
+  transform: scale(0.98);
+}
+
+.mobile-pwa-icon {
+  width: 38px;
+  height: 38px;
+  background: rgba(52, 211, 153, 0.18);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #34d399;
+  flex-shrink: 0;
+}
+
+.mobile-pwa-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.mobile-pwa-text strong {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.mobile-pwa-text small {
+  font-size: 11.5px;
+  color: #a7f3d0;
+  margin-top: 2px;
+}
+
+.mobile-pwa-arrow {
+  color: #34d399;
+  flex-shrink: 0;
+}
+
+/* 3. Patient Account Top Button */
+.account-pwa-install-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  background: #063e32;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(6, 62, 50, 0.18);
+}
+
+.account-pwa-install-btn svg {
+  color: #34d399;
+  flex-shrink: 0;
+}
+
+.account-pwa-install-btn:hover {
+  background: #095444;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(6, 62, 50, 0.26);
+}
+
+/* 5. Floating Bottom Bar (Default on both mobile & desktop) */
+.pwa-install-bar {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 1.25rem;
+  right: 1.25rem;
+  max-width: 540px;
+  margin: 0 auto;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.875rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(15, 118, 110, 0.18);
+  border-radius: 1.125rem;
+  box-shadow:
+    0 12px 30px -6px rgba(6, 62, 50, 0.14),
+    0 4px 12px -2px rgba(6, 62, 50, 0.06);
+  direction: rtl;
+  animation: pwaSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pwaSlideUp {
+  from {
+    transform: translateY(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.pwa-install-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.pwa-app-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(6, 62, 50, 0.12);
+  border: 1px solid rgba(15, 118, 110, 0.12);
+}
+
+.pwa-app-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pwa-text-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pwa-title {
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #063e32;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pwa-desc {
+  font-size: 0.75rem;
+  color: #475569;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pwa-action-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.pwa-install-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.45rem 0.875rem;
+  background: #063e32;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(6, 62, 50, 0.2);
+}
+
+.pwa-install-btn:hover {
+  background: #0b5747;
+  transform: translateY(-1px);
+}
+
+.pwa-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #f1f5f9;
+  color: #64748b;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pwa-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* 6. Guide Modal (iOS & Desktop) */
+.pwa-ios-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+  animation: pwaFadeIn 0.25s ease-out;
+}
+
+@media (min-width: 640px) {
+  .pwa-ios-modal-backdrop {
+    align-items: center;
+  }
+}
+
+@keyframes pwaFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pwa-ios-modal {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: 1.25rem;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.22);
+  padding: 1.25rem;
+  direction: rtl;
+  animation: pwaSheetUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pwaSheetUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.pwa-ios-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 1rem;
+}
+
+.pwa-ios-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pwa-ios-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.pwa-ios-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.375rem;
+}
+
+.pwa-ios-close:hover {
+  color: #334155;
+  background: #f1f5f9;
+}
+
+.pwa-ios-intro {
+  font-size: 0.825rem;
+  color: #475569;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.pwa-ios-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pwa-ios-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.825rem;
+  color: #1e293b;
+  line-height: 1.45;
+}
+
+.pwa-ios-step .step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 700;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pwa-ios-step .inline-icon {
+  display: inline;
+  vertical-align: middle;
+  color: #0284c7;
+}
+
+.pwa-ios-preview-card {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+.preview-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.preview-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-info strong {
+  font-size: 0.875rem;
+  color: #0f172a;
+}
+
+.preview-info span {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.pwa-ios-footer {
+  display: flex;
+}
+
+.pwa-ios-done-btn {
+  width: 100%;
+  padding: 0.625rem;
+  background: #063e32;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.625rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.pwa-ios-done-btn:hover {
+  background: #0b5747;
+}
+
+/* Hide in Print */
+@media print {
+  .pwa-install-bar,
+  .pwa-ios-modal-backdrop,
+  .head-pwa-btn,
+  .mobile-head-tools,
+  .account-pwa-install-btn {
+    display: none !important;
+  }
+}

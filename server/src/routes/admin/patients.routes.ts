@@ -16,6 +16,7 @@ import { SubscriptionModel } from '../../models/subscription.model.js';
 import { User, type UserRecord } from '../../models/user.model.js';
 import { inbodyPublic, interestPublic, patientNotePublic, prescriptionPublic, subscriptionPublic } from '../../presenters/portal.js';
 import { audit } from '../../services/audit.service.js';
+import { createNotification } from '../../services/notification.service.js';
 import { createUser, passwordHash, publicUser, recoveryCode } from '../../services/auth.service.js';
 import { id, subscriptionSchema } from '../../validation/subscription.js';
 export const router = Router();
@@ -523,6 +524,14 @@ router.put('/subscriptions/:id', async (req, res) => {
   res.json(subscriptionPublic(row!, true));
 });
 
+router.delete('/subscriptions/:id', async (req, res) => {
+  const subId = new mongoose.Types.ObjectId(id.parse(req.params.id));
+  const deleted = await SubscriptionModel.findByIdAndDelete(subId);
+  if (!deleted) throw new ApiError(404, 'NOT_FOUND', 'الاشتراك غير موجود.');
+  await audit(req.authUser?._id, 'subscription.delete', String(subId));
+  res.json({ ok: true });
+});
+
 const inbodyInputSchema = z.object({
   patientName: z.string().trim().min(2).max(100),
   patientPhone: z.string().trim().min(8).max(24),
@@ -570,6 +579,18 @@ router.post('/inbody', async (req, res) => {
     userId: linkedUserId,
   });
   await audit(req.authUser?._id, 'inbody.create', String(created._id));
+  try {
+    await createNotification({
+      userId: linkedUserId ? String(linkedUserId) : undefined,
+      patientPhone: data.patientPhone || '',
+      type: 'inbody',
+      title: 'نتائج فحص الـ InBody الجديدة 📊',
+      body: 'تم تسجيل نتائج فحصك الجديد (الوزن: ' + data.weight + ' كجم' + (data.bodyFatPercent ? ('، نسبة الدهون: ' + data.bodyFatPercent + '%') : '') + '). اطلعي على تقريرك الآن!',
+      link: '/account?tab=inbody',
+    });
+  } catch (err) {
+    console.error('[Notification] InBody trigger error:', err);
+  }
   res.status(201).json(inbodyPublic(created.toObject()));
 });
 
@@ -659,6 +680,18 @@ router.post('/prescriptions', async (req, res) => {
     );
     if (updated) {
       await audit(req.authUser?._id, 'prescription.update', String(updated._id));
+      try {
+      await createNotification({
+        userId: linkedUserId ? String(linkedUserId) : undefined,
+        patientPhone: data.patientPhone || '',
+        type: 'prescription',
+        title: 'تم اعتماد روشتكِ وخطة الدايت الجديدة! 🥗',
+        body: 'أضافت د. رنا الشوري جدولك الغذائي والتعليمات الجديدة لتاريخ ' + data.date + '. اضغطي للاطلاع على وجباتكِ المعتمدة.',
+        link: '/account?tab=prescriptions',
+      });
+    } catch (err) {
+      console.error('[Notification] Prescription trigger error:', err);
+    }
       return res.json(prescriptionPublic(updated.toObject()));
     }
   }
@@ -692,6 +725,18 @@ router.post('/prescriptions', async (req, res) => {
     );
     if (existingSameDay) {
       await audit(req.authUser?._id, 'prescription.update_sameday', String(existingSameDay._id));
+      try {
+      await createNotification({
+        userId: linkedUserId ? String(linkedUserId) : undefined,
+        patientPhone: data.patientPhone || '',
+        type: 'prescription',
+        title: 'تم اعتماد روشتكِ وخطة الدايت الجديدة! 🥗',
+        body: 'أضافت د. رنا الشوري جدولك الغذائي والتعليمات الجديدة لتاريخ ' + data.date + '. اضغطي للاطلاع على وجباتكِ المعتمدة.',
+        link: '/account?tab=prescriptions',
+      });
+    } catch (err) {
+      console.error('[Notification] Prescription trigger error:', err);
+    }
       return res.json(prescriptionPublic(existingSameDay.toObject()));
     }
   }
@@ -702,6 +747,18 @@ router.post('/prescriptions', async (req, res) => {
     userId: linkedUserId,
   });
   await audit(req.authUser?._id, 'prescription.create', String(row._id));
+    try {
+      await createNotification({
+        userId: linkedUserId ? String(linkedUserId) : undefined,
+        patientPhone: data.patientPhone || '',
+        type: 'prescription',
+        title: 'تم اعتماد روشتكِ وخطة الدايت الجديدة! 🥗',
+        body: 'أضافت د. رنا الشوري جدولك الغذائي والتعليمات الجديدة لتاريخ ' + data.date + '. اضغطي للاطلاع على وجباتكِ المعتمدة.',
+        link: '/account?tab=prescriptions',
+      });
+    } catch (err) {
+      console.error('[Notification] Prescription trigger error:', err);
+    }
   res.status(201).json(prescriptionPublic(row.toObject()));
 });
 

@@ -8,18 +8,19 @@ import {
   Calendar,
   CalendarDays,
   Check,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Clock,
   Home,
   Info,
+  Leaf,
   LockKeyhole,
   MapPin,
   Phone,
   RotateCcw,
   Search,
   ShieldCheck,
-  Sparkles,
   UserRound,
   X,
 } from 'lucide-react';
@@ -368,7 +369,7 @@ export function Booking() {
                 </div>
                 <div className="service-cards-grid" role="radiogroup" aria-label="اختيار الخدمة الطبية">
                   {data.services.map((s) => {
-                    const SIcon = icons[s.icon] || Sparkles;
+                    const SIcon = icons[s.icon] || Leaf;
                     const isSelected = serviceId === s.id;
                     return (
                       <div
@@ -580,7 +581,7 @@ export function Booking() {
                         <div className="booking-capacity-banner">
                           <div className="bcb-content">
                             <div className="bcb-icon-wrap">
-                              <Sparkles size={16} />
+                              <CheckCircle2 size={16} />
                             </div>
                             <div className="bcb-text">
                               <strong>سعة كشف مخصصة وجودة رعاية فائقة:</strong>
@@ -804,7 +805,7 @@ export function Booking() {
                     {/* Item 1: Service */}
                     <div className="review-item">
                       <div className="review-item-icon">
-                        <Sparkles size={16} />
+                        <CheckCircle2 size={16} />
                       </div>
                       <div className="review-item-content">
                         <span className="review-lbl">الخدمة الطبية</span>

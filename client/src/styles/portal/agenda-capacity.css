@@ -1,0 +1,1414 @@
+/* ==========================================================================
+   Admin Agenda Interactive Date Picker & Advanced Capacity Planner
+   UI/UX PRO MAX — Apple / Linear / Stripe Benchmark
+   ========================================================================== */
+
+/* 1. Header & Date Switching on Agenda Card */
+.today-agenda-icon-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1.5px solid #bbf7d0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.today-agenda-icon-btn:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(22, 101, 52, 0.15);
+}
+
+.today-agenda-icon-btn.is-active {
+  background: #063e32;
+  color: #ffffff;
+  border-color: #063e32;
+}
+
+.agenda-btn-badge {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 16px;
+  height: 16px;
+  background: #10b981;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff;
+}
+
+.today-title-date-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.today-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.today-agenda-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.3px;
+  margin: 0;
+}
+
+.today-back-to-now-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1.5px solid #a7f3d0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.today-back-to-now-btn:hover {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(4, 120, 87, 0.15);
+}
+
+.today-subtitle-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.today-date-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.today-date-badge svg {
+  color: #166534;
+}
+
+/* Quick Day Navigation Cluster (Enlarged & High-Contrast) */
+.agenda-day-nav {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 13px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.agenda-day-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.agenda-day-nav-btn:hover {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.agenda-day-nav-btn svg {
+  flex-shrink: 0;
+}
+
+.agenda-day-nav-btn.is-calendar-toggle {
+  background: #ffffff;
+  color: #063e32;
+  font-weight: 800;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.agenda-day-nav-btn.is-calendar-toggle:hover,
+.agenda-day-nav-btn.is-calendar-toggle.is-active {
+  background: #063e32;
+  color: #ffffff;
+  border-color: #063e32;
+  box-shadow: 0 3px 10px rgba(6, 62, 50, 0.2);
+}
+
+.agenda-day-nav-btn.is-calendar-toggle.is-active svg {
+  color: #34d399;
+}
+
+/* 2. Interactive Date Picker Popover Panel */
+.agenda-datepicker-popover {
+  margin-top: 16px;
+  padding: 20px 22px;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 20px;
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.02);
+  animation: agendaFadeIn 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes agendaFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.agenda-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid #f1f5f9;
+}
+
+.agenda-popover-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.agenda-popover-title svg {
+  color: #166534;
+}
+
+.agenda-popover-close {
+  background: #f1f5f9;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.agenda-popover-close:hover {
+  color: #0f172a;
+  background: #e2e8f0;
+}
+
+/* Quick Jump by Day Number Row (e.g. Type "20" or "15") */
+.agenda-day-jump-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 18px;
+  background: #f8fafc;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1.5px solid #e2e8f0;
+}
+
+@media (min-width: 768px) {
+  .agenda-day-jump-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.agenda-jump-subrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.agenda-jump-label {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.agenda-jump-label svg {
+  color: #d97706;
+}
+
+.agenda-jump-input {
+  width: 90px;
+  height: 42px;
+  padding: 0 12px;
+  border: 2px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #063e32;
+  text-align: center;
+  background: #ffffff;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.agenda-jump-input:focus {
+  border-color: #063e32;
+  box-shadow: 0 0 0 3px rgba(6, 62, 50, 0.15);
+}
+
+.agenda-jump-btn {
+  height: 42px;
+  padding: 0 18px;
+  background: #063e32;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(6, 62, 50, 0.18);
+}
+
+.agenda-jump-btn:hover {
+  background: #095444;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(6, 62, 50, 0.25);
+}
+
+.agenda-custom-picker-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.agenda-datepicker-holder {
+  min-width: 200px;
+}
+
+/* Upcoming Days Shortcut Chips */
+.agenda-shortcuts-grid {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 14px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.agenda-day-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.agenda-day-chip:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  transform: translateY(-1px);
+}
+
+.agenda-day-chip.is-chosen {
+  background: #063e32;
+  color: #ffffff;
+  border-color: #063e32;
+  box-shadow: 0 3px 10px rgba(6, 62, 50, 0.2);
+}
+
+/* ==========================================================================
+   3. Comprehensive Weekly & Date Capacity Modal (UI/UX Pro Max)
+   ========================================================================== */
+
+.advanced-capacity-modal-body {
+  padding-top: 6px;
+}
+
+/* Apple-style Segmented Navigation Tabs */
+.capacity-modal-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 22px;
+  padding: 5px;
+  background: #f1f5f9;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.capacity-tab-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.capacity-tab-btn:hover {
+  color: #0f172a;
+}
+
+.capacity-tab-btn.is-active {
+  background: #ffffff;
+  color: #063e32;
+  font-weight: 800;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.08);
+}
+
+.capacity-tab-btn.is-active svg {
+  color: #166534;
+}
+
+/* Executive Summary & Bulk Toolbar */
+.weekly-summary-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 768px) {
+  .weekly-summary-toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.weekly-summary-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wst-kpi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #166534;
+  background: #dcfce7;
+  padding: 4px 12px;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.wst-kpi-badge strong {
+  font-size: 15px;
+  color: #063e32;
+}
+
+.wst-desc {
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.weekly-bulk-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 600px) {
+  .weekly-bulk-wrap {
+    align-items: flex-end;
+  }
+}
+
+.weekly-bulk-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.weekly-bulk-label svg {
+  color: #d97706;
+}
+
+.weekly-bulk-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.weekly-bulk-btn {
+  padding: 6px 12px;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.weekly-bulk-btn:hover {
+  background: #063e32;
+  color: #ffffff;
+  border-color: #063e32;
+  transform: translateY(-1px);
+}
+
+/* 7 Weekday Cards Grid */
+.weekly-capacity-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.weekly-day-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 18px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.weekly-day-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  transform: translateY(-1px);
+}
+
+.weekly-day-badge-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 110px;
+}
+
+.weekly-day-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.weekly-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.weekly-day-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.weekly-day-sub {
+  font-size: 12px;
+  font-weight: 600;
+  color: #166534;
+}
+
+/* Quick Preset Chips in Card */
+.weekly-quick-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.weekly-chips-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.weekly-chip-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.weekly-chip-btn:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+.weekly-chip-btn.is-active {
+  background: #063e32;
+  border-color: #063e32;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(6, 62, 50, 0.25);
+}
+
+/* Tactile Modern Stepper */
+.weekly-stepper-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 13px;
+  border: 1px solid #e2e8f0;
+  box-sizing: border-box;
+}
+
+.weekly-step-btn {
+  width: 36px;
+  height: 36px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  color: #0f172a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.weekly-step-btn:hover {
+  background: #063e32;
+  color: #ffffff;
+  border-color: #063e32;
+}
+
+.weekly-step-input {
+  width: 56px;
+  height: 36px;
+  line-height: 34px !important;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 9px;
+  background: #ffffff;
+  text-align: center !important;
+  font-size: 18px;
+  font-weight: 800;
+  color: #063e32;
+  outline: none;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-variant-numeric: tabular-nums !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: textfield !important;
+  appearance: textfield !important;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.weekly-step-input::-webkit-outer-spin-button,
+.weekly-step-input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+  display: none !important;
+}
+
+.weekly-step-input:focus {
+  border-color: #063e32;
+  box-shadow: 0 0 0 2px rgba(6, 62, 50, 0.15);
+}
+
+/* Modal Actions */
+.qcm-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1.5px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+
+.qcm-btn-save,
+button.qcm-btn-save,
+.btn.qcm-btn-save {
+  padding: 11px 26px !important;
+  font-size: 14.5px !important;
+  font-weight: 800 !important;
+  border-radius: 13px !important;
+  background: #063e32 !important;
+  border: 1px solid #063e32 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(6, 62, 50, 0.28) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.qcm-btn-save:hover,
+button.qcm-btn-save:hover,
+.btn.qcm-btn-save:hover {
+  background: #095444 !important;
+  border-color: #095444 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(6, 62, 50, 0.35) !important;
+}
+
+.qcm-btn-save:active,
+button.qcm-btn-save:active,
+.btn.qcm-btn-save:active {
+  transform: translateY(0) !important;
+}
+
+.qcm-btn-save *,
+.qcm-btn-save span,
+.qcm-btn-save svg,
+button.qcm-btn-save *,
+button.qcm-btn-save span,
+button.qcm-btn-save svg {
+  color: #ffffff !important;
+  fill: none !important;
+}
+
+.qcm-btn-revert {
+  color: #b91c1c !important;
+  border-color: #fca5a5 !important;
+  background: #fef2f2 !important;
+}
+
+.qcm-btn-revert:hover {
+  background: #fee2e2 !important;
+  border-color: #ef4444 !important;
+}
+
+/* ==========================================================================
+   Specific Date Override Box (UI/UX Pro Max)
+   ========================================================================== */
+
+.specific-date-capacity-box {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+
+.specific-date-header-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1.5px solid #f1f5f9;
+}
+
+@media (min-width: 768px) {
+  .specific-date-header-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.specific-date-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.specific-date-kicker {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.specific-date-display {
+  font-size: 18px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.specific-date-baseline {
+  font-size: 13px;
+  color: #475569;
+}
+
+.specific-date-baseline strong {
+  color: #166534;
+}
+
+.specific-datepicker-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 220px;
+}
+
+.specific-picker-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+}
+
+/* Status Banner */
+.specific-status-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin: 18px 0;
+}
+
+.specific-status-banner.is-custom {
+  background: #ecfdf5;
+  border: 1.5px solid #a7f3d0;
+  color: #065f46;
+}
+
+.specific-status-banner.is-custom svg {
+  color: #059669;
+}
+
+.specific-status-banner.is-default {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  color: #334155;
+}
+
+.specific-status-banner.is-default svg {
+  color: #64748b;
+}
+
+/* Specific Controls Box */
+.specific-controls-box {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 18px 20px;
+}
+
+.specific-controls-label {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.specific-stepper-cluster {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 650px) {
+  .specific-stepper-cluster {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.specific-stepper-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.specific-step-btn {
+  width: 44px;
+  height: 44px;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  color: #0f172a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.specific-step-btn:hover {
+  background: #063e32;
+  color: #ffffff;
+  border-color: #063e32;
+}
+
+.specific-step-input {
+  width: 70px;
+  height: 42px;
+  line-height: 40px !important;
+  border: 2px solid #cbd5e1;
+  border-radius: 12px;
+  background: #ffffff;
+  text-align: center !important;
+  font-size: 20px;
+  font-weight: 800;
+  color: #063e32;
+  outline: none;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-variant-numeric: tabular-nums !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: textfield !important;
+  appearance: textfield !important;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.specific-step-input::-webkit-outer-spin-button,
+.specific-step-input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+  display: none !important;
+}
+
+.specific-step-input:focus {
+  border-color: #063e32;
+  box-shadow: 0 0 0 3px rgba(6, 62, 50, 0.15);
+}
+
+.specific-stepper-unit {
+  font-size: 14px;
+  font-weight: 800;
+  color: #334155;
+}
+
+.specific-preset-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.specific-pill-btn {
+  padding: 8px 14px;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.specific-pill-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.specific-pill-btn.is-active {
+  background: #063e32;
+  color: #ffffff;
+  border-color: #063e32;
+  box-shadow: 0 2px 8px rgba(6, 62, 50, 0.25);
+}
+
+/* ==========================================================================
+   4. Mobile Responsive Refinements (UI/UX Pro Max)
+   ========================================================================== */
+
+.hide-on-mobile {
+  display: inline;
+}
+
+.show-on-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .show-on-mobile {
+    display: inline !important;
+  }
+
+  /* Agenda Card Header */
+  .today-agenda-title-wrap {
+    width: 100% !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
+  .today-agenda-icon-btn {
+    display: none !important;
+  }
+
+  .today-title-date-container {
+    width: 100% !important;
+  }
+
+  .today-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .today-agenda-title {
+    font-size: 15.5px !important;
+    line-height: 1.4 !important;
+  }
+
+  .today-subtitle-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .today-date-badge {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 7px 10px !important;
+    font-size: 13px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 3-Button Day Navigation on Mobile — Perfectly Fitted Grid */
+  .agenda-day-nav {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1.4fr 1fr !important;
+    align-items: center !important;
+    gap: 3px !important;
+    box-sizing: border-box !important;
+    padding: 3px !important;
+  }
+
+  .agenda-day-nav-btn {
+    min-width: 0 !important;
+    width: 100% !important;
+    padding: 8px 4px !important;
+    font-size: 12px !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  .agenda-day-nav-btn span {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .agenda-day-nav-btn.is-calendar-toggle {
+    font-size: 12px !important;
+    padding: 8px 4px !important;
+    gap: 3px !important;
+  }
+
+  /* Header Badges */
+  .today-header-badges-row {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 10px;
+  }
+
+  .today-count-badge {
+    width: fit-content;
+  }
+
+  .today-capacity-quick-pill {
+    flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 12px;
+  }
+
+  /* Date Picker Popover Panel on Mobile */
+  .agenda-datepicker-popover {
+    padding: 14px !important;
+    border-radius: 18px !important;
+    margin-top: 12px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+  }
+
+  .agenda-popover-title {
+    font-size: 13.5px !important;
+  }
+
+  .agenda-day-jump-row {
+    padding: 12px !important;
+    gap: 14px !important;
+  }
+
+  .agenda-jump-subrow {
+    width: 100% !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
+  .agenda-jump-input-group {
+    display: flex !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .agenda-jump-input {
+    width: 80px !important;
+    min-width: 75px !important;
+    max-width: 85px !important;
+    flex: 0 0 80px !important;
+    height: 42px !important;
+    box-sizing: border-box !important;
+    font-size: 17px !important;
+  }
+
+  .agenda-jump-btn {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: 0 !important;
+    height: 42px !important;
+    padding: 0 10px !important;
+    font-size: 13px !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .agenda-custom-picker-section {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .agenda-datepicker-holder {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .agenda-shortcuts-grid {
+    gap: 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .agenda-day-chip {
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+  }
+
+  /* Specific Date Box on Mobile */
+  .specific-date-capacity-box {
+    padding: 16px 14px !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+
+  .specific-preset-pills {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 5px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .specific-pill-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    text-align: center !important;
+    padding: 7px 2px !important;
+    font-size: 12px !important;
+    box-sizing: border-box !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 2px !important;
+  }
+
+  .specific-pill-btn .pill-unit {
+    font-size: 10.5px !important;
+    opacity: 0.85;
+  }
+
+  .specific-stepper-cluster {
+    gap: 14px !important;
+  }
+
+  .specific-stepper-row {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* Mobile Screen Stress Test (< 640px) */
+@media (max-width: 640px) {
+  /* Navigation Tabs inside Modal */
+  .capacity-modal-tabs {
+    flex-direction: column !important;
+    gap: 6px !important;
+    padding: 6px !important;
+  }
+
+  .capacity-tab-btn {
+    width: 100% !important;
+    padding: 9px 12px !important;
+    font-size: 13px !important;
+  }
+
+  /* Weekly Summary & Bulk Bar */
+  .weekly-summary-toolbar {
+    padding: 14px !important;
+    border-radius: 16px !important;
+    gap: 12px !important;
+  }
+
+  .weekly-bulk-wrap {
+    align-items: flex-start !important;
+    width: 100% !important;
+  }
+
+  .weekly-bulk-chips {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 4px !important;
+    box-sizing: border-box !important;
+  }
+
+  .weekly-bulk-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 6px 1px !important;
+    font-size: 11px !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+  }
+
+  .weekly-bulk-btn .bulk-unit {
+    font-size: 9.5px !important;
+    opacity: 0.85;
+  }
+
+  /* 7 Weekday Cards Grid on Mobile — High-Contrast Clean Grid */
+  .weekly-day-card {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    grid-template-areas:
+      "badge stepper"
+      "chips chips" !important;
+    row-gap: 10px !important;
+    column-gap: 10px !important;
+    align-items: center !important;
+    padding: 12px 14px 10px !important;
+    border-radius: 16px !important;
+    box-sizing: border-box !important;
+  }
+
+  .weekly-day-badge-col {
+    grid-area: badge !important;
+    min-width: 0 !important;
+  }
+
+  .weekly-day-name {
+    font-size: 15px !important;
+  }
+
+  .weekly-day-sub {
+    font-size: 11.5px !important;
+  }
+
+  .weekly-stepper-wrap {
+    grid-area: stepper !important;
+    justify-self: end !important;
+    padding: 3px !important;
+    gap: 4px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+
+  .weekly-step-btn {
+    width: 34px !important;
+    height: 34px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .weekly-step-input {
+    width: 50px !important;
+    height: 34px !important;
+    line-height: 32px !important;
+    font-size: 17px !important;
+    text-align: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+
+  .weekly-quick-chips {
+    grid-area: chips !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 5px !important;
+    padding-top: 9px !important;
+    border-top: 1px dashed #e2e8f0 !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .weekly-chips-label {
+    font-size: 11px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .weekly-chip-btn {
+    flex: 1 !important;
+    min-width: 0 !important;
+    height: 30px !important;
+    padding: 0 !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+  }
+
+  /* Modal Actions on Mobile */
+  .qcm-actions-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .qcm-btn-save,
+  button.qcm-btn-save,
+  .btn.qcm-btn-save {
+    width: 100% !important;
+    padding: 12px 16px !important;
+    font-size: 14.5px !important;
+  }
+
+  .qcm-actions-row .btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* ==========================================================================
+   5. Universal Mobile Anti-Overflow Shields (UI/UX Pro Max)
+   ========================================================================== */
+@media (max-width: 768px) {
+  dialog.modal,
+  .modal,
+  .advanced-capacity-modal-body,
+  .weekly-capacity-container,
+  .weekly-summary-toolbar,
+  .today-agenda-card,
+  .agenda-datepicker-popover {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .weekly-day-card {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+}
+
+

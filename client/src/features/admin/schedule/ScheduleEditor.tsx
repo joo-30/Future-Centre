@@ -7,7 +7,6 @@ import {
   Coffee,
   Moon,
   Plus,
-  Sparkles,
   Trash2,
   Zap,
 } from 'lucide-react';
@@ -117,7 +116,7 @@ export function ScheduleEditor({ initial }: { initial: ScheduleData }) {
             </div>
           </div>
           <div className="metric-box">
-            <span className="metric-icon"><Sparkles size={20} /></span>
+            <span className="metric-icon"><Clock size={20} /></span>
             <div>
               <div className="metric-num">~{stats.estimatedSlots} موعد</div>
               <div className="metric-label">السعة الاستيعابية أسبوعياً</div>

@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { inbodyPublic, interestPublic, prescriptionPublic, subscriptionPublic } from '../presenters/portal.js';
+import { inbodyPublic, interestPublic, notificationPublic, prescriptionPublic, subscriptionPublic } from '../presenters/portal.js';
+import { getUserNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../services/notification.service.js';
 
 import { z } from 'zod';
 
@@ -98,4 +99,71 @@ accountRouter.post('/appointments/:reference/:action', async (req, res) => {
     return res.json(await requestReschedule(token, data.date, data.time));
   }
   throw new ApiError(404, 'NOT_FOUND', 'الإجراء غير متاح.');
+});
+
+accountRouter.get('/notifications', async (req, res) => {
+  const userId = req.authUser!._id;
+  const notifData = await getUserNotifications(userId, req.authUser?.phone, 50);
+  res.json({
+    notifications: notifData.notifications.map(notificationPublic),
+    unreadCount: notifData.unreadCount,
+  });
+});
+
+accountRouter.post('/notifications/:id/read', async (req, res) => {
+  const userId = req.authUser!._id;
+  const updated = await markNotificationAsRead(req.params.id, userId, req.authUser?.phone);
+  if (!updated) throw new ApiError(404, 'NOT_FOUND', 'الإشعار غير موجود.');
+  res.json({ ok: true, notification: notificationPublic(updated) });
+});
+
+accountRouter.post('/notifications/read-all', async (req, res) => {
+  const userId = req.authUser!._id;
+  await markAllNotificationsAsRead(userId, req.authUser?.phone);
+  res.json({ ok: true });
+});
+
+accountRouter.get('/push-key', async (_req, res) => {
+  const { getVapidPublicKey } = await import('../services/web-push.service.js');
+  res.json({ publicKey: getVapidPublicKey() });
+});
+
+accountRouter.post('/subscribe-push', async (req, res) => {
+  const pushSubSchema = z.object({
+    subscription: z.object({
+      endpoint: z.string().url('Endpoint URL غير صالح.'),
+      keys: z.object({
+        p256dh: z.string().min(1, 'مفتاح p256dh مطلوب.'),
+        auth: z.string().min(1, 'مفتاح auth مطلوب.'),
+      }),
+    }),
+  });
+  const { subscription } = pushSubSchema.parse(req.body);
+  const { savePushSubscription } = await import('../services/web-push.service.js');
+  await savePushSubscription({
+    userId: req.authUser!._id,
+    patientPhone: req.authUser?.phone,
+    subscription,
+    userAgent: req.headers['user-agent'] || '',
+  });
+  res.json({ ok: true });
+});
+
+accountRouter.post('/test-push', async (req, res) => {
+  const { sendPushNotification } = await import('../services/web-push.service.js');
+  const result = await sendPushNotification({
+    userId: req.authUser!._id,
+    patientPhone: req.authUser?.phone,
+    title: 'د. رنا الشوري • مركز المستقبل 🩺',
+    body: 'مرحباً بكِ! تم إرسال هذا التنبيه التجريبي بنجاح لشاشة هاتفك وستارة الإشعارات.',
+    link: '/account',
+  });
+  if (result.sent === 0) {
+    return res.status(400).json({
+      ok: false,
+      sent: 0,
+      error: 'لم نتمكن من الوصول لهاتفك، تأكدي من الضغط على "تفعيل الإشعارات" في المتصفح والموافقة على إذن التنبيهات أولاً.',
+    });
+  }
+  res.json({ ok: true, sent: result.sent, result });
 });

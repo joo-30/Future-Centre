@@ -5,12 +5,12 @@ import {
   Award,
   CalendarCheck,
   Check,
+  CheckCircle2,
   Copy,
   KeyRound,
   Lock,
   Phone,
   ShieldCheck,
-  Sparkles,
   Star,
   User,
 } from 'lucide-react';
@@ -23,6 +23,7 @@ import { useCatalog } from '../../hooks/useCatalog';
 import { whatsappUrl } from '../../lib/api';
 import { authApi } from '../../lib/portal-api';
 import { replaceSession } from '../../lib/session-cache';
+import { PwaInstallButton } from '../../components/pwa/PwaInstallButton';
 
 export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 'recover' }) {
   const auth = useAuth();
@@ -125,10 +126,13 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
       <section className="access-form-area">
         <header className="access-top">
           <Brand />
-          <Link className="access-back-pill" to="/">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <PwaInstallButton variant="auth" />
+            <Link className="access-back-pill" to="/">
             <span>العودة للرئيسية</span>
             <ArrowLeft size={16} />
           </Link>
+          </div>
         </header>
 
         {/* Dedicated Mobile & Tablet Doctor Hero Card */}
@@ -167,7 +171,7 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
 
           <div className="mob-hero-perks">
             <div className="mob-perk-item">
-              <Sparkles size={12} className="mob-perk-icon" />
+              <CheckCircle2 size={12} className="mob-perk-icon" />
               <span>خطط مخصصة 100%</span>
             </div>
             <div className="mob-perk-item">
@@ -255,7 +259,7 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                 {mode === 'login' && quick.data?.roles.length && (
                   <div className="quick-login-panel">
                     <div className="quick-login-header">
-                      <Sparkles size={14} />
+                      <CheckCircle2 size={14} />
                       <span>دخول سريع · بيئة التطوير المحلية</span>
                     </div>
                     <div className="quick-login-grid">
@@ -478,7 +482,7 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
             <span className="pill-dot">·</span>
             <span className="pill-spec">استشاري التغذية العلاجية (EMASO)</span>
             <span className="pill-dot">·</span>
-            <span className="pill-rating">★ 4.9 (+5K حالة)</span>
+            <span className="pill-rating">4.9 (+5K حالة موثقة)</span>
           </div>
 
           <h2 className="showcase-headline">

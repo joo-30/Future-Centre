@@ -1360,7 +1360,7 @@
   color: var(--forest);
   font-weight: 500;
 }
-.console-tabs > button.active:after {
+.console-tabs:not(.patient-console-tabs):not(.standalone) > button.active:after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -2082,24 +2082,29 @@
 .prog-actions-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-wrap: nowrap;
   margin-top: auto;
   padding-top: 14px;
   border-top: 1px solid #eef2e7;
 }
 
 .prog-action-btn {
+  height: 34px;
   font-size: 12px;
   font-weight: 600;
-  padding: 7px 11px;
+  padding: 0 10px;
   border-radius: 8px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 5px;
   border: 1px solid transparent;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .prog-action-btn.activate {
@@ -2144,25 +2149,46 @@
 }
 
 .prog-btn-edit {
+  height: 34px;
   flex: 1;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  font-size: 13px !important;
+  gap: 6px;
+  background: #ffffff;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 12.5px;
   font-weight: 600;
-  padding: 7px 12px !important;
-  min-height: auto !important;
+  padding: 0 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.prog-btn-edit:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
 }
 
 .prog-btn-delete {
-  background: transparent;
+  height: 34px;
+  width: 34px;
+  background: #ffffff;
   color: #dc2626;
   border: 1px solid #fecaca;
   border-radius: 8px;
-  padding: 7px 10px;
+  padding: 0;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .prog-btn-delete:hover {

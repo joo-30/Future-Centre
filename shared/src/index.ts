@@ -5,3 +5,4 @@ export * from './dates.js';
 export * from './phone.js';
 export * from './portal.js';
 export * from './search.js';
+export * from './story.js';

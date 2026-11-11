@@ -14,7 +14,6 @@ import {
   Plus,
   Save,
   ShieldCheck,
-  Sparkles,
   Trash2,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -137,7 +136,7 @@ export function SettingsEditor({ settings: s }: { settings: ClinicSettings }) {
 
               <label className="settings-field">
                 <span className="field-title">
-                  <Sparkles size={15} />
+                  <ShieldCheck size={15} />
                   الوصف الترويجي والمختصر
                 </span>
                 <input

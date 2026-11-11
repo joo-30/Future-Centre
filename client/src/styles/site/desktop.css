@@ -3,7 +3,8 @@
   .programs-section,
   .articles-section,
   .calculator-section,
-  .close-section {
+  .close-section,
+  .stories-section {
     padding-inline: max(65px, calc((100vw - 1310px) / 2));
   }
   .hero-bottom {
@@ -220,7 +221,8 @@
   .about-section,
   .programs-section,
   .articles-section,
-  .close-section {
+  .close-section,
+  .stories-section {
     padding-inline: 40px;
   }
   .about-head {

@@ -73,7 +73,21 @@ export interface PrescriptionPublic {
   createdAt?: string;
 }
 
+export interface NotificationPublic {
+  id: string;
+  userId?: string | null;
+  patientPhone: string;
+  type: 'prescription' | 'appointment' | 'inbody' | 'subscription' | 'system';
+  title: string;
+  body: string;
+  link?: string;
+  read: boolean;
+  createdAt: string;
+}
+
 export interface AccountData {
+  notifications?: NotificationPublic[];
+  unreadNotificationsCount?: number;
   appointments: AppointmentPublic[];
   interests: InterestPublic[];
   subscriptions: Subscription[];

@@ -18,7 +18,6 @@ import {
   Phone,
   Search,
   ShieldCheck,
-  Sparkles,
   Stethoscope,
   Ticket,
   X,
@@ -184,7 +183,7 @@ export function Tracking() {
         <div className="tracking-lookup-box">
           <div className="lookup-unified-header">
             <div className="lookup-unified-badge">
-              <Sparkles size={14} />
+              <CheckCircle2 size={14} />
               <span>البحث الذكي الموحد</span>
             </div>
             <h2>استعلام فوري عن تفاصيل الموعد</h2>
@@ -548,7 +547,7 @@ export function Tracking() {
                 color: '#16532d',
               }}
             >
-              <Sparkles size={18} style={{ color: '#16a34a' }} />
+              <CheckCircle2 size={18} style={{ color: '#16a34a' }} />
               <div>
                 <strong>تعليمات هامة قبل الحضور:</strong>
                 <p style={{ margin: '4px 0 0', fontSize: '13.5px', lineHeight: 1.6 }}>
@@ -563,7 +562,7 @@ export function Tracking() {
           {/* Progress Timeline Stepper */}
           <div className="track-stepper-container">
             <div className="track-stepper-title">
-              <Sparkles size={15} style={{ color: '#1b4f2c' }} />
+              <CheckCircle2 size={15} style={{ color: '#1b4f2c' }} />
               <span>مراحل معالجة طلب الموعد</span>
             </div>
             <div className="track-stepper-row">

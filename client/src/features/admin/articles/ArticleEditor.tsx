@@ -6,7 +6,6 @@ import {
   EyeOff,
   Globe,
   Image as ImageIcon,
-  Sparkles,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '../../../components/ui';
@@ -291,7 +290,7 @@ export function ArticleEditor({ article: a, onSaved }: { article: Article; onSav
             </div>
             <div className="art-live-preview-details">
               <div className="art-live-preview-status">
-                <Sparkles size={14} />
+                <CheckCircle2 size={14} />
                 <span>المعاينة الحية للغلاف المعتمد</span>
               </div>
               <span className="art-live-preview-val" dir="ltr">

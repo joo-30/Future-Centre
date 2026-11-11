@@ -1,0 +1,408 @@
+/* ==========================================================================
+   Daily WhatsApp Reminders Modal — UI/UX Pro Max
+   Future Center — Dr. Rana El-Shoury
+   Strict Standard: Apple / Linear Light SaaS Aesthetic
+   ========================================================================== */
+
+.daily-reminders-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  direction: rtl;
+  color: #0f172a;
+}
+
+.drd-hero-card {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.drd-hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.drd-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 11px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.drd-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 850;
+  color: #0f172a;
+}
+
+.drd-sub {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.drd-metric-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 8px 14px;
+}
+
+.drd-metric-val {
+  font-size: 20px;
+  font-weight: 900;
+  color: #064e3b;
+}
+
+.drd-metric-val small {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.drd-metric-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #059669;
+}
+
+.drd-progress-wrap {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.drd-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.drd-progress-labels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  font-weight: 750;
+  color: #475569;
+}
+
+.drd-done-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #059669;
+}
+
+/* Template customizer */
+.drd-template-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.drd-template-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.drd-template-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #1e293b;
+  white-space: nowrap;
+}
+
+.drd-greeting-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.drd-greeting-input:focus {
+  outline: none;
+  border-color: #10b981;
+}
+
+.drd-template-hint {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* Patient List */
+.drd-patient-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 48vh;
+  overflow-y: auto;
+  padding-left: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.drd-patient-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  flex-wrap: wrap;
+}
+
+.drd-patient-card:hover {
+  border-color: #a7f3d0;
+  background: #fbfdfc;
+}
+
+.drd-patient-card.is-sent-done {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.drd-card-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 220px;
+}
+
+.drd-card-num-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 850;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.drd-patient-card.is-sent-done .drd-card-num-avatar {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.drd-card-patient-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.drd-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.drd-patient-name {
+  font-size: 14px;
+  font-weight: 850;
+  color: #0f172a;
+}
+
+.drd-time-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #047857;
+  background: #ecfdf5;
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.drd-sent-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #15803d;
+  background: #dcfce7;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.drd-patient-sub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.drd-service-tag {
+  font-weight: 700;
+  color: #475569;
+}
+
+.drd-phone-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: inherit;
+  font-weight: 600;
+}
+
+/* Actions */
+.drd-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.drd-btn-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.drd-btn-copy:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.drd-btn-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #16a34a;
+  background: #16a34a;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(22, 163, 74, 0.2);
+}
+
+.drd-btn-wa:hover {
+  background: #15803d;
+}
+
+.drd-btn-wa.is-done {
+  background: #ffffff;
+  color: #16a34a;
+  border-color: #86efac;
+}
+
+.drd-sent-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.drd-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  text-align: center;
+  gap: 6px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
+}
+
+.drd-empty-state strong {
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.drd-empty-state small {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.drd-dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+
+.drd-footer-hint {
+  font-size: 11.5px;
+  color: #64748b;
+  max-width: 400px;
+}
+
+.drd-btn-close {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.drd-btn-close:hover {
+  background: #f1f5f9;
+}

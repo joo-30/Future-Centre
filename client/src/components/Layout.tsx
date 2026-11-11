@@ -5,9 +5,11 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useCatalog } from '../hooks/useCatalog';
 import { whatsappUrl } from '../lib/api';
 import { useAuth } from './Auth';
-import { WhatsAppIcon } from './icons/WhatsAppIcon';
-import { Brand, ButtonLink } from './ui';
 import { Footer } from './Footer';
+import { WhatsAppIcon } from './icons/WhatsAppIcon';
+import { PwaInstallButton } from './pwa/PwaInstallButton';
+import { NotificationBell } from './notifications/NotificationBell';
+import { Brand, ButtonLink } from './ui';
 
 const links = [
   ['/', 'الرئيسية'],
@@ -16,15 +18,18 @@ const links = [
   ['/articles', 'مقالات ونصائح'],
   ['/contact', 'تواصل معنا'],
 ];
+
 export function Layout() {
   const { user } = useAuth();
   const [menu, setMenu] = useState(false);
   const location = useLocation();
   const { data } = useCatalog();
+
   useEffect(() => {
     setMenu(false);
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [location.pathname]);
+
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setMenu(false);
@@ -32,6 +37,7 @@ export function Layout() {
     window.addEventListener('keydown', fn);
     return () => window.removeEventListener('keydown', fn);
   }, []);
+
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -53,11 +59,15 @@ export function Layout() {
             ))}
           </nav>
           <div className="head-actions">
+            <PwaInstallButton />
             {user ? (
-              <Link to="/account" className="head-auth-pill is-patient" title="حسابي">
-                <UserRound size={16} />
-                <span>حسابي</span>
-              </Link>
+              <>
+                <NotificationBell className="is-desktop-head" />
+                <Link to="/account" className="head-auth-pill is-patient" title="حسابي">
+                  <UserRound size={16} />
+                  <span>حسابي</span>
+                </Link>
+              </>
             ) : (
               <Link to="/login" className="head-auth-pill is-guest" title="تسجيل الدخول">
                 <LogIn size={16} />
@@ -68,19 +78,33 @@ export function Layout() {
               احجزي موعدك
             </ButtonLink>
           </div>
-          <button
-            className="menu-mobile icon-button"
-            aria-expanded={menu}
-            aria-controls="mobile-navigation"
-            aria-label={menu ? 'إغلاق القائمة' : 'فتح القائمة'}
-            onClick={() => setMenu(!menu)}
-          >
-            {menu ? <X size={22} /> : <Menu size={22} />}
-          </button>
+                              <div className="mobile-header-tools">
+            {user && <NotificationBell className="is-mobile-head" />}
+            <button
+              type="button"
+              className="menu-mobile icon-button"
+              aria-expanded={menu}
+              aria-controls="mobile-navigation"
+              aria-label={menu ? 'إغلاق القائمة' : 'فتح القائمة'}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setMenu((prev) => !prev);
+              }}
+            >
+              {menu ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </div>
         </div>
       </header>
       {menu && (
-        <nav id="mobile-navigation" className="mobile-navigation" aria-label="قائمة الهاتف">
+        <>
+          <div
+            className="mobile-nav-backdrop"
+            onClick={() => setMenu(false)}
+            aria-hidden="true"
+          />
+          <nav id="mobile-navigation" className="mobile-navigation" aria-label="قائمة الهاتف">
           {links.map(([to, t]) => (
             <NavLink
               key={to}
@@ -127,6 +151,9 @@ export function Layout() {
               </>
             )}
           </NavLink>
+          <div className="mobile-nav-pwa-wrap" onClick={() => setMenu(false)}>
+            <PwaInstallButton variant="mobile" />
+          </div>
           <ButtonLink
             to="/booking"
             className={location.pathname === '/booking' ? 'btn-nav-active' : ''}
@@ -135,6 +162,7 @@ export function Layout() {
             احجزي موعدك
           </ButtonLink>
         </nav>
+        </>
       )}
       <div id="main-content" tabIndex={-1}>
         <Outlet />
@@ -143,7 +171,7 @@ export function Layout() {
       {data?.clinic.whatsapp && location.pathname !== '/booking' && (
         <a
           className="whatsapp"
-          href={whatsappUrl(data.clinic.whatsapp, 'أهلًا، أود الاستفسار عن خدمات مركز المستقبل.')}
+          href={whatsappUrl(data.clinic.whatsapp, 'أهلاً، أود الاستفسار عن خدمات مركز المستقبل.')}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="تواصلي مع مركز المستقبل على واتساب"
@@ -154,6 +182,7 @@ export function Layout() {
     </>
   );
 }
+
 export function ContactNumbers() {
   const { data } = useCatalog();
   return (

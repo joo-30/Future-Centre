@@ -12,7 +12,7 @@ import {
   Pencil,
   Plus,
   Shield,
-  Star,
+  Award,
   Trash2,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -182,8 +182,8 @@ export function AdminPrograms() {
                   <div className="prog-badges-cluster">
                     {s.featured && (
                       <span className="prog-badge featured">
-                        <Star size={12} fill="currentColor" />
-                        باقة مميزة
+                        <Award size={13} />
+                        باقة رئيسية
                       </span>
                     )}
                     <span className={`prog-badge ${isActive ? 'active' : 'inactive'}`}>
@@ -268,21 +268,21 @@ export function AdminPrograms() {
                     type="button"
                     className={`prog-action-btn ${s.featured ? 'unstar' : 'star'}`}
                     onClick={() => toggleFeatured(s)}
-                    title={s.featured ? 'إلغاء التمييز' : 'تمييز كباقة مفضلة'}
+                    title={s.featured ? 'إلغاء التمييز كباقة رئيسية' : 'تمييز كباقة رئيسية موصى بها'}
                   >
-                    <Star size={14} fill={s.featured ? 'currentColor' : 'none'} />
-                    {s.featured ? 'مميز' : 'تمييز'}
+                    <Award size={14} />
+                    {s.featured ? 'باقة رئيسية' : 'تمييز كباقة رئيسية'}
                   </button>
 
-                  <Button
-                    kind="outline"
-                    icon={false}
+                  <button
+                    type="button"
                     className="prog-btn-edit"
                     onClick={() => setEditing(s)}
+                    title="تعديل بيانات البرنامج والأسعار"
                   >
-                    <Pencil size={15} />
-                    تعديل
-                  </Button>
+                    <Pencil size={14} />
+                    <span>تعديل</span>
+                  </button>
 
                   <button
                     type="button"

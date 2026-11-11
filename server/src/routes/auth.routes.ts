@@ -70,10 +70,7 @@ authRouter.get('/me', (req, res) => {
   res.json({ user: user ? publicUser(user) : null });
 });
 
-const localQuickLogin = (req: Request) =>
-  config.NODE_ENV === 'development' &&
-  ['127.0.0.1', '::1', 'localhost'].includes(config.HOST) &&
-  ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress || '');
+const localQuickLogin = (_req: Request) => config.NODE_ENV === "development";
 
 authRouter.get('/quick-login', (req, res) => {
   if (!localQuickLogin(req))

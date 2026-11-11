@@ -1,4 +1,4 @@
-import { ArrowLeft, Flame, Droplets, Scale, Sparkles } from 'lucide-react';
+import { ArrowLeft, Flame, Droplets, Scale } from 'lucide-react';
 import { useId, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -156,7 +156,7 @@ export function BmiCalculator() {
       <div className="section-top">
         <div>
           <div className="kicker">
-            <Sparkles size={16} aria-hidden="true" />
+            <Scale size={16} aria-hidden="true" />
             حاسبة التغذية الذكية
           </div>
           <h2 id="calc-heading">

@@ -1,11 +1,15 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  Activity,
   ArrowLeft,
+  Calendar,
+  CalendarCheck,
   CalendarDays,
   Check,
   CheckCircle2,
   ChevronDown,
-  ClipboardList,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   Gauge,
   Pencil,
@@ -15,10 +19,10 @@ import {
   RefreshCw,
   RotateCcw,
   Search,
-  Sparkles,
   Stethoscope,
   UserRound,
   X,
+  Zap,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -27,6 +31,7 @@ import { DatePicker } from '../../../components/forms/DatePicker';
 import { WhatsAppIcon } from '../../../components/icons/WhatsAppIcon';
 import { Button, ErrorState, Loading, Modal } from '../../../components/ui';
 import {
+  addDays,
   dateLabel,
   fullDateLabel,
   relativeDateLabel,
@@ -36,6 +41,7 @@ import {
 } from '../../../lib/api';
 import { adminApi } from '../../../lib/portal-api';
 import { ConsoleTitle } from '../components/ConsoleTitle';
+import { DailyOperationsPulse } from '../components/DailyOperationsPulse';
 import {
   AdminQrScannerModal,
   type QrScanResult,
@@ -43,6 +49,8 @@ import {
 import { refreshAdmin } from '../lib/cache';
 import { DietPrescriptionModal } from '../prescription/DietPrescriptionModal';
 import { AppointmentReview } from './AppointmentReview';
+import { AdvancedCapacityModal } from './AdvancedCapacityModal';
+import { DailyRemindersModal } from './DailyRemindersModal';
 import { ManualBooking } from './ManualBooking';
 
 export function AdminAppointments() {
@@ -60,66 +68,52 @@ export function AdminAppointments() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [prescriptionPatient, setPrescriptionPatient] = useState<{ name: string; phone: string } | null>(null);
 
-  // Quick Daily Capacity Controls
+  // Agenda Date & Flexible Capacity Controls
+  const todayStr = today();
+  const [agendaDate, setAgendaDate] = useState<string>(todayStr);
+  const [datePickerPopoverOpen, setDatePickerPopoverOpen] = useState(false);
+  const [quickDayInput, setQuickDayInput] = useState('');
   const [capacityModalOpen, setCapacityModalOpen] = useState(false);
-  const [customCapacityValue, setCustomCapacityValue] = useState<number>(20);
-  const [capacitySaving, setCapacitySaving] = useState(false);
+  const [remindersOpen, setRemindersOpen] = useState(false);
 
   const capacityQuery = useQuery({
-    queryKey: ['admin', 'capacity', 1],
-    queryFn: () => adminApi.capacity(1),
+    queryKey: ['admin', 'capacity', 14],
+    queryFn: () => adminApi.capacity(14),
   });
 
-  const todayCapacity = capacityQuery.data?.todayStats;
-  const clinicDefaultLimit = capacityQuery.data?.dailyLimit?.maxPatients || 20;
+  const dailyLimitData = capacityQuery.data?.dailyLimit;
+  const agendaDateObj = new Date(agendaDate + 'T00:00:00');
+  const jsDay = agendaDateObj.getDay(); // 0 is Sun, 1 is Mon, ... 6 is Sat
+  const luxonWeekday = jsDay === 0 ? 7 : jsDay;
+  const weekdayLimits = dailyLimitData?.weekdayLimits || {};
+  const dateOverrides = dailyLimitData?.dateOverrides || {};
+  const agendaOverride = dateOverrides[agendaDate];
+  const weekdayLimit = weekdayLimits[String(luxonWeekday)];
+  const clinicDefaultLimit = dailyLimitData?.maxPatients || 12;
 
-  const handleSaveTodayCapacity = async (val?: number) => {
-    const targetLimit = val ?? customCapacityValue;
-    const todayDateStr = capacityQuery.data?.todayStats.date;
-    const limit = capacityQuery.data?.dailyLimit;
-    if (!todayDateStr || !limit || targetLimit < 1) return;
-    setCapacitySaving(true);
-    try {
-      const currentOverrides = limit.dateOverrides || {};
-      await adminApi.saveCapacity({
-        enabled: limit.enabled ?? true,
-        showToPatients: limit.showToPatients ?? true,
-        maxPatients: limit.maxPatients || 20,
-        weekdayLimits: limit.weekdayLimits || {},
-        dateOverrides: {
-          ...currentOverrides,
-          [todayDateStr]: targetLimit,
-        },
-        closedMessage: limit.closedMessage,
-      });
-      await client.invalidateQueries({ queryKey: ['admin', 'capacity'] });
-      setCapacityModalOpen(false);
-    } finally {
-      setCapacitySaving(false);
-    }
-  };
+  const effectiveAgendaLimit =
+    typeof agendaOverride === 'number'
+      ? agendaOverride
+      : typeof weekdayLimit === 'number'
+      ? weekdayLimit
+      : clinicDefaultLimit;
 
-  const handleResetTodayCapacity = async () => {
-    const todayDateStr = capacityQuery.data?.todayStats.date;
-    const limit = capacityQuery.data?.dailyLimit;
-    if (!todayDateStr || !limit) return;
-    setCapacitySaving(true);
-    try {
-      const currentOverrides = { ...(limit.dateOverrides || {}) };
-      delete currentOverrides[todayDateStr];
-      await adminApi.saveCapacity({
-        enabled: limit.enabled ?? true,
-        showToPatients: limit.showToPatients ?? true,
-        maxPatients: limit.maxPatients || 20,
-        weekdayLimits: limit.weekdayLimits || {},
-        dateOverrides: currentOverrides,
-        closedMessage: limit.closedMessage,
-      });
-      await client.invalidateQueries({ queryKey: ['admin', 'capacity'] });
-      setCapacityModalOpen(false);
-    } finally {
-      setCapacitySaving(false);
-    }
+  const handleJumpDay = (rawDay?: string) => {
+    const val = rawDay ?? quickDayInput;
+    const num = parseInt(val.trim(), 10);
+    if (isNaN(num) || num < 1 || num > 31) return;
+    const current = new Date(agendaDate + 'T00:00:00');
+    const year = current.getFullYear();
+    const month = current.getMonth();
+    const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+    const safeDay = Math.min(Math.max(1, num), lastDayOfMonth);
+    const target = new Date(year, month, safeDay);
+    const yyyy = target.getFullYear();
+    const mm = String(target.getMonth() + 1).padStart(2, '0');
+    const dd = String(target.getDate()).padStart(2, '0');
+    setAgendaDate(`${yyyy}-${mm}-${dd}`);
+    setDatePickerPopoverOpen(false);
+    setQuickDayInput('');
   };
 
   const handleQrScan = (result: QrScanResult) => {
@@ -193,12 +187,15 @@ export function AdminAppointments() {
   const current = appointmentsQuery.data?.appointments.find((a) => a.reference === selected);
   const counts = overview.data;
 
-  const todayStr = today();
-  const todayQuery = useQuery({
-    queryKey: ['admin', 'appointments', 'today', todayStr],
-    queryFn: () => adminApi.appointments('date=' + todayStr + '&limit=50'),
+  const agendaQuery = useQuery({
+    queryKey: ['admin', 'appointments', 'agenda', agendaDate],
+    queryFn: () => adminApi.appointments('date=' + agendaDate + '&limit=100'),
     refetchInterval: 15000,
   });
+
+  const agendaBookedCount = agendaQuery.data?.appointments.length ?? 0;
+  const agendaRemainingSeats = Math.max(0, effectiveAgendaLimit - agendaBookedCount);
+  const isCustomAgendaDate = Boolean(agendaOverride);
   return (
     <>
       <ConsoleTitle
@@ -210,91 +207,235 @@ export function AdminAppointments() {
             <QrCode size={18} />
             مسح كود الحجز (QR)
           </Button>
+          <Button
+            kind="outline"
+            onClick={() => setRemindersOpen(true)}
+            icon={false}
+            style={{ borderColor: '#86efac', background: '#f0fdf4', color: '#166534', fontWeight: 800 }}
+            title="تجهيز وإرسال تذكيرات مواعيد اليوم عبر واتساب"
+          >
+            <WhatsAppIcon size={17} color="#16a34a" />
+            <span>تذكير الصباح لمواعيد اليوم ({agendaQuery.data?.appointments.length ?? 0})</span>
+          </Button>
           <Button onClick={() => setManual(true)} icon={false}>
             <Plus size={19} />
             إضافة موعد يدوي
           </Button>
         </div>
       </ConsoleTitle>
-      <div className="console-stats">
-        {[
-          [counts?.pending, 'طلبات بانتظار الموافقة', CalendarDays],
-          [counts?.confirmedToday, 'مواعيد مؤكدة اليوم', Check],
-          [counts?.changes, 'طلبات تغيير وقت', RefreshCw],
-          [counts?.newInterests, 'طلبات برامج جديدة', ClipboardList],
-        ].map(([value, label, Icon], i) => {
-          const C = Icon as typeof CalendarDays;
-          return (
-            <div key={i}>
-              <span>
-                {String(value ?? '—')}
-                <C size={22} />
-              </span>
-              <small>{String(label)}</small>
-            </div>
-          );
-        })}
-      </div>
+      <DailyOperationsPulse overview={overview.data} />
 
       {/* جدول مواعيد اليوم · المطلوب منكِ اليوم */}
       <section className="today-agenda-section">
         <div className="today-agenda-header">
           <div className="today-agenda-title-wrap">
-            <span className="today-agenda-icon">
+            <button
+              type="button"
+              className={`today-agenda-icon-btn ${datePickerPopoverOpen ? 'is-active' : ''}`}
+              onClick={() => setDatePickerPopoverOpen(!datePickerPopoverOpen)}
+              title="تغيير يوم الجدول (مثلاً يوم 15 أو 20)"
+              aria-label="تغيير يوم الجدول واختيار تاريخ محدد"
+            >
               <CalendarDays size={22} />
-            </span>
-            <div>
-              <h2 className="today-agenda-title">جدول مواعيد اليوم · المطلوب منكِ اليوم</h2>
-              <p className="today-agenda-subtitle">
-                {dateLabel(todayStr, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-              </p>
+              {agendaDate !== todayStr && <span className="agenda-btn-badge">•</span>}
+            </button>
+            <div className="today-title-date-container">
+              <div className="today-title-row">
+                <h2 className="today-agenda-title">
+                  {agendaDate === todayStr ? 'جدول مواعيد اليوم • المطلوب منك اليوم' : `جدول مواعيد: ${dateLabel(agendaDate)}`}
+                </h2>
+                {agendaDate !== todayStr && (
+                  <button
+                    type="button"
+                    className="today-back-to-now-btn"
+                    onClick={() => setAgendaDate(todayStr)}
+                    title="العودة لمواعيد اليوم"
+                  >
+                    <RotateCcw size={12} />
+                    <span>العودة لليوم</span>
+                  </button>
+                )}
+              </div>
+              <div className="today-subtitle-row">
+                <div className="today-date-badge">
+                  <CalendarDays size={16} />
+                  <span>
+                    {dateLabel(agendaDate, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                  </span>
+                </div>
+
+                {/* Prominent Day Navigation Cluster with larger text and clear buttons */}
+                <div className="agenda-day-nav">
+                  <button
+                    type="button"
+                    className="agenda-day-nav-btn is-prev"
+                    onClick={() => setAgendaDate(addDays(agendaDate, -1))}
+                    title="اليوم السابق"
+                  >
+                    <ChevronRight size={16} />
+                    <span>السابق</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`agenda-day-nav-btn is-calendar-toggle ${datePickerPopoverOpen ? 'is-active' : ''}`}
+                    onClick={() => setDatePickerPopoverOpen(!datePickerPopoverOpen)}
+                    title="اختيار يوم محدد من التقويم أو كتابة رقم اليوم"
+                  >
+                    <CalendarDays size={16} />
+                    <span className="hide-on-mobile">اختيار يوم (مثلاً 15 أو 20)</span>
+                    <span className="show-on-mobile">اختيار يوم</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="agenda-day-nav-btn is-next"
+                    onClick={() => setAgendaDate(addDays(agendaDate, 1))}
+                    title="اليوم التالي"
+                  >
+                    <span>التالي</span>
+                    <ChevronLeft size={16} />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
+
           <div className="today-header-badges-row">
             <span className="today-count-badge">
-              {todayQuery.data?.appointments.length ?? 0} موعد مسجل اليوم
+              {agendaQuery.data?.appointments.length ?? 0} موعد مسجل {agendaDate === todayStr ? 'اليوم' : `(${dateLabel(agendaDate, { day: 'numeric', month: 'short' })})`}
             </span>
-            {todayCapacity && (
-              <div className="today-capacity-quick-pill">
-                <span className="tcq-icon"><Gauge size={14} /></span>
-                <span className="tcq-text">
-                  سعة اليوم: <strong>{todayCapacity.limit} حالة</strong>
-                  {todayCapacity.isCustomDate && <span className="tcq-star" title="سعة مخصصة لهذا اليوم بالذات"> ⭐</span>}
-                </span>
-                <span className="tcq-sep">·</span>
-                <span className="tcq-rem">
-                  المتبقي: <strong className={todayCapacity.remaining <= 3 ? 'text-urgent' : 'text-emerald'}>
-                    {todayCapacity.remaining} مقعد
-                  </strong>
-                </span>
-                <button
-                  type="button"
-                  className="tcq-edit-btn"
-                  onClick={() => {
-                    setCustomCapacityValue(todayCapacity.limit);
-                    setCapacityModalOpen(true);
-                  }}
-                  title="تعديل سعة كشوفات اليوم"
-                >
-                  <Pencil size={12} />
-                  <span>تعديل السعة</span>
-                </button>
-              </div>
-            )}
+            <div className="today-capacity-quick-pill">
+              <span className="tcq-icon"><Gauge size={14} /></span>
+              <span className="tcq-text">
+                سعة {agendaDate === todayStr ? 'اليوم' : dateLabel(agendaDate, { weekday: 'short', day: 'numeric' })}: <strong>{effectiveAgendaLimit} حالة</strong>
+                {isCustomAgendaDate && <span className="tcq-custom-badge" title="سعة مخصصة لهذا التاريخ تحديداً"> (مخصص)</span>}
+              </span>
+              <span className="tcq-sep">•</span>
+              <span className="tcq-rem">
+                المتبقي: <strong className={agendaRemainingSeats <= 3 ? 'text-urgent' : 'text-emerald'}>
+                  {agendaRemainingSeats} مقعد
+                </strong>
+              </span>
+              <button
+                type="button"
+                className="tcq-edit-btn"
+                onClick={() => setCapacityModalOpen(true)}
+                title="تعديل السعة الأسبوعية أو اليومية"
+              >
+                <Pencil size={12} />
+                <span>تعديل السعة</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        {todayQuery.isPending ? (
+        {/* Date Picker Popover Panel */}
+        {datePickerPopoverOpen && (
+          <div className="agenda-datepicker-popover">
+            <div className="agenda-popover-header">
+              <div className="agenda-popover-title">
+                <CalendarDays size={18} />
+                <span>تحديد اليوم المطلوب عرضه في جدول المواعيد</span>
+              </div>
+              <button
+                type="button"
+                className="agenda-popover-close"
+                onClick={() => setDatePickerPopoverOpen(false)}
+                aria-label="إغلاق"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Quick Day Number Input (e.g. Type "20" or "15") & Custom Arabic DatePicker */}
+            <div className="agenda-day-jump-row">
+              <div className="agenda-jump-subrow">
+                <span className="agenda-jump-label">
+                  <Zap size={16} />
+                  اكتب رقم اليوم (مثال 15 أو 20):
+                </span>
+                <div className="agenda-jump-input-group">
+                  <input
+                    type="number"
+                    min={1}
+                    max={31}
+                    placeholder="20"
+                    value={quickDayInput}
+                    onChange={(e) => setQuickDayInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleJumpDay();
+                      }
+                    }}
+                    className="agenda-jump-input"
+                    dir="ltr"
+                  />
+                  <button
+                    type="button"
+                    className="agenda-jump-btn"
+                    onClick={() => handleJumpDay()}
+                  >
+                    انتقال سريع ⚡
+                  </button>
+                </div>
+              </div>
+
+              {/* Integrated Custom Luxury Arabic DatePicker */}
+              <div className="agenda-custom-picker-section">
+                <span className="agenda-jump-label">أو اختاري مباشرة من التقويم:</span>
+                <div className="agenda-datepicker-holder">
+                  <DatePicker
+                    value={agendaDate}
+                    onChange={(newDate) => {
+                      if (newDate) {
+                        setAgendaDate(newDate);
+                        setDatePickerPopoverOpen(false);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Quick 7-Day Shortcuts */}
+            <div className="agenda-shortcuts-grid">
+              <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 600 }}>أيام سريعة:</span>
+              {[0, 1, 2, 3, 4, 5, 6].map((offset) => {
+                const d = addDays(todayStr, offset);
+                const isSelectedDay = d === agendaDate;
+                const isTodayD = d === todayStr;
+                return (
+                  <button
+                    key={d}
+                    type="button"
+                    className={`agenda-day-chip ${isSelectedDay ? 'is-chosen' : ''}`}
+                    onClick={() => {
+                      setAgendaDate(d);
+                      setDatePickerPopoverOpen(false);
+                    }}
+                  >
+                    <span>{isTodayD ? 'اليوم' : offset === 1 ? 'غداً' : dateLabel(d, { weekday: 'short' })}</span>
+                    <span className="chip-count" dir="ltr">{d.split('-')[2]}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {agendaQuery.isPending ? (
           <Loading />
-        ) : !todayQuery.data?.appointments.length ? (
+        ) : !agendaQuery.data?.appointments.length ? (
           <div className="today-empty-state">
-            <Sparkles size={24} color="#3c7348" />
-            <strong>لا توجد مواعيد متبقية لليوم حتى الآن</strong>
-            <small>جدولكِ هادئ ومريح اليوم، تظهر الحجوزات المؤكدة هنا فور تسجيلها.</small>
+            <Calendar size={24} color="#3c7348" />
+            <strong>لا توجد مواعيد مسجلة ليوم {dateLabel(agendaDate)} حتى الآن</strong>
+            <small>جدول هذا اليوم مريح وهادئ، تظهر الحجوزات المؤكدة هنا فور تسجيلها أو حجزها.</small>
           </div>
         ) : (
           <div className="today-cards-grid">
-            {todayQuery.data.appointments.map((a) => (
+            {agendaQuery.data.appointments.map((a) => (
               <article
                 key={a.reference}
                 className={`today-card ${selected === a.reference ? 'is-selected' : ''}`}
@@ -325,7 +466,7 @@ export function AdminAppointments() {
                   <a
                     href={whatsappUrl(
                       a.whatsapp || a.phone,
-                      `أهلاً بحضرتك ${a.name}، معك مركز المستقبل للتغذية بخصوص موعد ${a.serviceTitle} اليوم الساعة ${timeLabel(a.time)}.`
+                      `أهلاً بحضرتك ${a.name}، معك مركز المستقبل للتغذية بخصوص موعد ${a.serviceTitle} ${agendaDate === todayStr ? 'اليوم' : 'يوم ' + dateLabel(agendaDate)} الساعة ${timeLabel(a.time)}.`
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -350,6 +491,13 @@ export function AdminAppointments() {
         )}
       </section>
 
+      <DailyRemindersModal
+        open={remindersOpen}
+        onClose={() => setRemindersOpen(false)}
+        appointments={(agendaQuery.data?.appointments || []) as any}
+        todayStr={todayStr}
+      />
+
       <div className={'booking-console-grid ' + (current ? 'has-detail' : '')}>
         <section className="console-panel">
           {/* Modern Segmented Status Tabs */}
@@ -359,8 +507,9 @@ export function AdminAppointments() {
               {
                 key: 'today',
                 label: 'مواعيد اليوم',
-                icon: Sparkles,
-                count: counts?.todayTotal ?? counts?.confirmedToday ?? todayQuery.data?.total,
+                icon: Activity,
+  CalendarCheck,
+                count: counts?.todayTotal ?? counts?.confirmedToday ?? agendaQuery.data?.appointments.length ?? 0,
               },
               {
                 key: 'pending',
@@ -944,82 +1093,15 @@ export function AdminAppointments() {
         subtitle="امسحي كود الـ QR من موبايل المريض أو تذكرته الرقمية للوصول لحجزه وفتح ملفه فوراً"
       />
 
-      <Modal
+      <AdvancedCapacityModal
         open={capacityModalOpen}
         onClose={() => setCapacityModalOpen(false)}
-        title="تعديل سعة كشوفات اليوم"
-      >
-        <div className="quick-capacity-modal-body">
-          <p className="qcm-desc">
-            حددي الحد الأقصى للكشوفات المسموح باستقبالها اليوم ({dateLabel(todayStr)}) فقط دون التأثير على باقي الأيام.
-          </p>
-
-          <div className="qcm-pills-row">
-            {[10, 15, 20, 25, 30, 35, 40].map((num) => (
-              <button
-                key={num}
-                type="button"
-                className={`qcm-pill ${customCapacityValue === num ? 'is-active' : ''}`}
-                onClick={() => setCustomCapacityValue(num)}
-              >
-                {num} حالة
-                {num === clinicDefaultLimit && <span className="qcm-def-label"> (العام)</span>}
-              </button>
-            ))}
-          </div>
-
-          <div className="qcm-custom-input-row">
-            <label htmlFor="qcm-input">أو حددي رقماً مخصصاً:</label>
-            <div className="qcm-input-stepper">
-              <button
-                type="button"
-                className="qcm-step-btn"
-                onClick={() => setCustomCapacityValue((prev) => Math.max(1, prev - 1))}
-              >
-                -
-              </button>
-              <input
-                id="qcm-input"
-                type="number"
-                min={1}
-                max={100}
-                value={customCapacityValue}
-                onChange={(e) =>
-                  setCustomCapacityValue(Math.max(1, Math.min(100, Number(e.target.value) || 1)))
-                }
-                className="qcm-number-input"
-                dir="ltr"
-              />
-              <button
-                type="button"
-                className="qcm-step-btn"
-                onClick={() => setCustomCapacityValue((prev) => Math.min(100, prev + 1))}
-              >
-                +
-              </button>
-            </div>
-          </div>
-
-          <div className="qcm-actions-row">
-            <Button
-              kind="primary"
-              disabled={capacitySaving}
-              onClick={() => handleSaveTodayCapacity(customCapacityValue)}
-            >
-              {capacitySaving ? 'جاري الحفظ...' : `اعتماد سعة اليوم (${customCapacityValue} حالة)`}
-            </Button>
-            {todayCapacity?.isCustomDate && (
-              <Button
-                kind="outline"
-                disabled={capacitySaving}
-                onClick={handleResetTodayCapacity}
-              >
-                العودة للحد العام ({clinicDefaultLimit} حالة)
-              </Button>
-            )}
-          </div>
-        </div>
-      </Modal>
+        selectedAgendaDate={agendaDate}
+        onSaved={() => {
+          client.invalidateQueries({ queryKey: ['admin', 'capacity'] });
+          client.invalidateQueries({ queryKey: ['admin', 'appointments'] });
+        }}
+      />
     </>
   );
 }

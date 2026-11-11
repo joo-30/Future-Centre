@@ -9,10 +9,12 @@ import type {
   PatientClinicalNote,
   PatientHistoryData,
   PrescriptionPublic,
+  NotificationPublic,
   ScheduleData,
   Service,
   Subscription,
   UserPublic,
+  SuccessStory,
 } from '@future/shared';
 import { request } from './api';
 export const send = <T>(url: string, body: unknown, method = 'POST') =>
@@ -55,6 +57,18 @@ export const accountApi = {
     send<AppointmentPublic>(`/account/appointments/${reference}/cancel`, {}),
   reschedule: (reference: string, date: string, time: string) =>
     send<AppointmentPublic>(`/account/appointments/${reference}/reschedule`, { date, time }),
+  notifications: () =>
+    request<{ notifications: NotificationPublic[]; unreadCount: number }>('/account/notifications'),
+  markNotificationRead: (id: string) =>
+    send<{ ok: boolean }>(`/account/notifications/${id}/read`, {}),
+  markAllNotificationsRead: () =>
+    send<{ ok: boolean }>('/account/notifications/read-all', {}),
+  getPushKey: () =>
+    request<{ publicKey: string }>('/account/push-key'),
+  subscribePush: (subscription: { endpoint: string; keys: { p256dh: string; auth: string } }) =>
+    send<{ ok: boolean }>('/account/subscribe-push', { subscription }),
+  testPush: () =>
+    send<{ ok: boolean }>('/account/test-push', {}),
 };
 export interface Overview {
   pending: number;
@@ -65,6 +79,14 @@ export interface Overview {
   patients: number;
   confirmedTotal?: number;
   todayTotal?: number;
+  todayRevenue?: number;
+  todaySubscriptionRevenue?: number;
+  totalDailyRevenue?: number;
+  todayCompleted?: number;
+  todayConfirmed?: number;
+  todayPending?: number;
+  activeSubscriptionsCount?: number;
+  expiringSubscriptionsCount?: number;
 }
 export interface ClinicSettings {
   name: string;
@@ -153,6 +175,7 @@ export const adminApi = {
     send(`/admin/program-requests/${id}`, { status }, 'PATCH'),
   subscriptions: () => request<{ subscriptions: Subscription[] }>('/admin/subscriptions'),
   subscription: (id: string, body: unknown) => send(`/admin/subscriptions/${id}`, body, 'PUT'),
+  deleteSubscription: (id: string) => send<{ ok: boolean }>(`/admin/subscriptions/${id}`, {}, 'DELETE'),
   capacity: (days = 14, targetDate?: string) => {
     const params = new URLSearchParams({ days: String(days) });
     if (targetDate) params.set('targetDate', targetDate);
@@ -187,10 +210,26 @@ export const adminApi = {
       text,
       patientName,
     }),
+  stories: () => request<{ stories: SuccessStory[] }>('/admin/stories'),
+  saveStory: (s: Partial<SuccessStory> & { id?: string }) =>
+    s.id
+      ? send<{ story: SuccessStory }>(`/admin/stories/${s.id}`, s, 'PUT')
+      : send<{ story: SuccessStory }>('/admin/stories', s, 'POST'),
+  deleteStory: (id: string) => send<{ ok: boolean }>(`/admin/stories/${id}`, {}, 'DELETE'),
+  uploadStoryImage: (dataUrl: string, filename?: string) =>
+    send<{ url: string; name: string; size: number }>(
+      '/admin/stories/upload',
+      { dataUrl, filename },
+      'POST',
+    ),
   manual: (body: unknown, key: string) =>
     request('/admin/manual-booking', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Idempotency-Key': key },
       body: JSON.stringify(body),
     }),
+};
+
+export const publicApi = {
+  stories: () => request<{ stories: SuccessStory[] }>('/stories'),
 };
