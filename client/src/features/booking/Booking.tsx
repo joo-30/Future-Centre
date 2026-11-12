@@ -129,10 +129,30 @@ export function Booking() {
     () => Array.from({ length: visibleDays }, (_, i) => addDays(week, i)),
     [week, visibleDays],
   );
+  const handleSelectDate = (d: string) => {
+    setDate(d);
+    setTime('');
+    setValue('time', '');
+    setSlotError('');
+    setTimeout(() => {
+      if (window.innerWidth <= 760) {
+        const slotArea = document.querySelector('.slot-area');
+        if (slotArea) {
+          slotArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }
+    }, 120);
+  };
+
   const pick = (t: string) => {
     setTime(t);
     setValue('time', t, { shouldValidate: true });
     setSlotError('');
+    setTimeout(() => {
+      if (window.innerWidth <= 760) {
+        document.querySelector('.mobile-next')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }, 120);
   };
 
   const [formAlert, setFormAlert] = useState<{
@@ -320,7 +340,7 @@ export function Booking() {
         <h1>{mobileStep === 1 ? 'موعدك، بخطوات بسيطة.' : 'أضيفي بيانات التواصل.'}</h1>
         <p>
           {mobileStep === 1
-            ? 'اختاري الوقت وأضيفي بيانات التواصل، وسيؤكد المركز طلبك.'
+            ? 'اختاري الوقت وأضيفي بيانات التواصل، وسيؤكد المركز طلبك. نرحب بالسيدات، والرجال، والأطفال بخطط رعاية مخصصة.'
             : 'موعدك المختار محفوظ في النموذج، والطلب ينتظر تأكيد المركز بعد الإرسال.'}
         </p>
         <div className="booking-lookup-banner">
@@ -356,7 +376,7 @@ export function Booking() {
                   <span>
                     {user?.role === 'patient'
                       ? 'سيظهر الموعد في حسابك بعد الإرسال.'
-                      : 'لا تحتاجين إلى إنشاء حساب.'}
+                      : 'لا تحتاجين إلى إنشاء حساب · متاح للسيدات، والرجال، والأطفال'}
                   </span>
                 </span>
                 <Link to="/contact" className="link">
@@ -490,7 +510,7 @@ export function Booking() {
                           key={d}
                           aria-pressed={isChosen}
                           aria-label={dateLabel(d) + (closed ? ' · عطلة المركز' : '')}
-                          onClick={() => setDate(d)}
+                          onClick={() => handleSelectDate(d)}
                         >
                           <span className="day-weekday-pill">{weekdayName}</span>
                           <b className="day-number-large" dir="ltr">{dayNumber}</b>

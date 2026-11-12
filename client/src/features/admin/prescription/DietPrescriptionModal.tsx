@@ -267,6 +267,7 @@ export function DietPrescriptionModal({
   // Generate WhatsApp formatted text
   const whatsappText = useMemo(() => {
     const d = form;
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://future-center.com';
     return `🌸 *روشتة وبرنامج التغذية - مركز المستقبل* 🌸
 دكتورة د. رنا ياسر الشوري - أخصائية التغذية العلاجية وتنسيق القوام
 
@@ -292,11 +293,15 @@ export function DietPrescriptionModal({
 ⚠️ *تعليمات هامة:* ${d.instructions}
 ${d.nextDate ? `\n🗓️ *موعد المتابعة القادم:* ${dateLabel(d.nextDate)}` : ''}
 
+📄 *لتحميل أو طباعة الروشتة الرسمية بصيغة PDF معتمدة:*
+${origin}/account?tab=prescriptions
+
 مركز المستقبل يتمنى لكِ دوام الصحة والعافية ✨`;
   }, [form]);
 
   // Bulletproof A4 Print Handler via dedicated print frame
   const handlePrint = () => {
+    const logoSrc = typeof window !== 'undefined' ? `${window.location.origin}/assets/brand-mark.png` : '/assets/brand-mark.png';
     const printContent = `
       <!DOCTYPE html>
       <html dir="rtl" lang="ar">
@@ -337,6 +342,18 @@ ${d.nextDate ? `\n🗓️ *موعد المتابعة القادم:* ${dateLabel(
             justify-content: space-between;
             align-items: flex-start;
             padding-bottom: 8px;
+          }
+          .rx-brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+          .rx-print-logo {
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
+            flex-shrink: 0;
+            filter: drop-shadow(0 2px 4px rgba(7, 63, 51, 0.08));
           }
           .rx-brand h2 {
             font-family: 'Alexandria', sans-serif;
@@ -562,9 +579,14 @@ ${d.nextDate ? `\n🗓️ *موعد المتابعة القادم:* ${dateLabel(
           <!-- Header -->
           <div class="rx-header">
             <div class="rx-brand">
-              <h2>مركز المستقبل</h2>
-              <p>للتغذية العلاجية وتنسيق القوام</p>
-              <small>رعاية تبدأ بفهمك · نتائج تستمر</small>
+              <div class="rx-brand-wrap">
+                <img src="${logoSrc}" alt="شعار مركز المستقبل" class="rx-print-logo" />
+                <div class="rx-brand-text">
+                  <h2>مركز المستقبل</h2>
+                  <p>للتغذية العلاجية وتنسيق القوام</p>
+                  <small>رعاية تبدأ بفهمك · نتائج تستمر</small>
+                </div>
+              </div>
             </div>
             <div class="rx-doctor">
               <h3>دكتورة د. رنا ياسر الشوري</h3>
@@ -838,10 +860,16 @@ ${d.nextDate ? `\n🗓️ *موعد المتابعة القادم:* ${dateLabel(
           <header className="rx-header">
             <div className="rx-brand-col">
               <div className="rx-logo-title">
-                <span className="rx-logo-leaf">🌿</span>
-                <h2>مركز المستقبل</h2>
+                <img
+                  src="/assets/brand-mark.png"
+                  alt="شعار مركز المستقبل"
+                  className="rx-brand-logo-img"
+                />
+                <div>
+                  <h2>مركز المستقبل</h2>
+                  <p className="rx-brand-sub">للتغذية العلاجية وتنسيق القوام</p>
+                </div>
               </div>
-              <p className="rx-brand-sub">للتغذية العلاجية وتنسيق القوام</p>
               <span className="rx-motto">رعاية تبدأ بفهمك · نتائج تستمر</span>
             </div>
 

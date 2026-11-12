@@ -46,19 +46,42 @@ export function DatePicker({
 }: DatePickerProps) {
   const [open, setOpen] = useState(false);
   const [openUpward, setOpenUpward] = useState(false);
+  const [alignLeft, setAlignLeft] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Toggle open and detect optimal vertical placement (up vs down)
+  // Detect optimal placement (vertical and horizontal)
+  const updatePlacement = () => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      setOpenUpward(spaceBelow < 370 && rect.top > 370);
+
+      // In RTL layout, default popup uses right: 0 (extends 320px to the left of the trigger's right edge).
+      // If the space to the left of the trigger's right edge is less than 340px, or trigger is near the left edge,
+      // align to left: 0 so the calendar opens towards the center of the viewport without overflowing.
+      const spaceOnLeft = rect.right;
+      const spaceOnRight = window.innerWidth - rect.left;
+      const shouldAlignLeft = spaceOnLeft < 340 || rect.left < 120 || (spaceOnRight > spaceOnLeft && spaceOnLeft < 400);
+      setAlignLeft(shouldAlignLeft);
+    }
+  };
+
+  // Keep placement updated immediately upon opening
+  useEffect(() => {
+    if (open) {
+      updatePlacement();
+    }
+  }, [open]);
+
+  // Toggle open and detect optimal placement
   const toggleOpen = (e?: React.SyntheticEvent) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
     if (disabled) return;
-    if (!open && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - rect.bottom;
-      setOpenUpward(spaceBelow < 390 && rect.top > 390);
+    if (!open) {
+      updatePlacement();
     }
     setOpen((prev) => !prev);
   };
@@ -93,11 +116,16 @@ export function DatePicker({
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') setOpen(false);
     }
+    function handleResize() {
+      updatePlacement();
+    }
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', handleResize);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', handleResize);
     };
   }, [open]);
 
@@ -257,7 +285,11 @@ export function DatePicker({
             aria-hidden="true"
           />
           <div
-            className={`custom-datepicker-popup ${openUpward ? 'open-upward' : ''}`}
+            className={`custom-datepicker-popup ${openUpward ? 'open-upward' : ''} ${alignLeft ? 'align-left' : ''}`}
+            style={{
+              ...(alignLeft ? { right: 'auto', left: 0 } : {}),
+              ...(openUpward ? { top: 'auto', bottom: 'calc(100% + 8px)' } : {}),
+            }}
             role="dialog"
             aria-modal="true"
             onClick={(e) => e.stopPropagation()}

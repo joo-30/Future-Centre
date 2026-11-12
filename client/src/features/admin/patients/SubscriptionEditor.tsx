@@ -474,17 +474,19 @@ export function SubscriptionEditor({
             </div>
 
             <div className="sub-total-chips">
-              <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>إجمالي الباقة:</span>
-              {[4, 8, 12].map((num) => (
-                <button
-                  key={num}
-                  type="button"
-                  className={`sub-chip-btn ${sessionsTotal === num ? 'is-active' : ''}`}
-                  onClick={() => setSessionsTotal(num)}
-                >
-                  {num} جلسات
-                </button>
-              ))}
+              <span className="sub-total-chips-label">إجمالي الباقة:</span>
+              <div className="sub-total-chips-group">
+                {[4, 8, 12].map((num) => (
+                  <button
+                    key={num}
+                    type="button"
+                    className={`sub-chip-btn ${sessionsTotal === num ? 'is-active' : ''}`}
+                    onClick={() => setSessionsTotal(num)}
+                  >
+                    {num} جلسات
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>

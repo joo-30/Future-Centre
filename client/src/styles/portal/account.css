@@ -1671,3 +1671,24 @@
 .drawer-actions-grid button.drawer-logout:hover {
   background: #fae8e8;
 }
+
+/* Prescription Card Brand Header */
+.rx-card-brand-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.rx-card-logo-img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(7, 63, 51, 0.08));
+}
+.rx-card-clinic-title {
+  font-family: 'Alexandria', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: #193826;
+  line-height: 1.25;
+}

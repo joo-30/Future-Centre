@@ -5,12 +5,13 @@ import {
   Download,
   MapPin,
   Printer,
-  QrCode,
   ShieldCheck,
+  Ticket,
+  X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
-import { dateLabel, timeLabel } from '../../lib/api';
+import { dateLabel, formatPrice, timeLabel } from '../../lib/api';
 
 interface BookingQrPassProps {
   reference: string;
@@ -22,6 +23,7 @@ interface BookingQrPassProps {
   status?: string;
   clinicAddress?: string;
   qrToken?: string;
+  price?: number;
 }
 
 export function BookingQrPass({
@@ -34,12 +36,23 @@ export function BookingQrPass({
   status = 'pending',
   clinicAddress = 'كفر الزيات، شارع الجيش عند توكيل أورنج',
   qrToken,
+  price,
 }: BookingQrPassProps) {
   const [qrUrl, setQrUrl] = useState<string>('');
   const [generating, setGenerating] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const [isZoomOpen, setIsZoomOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isZoomOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsZoomOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isZoomOpen]);
 
   // Generate QR code data URL
   useEffect(() => {
@@ -276,56 +289,301 @@ export function BookingQrPass({
   };
 
   const handlePrint = () => {
-    window.print();
+    if (!qrUrl) return;
+
+    // Create an isolated hidden iframe for printing ONLY the 1-page ticket
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.left = '-9999px';
+    iframe.style.top = '0';
+    iframe.style.width = '450px';
+    iframe.style.height = '850px';
+    iframe.style.border = 'none';
+    iframe.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (!doc) {
+      window.print();
+      return;
+    }
+
+    const priceHtml = price
+      ? `<div class="detail-row"><span class="label">قيمة الكشف:</span><strong class="val price-val">${formatPrice(price)} ج.م (شامل فحص InBody)</strong></div>`
+      : '';
+
+    const phoneHtml = phoneMasked
+      ? `<div class="detail-row"><span class="label">الهاتف:</span><bdi dir="ltr" class="val">${phoneMasked}</bdi></div>`
+      : '';
+
+    const statusBadge =
+      status === 'confirmed'
+        ? '<span class="ticket-badge badge-confirmed">موعد مؤكد بالعيادة ✓</span>'
+        : '<span class="ticket-badge badge-pending">طلب قيد المراجعة ⏳</span>';
+
+    const statusHint =
+      status === 'confirmed'
+        ? 'أظهري هذا الكود لسكرتيرة الاستقبال في العيادة لتأكيد حضورك فوراً'
+        : 'سيتواصل معكِ فريق المركز لتأكيد الموعد النهائي قبل الحضور';
+
+    doc.open();
+    doc.write(`<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <title>تذكرة حجز رقمية - #${reference}</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 15mm;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Cairo", "Tahoma", sans-serif;
+      background: #ffffff;
+      color: #123720;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px 0;
+      direction: rtl;
+    }
+    .print-ticket-container {
+      width: 400px;
+      max-width: 100%;
+      background: #ffffff;
+      border: 2px solid #1a4d2e;
+      border-radius: 20px;
+      padding: 24px 22px;
+      text-align: center;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .ticket-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1.5px dashed #c9dec2;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .ticket-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .badge-confirmed {
+      color: #15803d;
+      background: #dcfce7;
+      border: 1px solid #86efac;
+    }
+    .badge-pending {
+      color: #854d0e;
+      background: #fef9c3;
+      border: 1px solid #fde047;
+    }
+    .ticket-clinic {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #163e25;
+    }
+    .qr-card-box {
+      background: #f8faf6;
+      border: 1.5px solid #d8e5d3;
+      border-radius: 16px;
+      padding: 16px;
+      display: inline-block;
+      margin-bottom: 14px;
+    }
+    .qr-img {
+      display: block;
+      width: 160px;
+      height: 160px;
+      margin: 0 auto;
+    }
+    .code-chip {
+      background: #eaf3e6;
+      border: 1.5px solid #c9dec2;
+      color: #163e25;
+      font-size: 18px;
+      font-weight: 900;
+      padding: 6px 18px;
+      border-radius: 10px;
+      display: inline-block;
+      margin-bottom: 16px;
+      font-variant-numeric: tabular-nums;
+    }
+    .details-list {
+      text-align: right;
+      border-top: 1.5px dashed #c9dec2;
+      border-bottom: 1.5px dashed #c9dec2;
+      padding: 14px 0;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 13.5px;
+    }
+    .detail-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .label {
+      color: #55755e;
+      font-weight: 600;
+    }
+    .val {
+      color: #143d22;
+      font-weight: 800;
+    }
+    .price-val {
+      color: #15803d;
+      font-size: 14.5px;
+    }
+    .ticket-hint {
+      background: #f4faf2;
+      border: 1px solid #d0e4cd;
+      color: #1a4d2e;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 9px 12px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    .ticket-footer {
+      font-size: 11px;
+      color: #648463;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="print-ticket-container">
+    <div class="ticket-header">
+      ${statusBadge}
+      <span class="ticket-clinic">مركز المستقبل للتغذية</span>
+    </div>
+
+    <div class="qr-card-box">
+      <img class="qr-img" src="${qrUrl}" alt="QR #${reference}" />
+    </div>
+
+    <div>
+      <span class="code-chip">كود الحجز: #${reference}</span>
+    </div>
+
+    <div class="details-list">
+      <div class="detail-row">
+        <span class="label">اسم المريض:</span>
+        <strong class="val">${name}</strong>
+      </div>
+      <div class="detail-row">
+        <span class="label">الخدمة الطبية:</span>
+        <span class="val">${serviceTitle}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">الموعد:</span>
+        <strong class="val">${dateLabel(date)} · ${timeLabel(time)}</strong>
+      </div>
+      ${priceHtml}
+      ${phoneHtml}
+      <div class="detail-row">
+        <span class="label">المقر:</span>
+        <span class="val">${clinicAddress}</span>
+      </div>
+    </div>
+
+    <div class="ticket-hint">
+      ${statusHint}
+    </div>
+
+    <div class="ticket-footer">
+      تذكرة كشف رقمية معتمدة · مركز المستقبل للتغذية والعلاج الطبيعي
+    </div>
+  </div>
+</body>
+</html>`);
+    doc.close();
+
+    // Trigger print
+    setTimeout(() => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => {
+        iframe.remove();
+      }, 3000);
+    }, 300);
   };
 
   return (
     <div className="booking-qr-pass-wrapper">
       <div className="booking-qr-pass-card" ref={cardRef}>
-        {/* Decorative Ticket Perforation Notches */}
-        <span className="bqp-notch bqp-notch-left" aria-hidden="true" />
-        <span className="bqp-notch bqp-notch-right" aria-hidden="true" />
-
-        {/* Ticket Top Ribbon */}
+        {/* Compact Top Ribbon */}
         <div className="bqp-header">
-          <div
-            className={`bqp-badge ${status === 'pending' ? 'is-pending' : ''}`}
-            title={status ? `حالة الحجز: ${status}` : undefined}
-            style={
-              status === 'pending'
-                ? { background: 'rgba(245, 158, 11, 0.25)', border: '1px solid #f59e0b', color: '#fef3c7' }
-                : undefined
-            }
-          >
-            {status === 'pending' ? <Clock size={14} /> : <QrCode size={14} />}
-            <span>{status === 'pending' ? 'طلب حجز (بانتظار التأكيد)' : 'تذكرة الحجز الذكية'}</span>
+          <div className={`bqp-badge ${status === 'confirmed' ? 'is-confirmed' : 'is-pending'}`}>
+            {status === 'confirmed' ? <CheckCircle2 size={13} /> : <Clock size={13} />}
+            <span>{status === 'confirmed' ? 'موعد مؤكد بالعيادة' : 'طلب قيد المراجعة'}</span>
           </div>
           <span className="bqp-clinic-name">مركز المستقبل للتغذية</span>
         </div>
 
-        {/* QR Code Container */}
-        <div className="bqp-qr-frame">
-          {generating ? (
-            <div className="bqp-qr-loading">جارٍ إنشاء كود الـ QR...</div>
-          ) : qrUrl ? (
-            <img
-              src={qrUrl}
-              alt={`QR Code للحجز رقم ${reference}`}
-              className="bqp-qr-image"
-              width={185}
-              height={185}
-            />
-          ) : (
-            <div className="bqp-qr-fallback">{reference}</div>
-          )}
+        {/* Compact QR Hero */}
+        <div
+          className="bqp-qr-compact bqp-clickable-zoom"
+          onClick={() => setIsZoomOpen(true)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setIsZoomOpen(true);
+            }
+          }}
+          tabIndex={0}
+          role="button"
+          aria-label="اضغط لتكبير كود الـ QR ورقم الحجز"
+          title="انقر لتكبير كود الـ QR ورقم الحجز"
+        >
+          <div className="bqp-qr-box">
+            {generating ? (
+              <div className="bqp-qr-loading">جارٍ إنشاء الكود...</div>
+            ) : qrUrl ? (
+              <img
+                src={qrUrl}
+                alt={`QR Code #${reference}`}
+                className="bqp-qr-image"
+                width={120}
+                height={120}
+              />
+            ) : (
+              <div className="bqp-qr-fallback">{reference}</div>
+            )}
+          </div>
 
-          <div className="bqp-ref-banner">
-            <small>كود الحجز الرقمي</small>
-            <strong dir="ltr">#{reference}</strong>
+          <div
+            className="bqp-code-pill bqp-clickable-code"
+            onClick={() => setIsZoomOpen(true)}
+            title="انقر لتكبير كود الحجز"
+          >
+            <Ticket size={13} className="bqp-code-icon" />
+            <span className="bqp-code-label">كود الحجز:</span>
+            <span className="bqp-code-num" dir="ltr">#{reference}</span>
           </div>
         </div>
 
-        {/* Ticket Details Summary */}
+        {/* Perforation Divider with Perfectly Aligned Notches */}
+        <div className="bqp-divider" aria-hidden="true">
+          <span className="bqp-notch bqp-notch-left" />
+          <span className="bqp-notch bqp-notch-right" />
+        </div>
+
+        {/* Compact Details Box */}
         <div className="bqp-details">
           <div className="bqp-detail-row">
             <span className="bqp-label">الاسم:</span>
@@ -340,110 +598,181 @@ export function BookingQrPass({
           <div className="bqp-detail-row">
             <span className="bqp-label">الموعد:</span>
             <span className="bqp-val highlight">
-              <Calendar size={13} />
+              <Calendar size={12} />
               <span>{dateLabel(date)}</span>
-              <Clock size={13} style={{ marginInlineStart: '6px' }} />
+              <span className="bqp-dot">·</span>
+              <Clock size={12} />
               <span>{timeLabel(time)}</span>
             </span>
           </div>
 
+          {price ? (
+            <div className="bqp-detail-row">
+              <span className="bqp-label">قيمة الكشف:</span>
+              <span className="bqp-val is-price">
+                <strong>{formatPrice(price)}</strong>
+                <small> ج.م (شامل فحص InBody)</small>
+              </span>
+            </div>
+          ) : null}
+
           {phoneMasked && (
             <div className="bqp-detail-row">
               <span className="bqp-label">الهاتف:</span>
-              <bdi dir="ltr" className="bqp-val">
-                {phoneMasked}
-              </bdi>
+              <bdi dir="ltr" className="bqp-val">{phoneMasked}</bdi>
             </div>
           )}
 
           <div className="bqp-detail-row">
-            <span className="bqp-label">العنوان:</span>
+            <span className="bqp-label">المكان:</span>
             <span className="bqp-val address-val">
-              <MapPin size={12} style={{ display: 'inline', marginInlineEnd: '4px' }} />
+              <MapPin size={11} style={{ display: 'inline', marginInlineEnd: '3px' }} />
               {clinicAddress}
             </span>
           </div>
         </div>
 
-        {/* Tip for Clinic Arrival */}
-        <div
-          className="bqp-instructions"
-          style={
-            status === 'pending'
-              ? { background: '#fffbeb', borderColor: '#fde68a', color: '#92400e' }
-              : undefined
-          }
-        >
+        {/* Slim Arrival / Reassurance Strip */}
+        <div className={`bqp-hint-strip ${status === 'pending' ? 'is-pending' : 'is-confirmed'}`}>
           {status === 'pending' ? (
             <>
-              <Clock size={16} className="bqp-tip-icon" style={{ color: '#d97706' }} />
-              <p>
-                <strong>تنبيه:</strong> هذا الطلب قيد مراجعة المركز حالياً. سيقوم فريق العيادة بالتواصل معكِ لتأكيد الموعد النهائي قبل الحضور.
-              </p>
+              <Clock size={13} className="bqp-hint-icon" />
+              <span>قيد مراجعة المركز — سيتواصل معكِ الفريق لتأكيد الموعد</span>
             </>
           ) : (
             <>
-              <CheckCircle2 size={16} className="bqp-tip-icon" />
-              <p>
-                أظهري كود الـ QR لسكرتيرة العيادة عند الوصول لمسح بياناتك وتأكيد دورك في الكشف فوراً.
-              </p>
+              <CheckCircle2 size={13} className="bqp-hint-icon" />
+              <span>أظهري التذكرة للاستقبال عند الوصول لتأكيد حضوركِ</span>
             </>
           )}
         </div>
 
-        {/* Action Buttons: High-End UI/UX Pro Max */}
-        <div className="bqp-actions-container">
+        {/* Compact Action Buttons Row */}
+        <div className="bqp-actions-row">
           <button
             type="button"
-            className={`bqp-download-ticket-btn ${downloadSuccess ? 'is-success' : ''}`}
+            className={`bqp-btn-download ${downloadSuccess ? 'is-success' : ''}`}
             onClick={() => void handleDownloadFullTicket()}
             disabled={isDownloading || generating}
-            title="حفظ تذكرة الحجز كاملة كصورة بجودة عالية للاحتفاظ بها على الموبايل"
+            title="حفظ تذكرة الحجز كصورة للموبايل"
           >
             {downloadSuccess ? (
               <>
-                <CheckCircle2 size={18} className="bqp-btn-icon pulse-check" />
-                <div className="bqp-btn-text-stack">
-                  <strong>تم حفظ التذكرة بنجاح! ✓</strong>
-                  <small>موجودة الآن في مجلد التنزيلات على جهازك</small>
-                </div>
+                <CheckCircle2 size={15} />
+                <span>تم الحفظ بنجاح ✓</span>
               </>
             ) : isDownloading ? (
               <>
                 <span className="bqp-btn-spinner" />
-                <div className="bqp-btn-text-stack">
-                  <strong>جارٍ تجهيز صورة التذكرة...</strong>
-                  <small>يتم إنشاء بطاقة عالية الدقة للموبايل</small>
-                </div>
+                <span>جارٍ الحفظ...</span>
               </>
             ) : (
               <>
-                <Download size={18} className="bqp-btn-icon" />
-                <div className="bqp-btn-text-stack">
-                  <strong>حفظ التذكرة كصورة للموبايل</strong>
-                  <small>كارت كامل بجودة عالية للواتساب والسكرتارية</small>
-                </div>
+                <Download size={15} />
+                <span>حفظ التذكرة كصورة</span>
               </>
             )}
           </button>
 
           <button
             type="button"
-            className="bqp-print-ticket-btn"
+            className="bqp-btn-print"
             onClick={handlePrint}
-            title="طباعة التذكرة على الورق"
+            title="طباعة التذكرة"
           >
-            <Printer size={16} />
-            <span>طباعة تذكرة ورقية</span>
+            <Printer size={15} />
+            <span>طباعة</span>
           </button>
         </div>
 
-        {/* Verification Footer Note */}
+        {/* Minimal Footer Stamp */}
         <div className="bqp-footer-stamp">
-          <ShieldCheck size={13} />
-          <span>تذكرة كشف رقمية معتمدة من مركز المستقبل للتغذية</span>
+          <ShieldCheck size={12} />
+          <span>تذكرة كشف معتمدة · مركز المستقبل للتغذية</span>
         </div>
       </div>
+      {/* Enlarge QR & Code Lightbox Modal */}
+      {isZoomOpen && (
+        <div
+          className="bqp-zoom-backdrop"
+          onClick={() => setIsZoomOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="معاينة كود الحجز الرقمي بحجم مكبر"
+        >
+          <div className="bqp-zoom-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="bqp-zoom-close-btn"
+              onClick={() => setIsZoomOpen(false)}
+              aria-label="إغلاق التكبير"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="bqp-zoom-header">
+              <span className="bqp-zoom-badge-pill">كود الحجز الرقمي</span>
+              <h3 className="bqp-zoom-title">تذكرة العيادة المعتمدة</h3>
+              <p className="bqp-zoom-subtitle">
+                أظهري هذا الكود لسكرتيرة الاستقبال في العيادة لتأكيد حضورك فوراً
+              </p>
+            </div>
+
+            <div className="bqp-zoom-qr-card">
+              {qrUrl ? (
+                <img
+                  src={qrUrl}
+                  alt={`QR Code #${reference}`}
+                  className="bqp-zoom-qr-img"
+                  width={240}
+                  height={240}
+                />
+              ) : (
+                <div className="bqp-qr-fallback">{reference}</div>
+              )}
+              <div className="bqp-zoom-code-display">
+                <span className="bqp-zoom-code-label">رقم الحجز الرقمي</span>
+                <strong className="bqp-zoom-code-value" dir="ltr">#{reference}</strong>
+              </div>
+            </div>
+
+            <div className="bqp-zoom-summary-grid">
+              <div className="bqp-zoom-summary-item">
+                <span className="bqp-zoom-item-label">الاسم:</span>
+                <strong className="bqp-zoom-item-val">{name}</strong>
+              </div>
+              <div className="bqp-zoom-summary-item">
+                <span className="bqp-zoom-item-label">الموعد:</span>
+                <strong className="bqp-zoom-item-val">{dateLabel(date)} · {timeLabel(time)}</strong>
+              </div>
+              <div className="bqp-zoom-summary-item">
+                <span className="bqp-zoom-item-label">الخدمة:</span>
+                <span className="bqp-zoom-item-val">{serviceTitle}</span>
+              </div>
+            </div>
+
+            <div className="bqp-zoom-footer-actions">
+              <button
+                type="button"
+                className="bqp-zoom-action-download"
+                onClick={() => void handleDownloadFullTicket()}
+                disabled={isDownloading || generating}
+              >
+                <Download size={15} />
+                <span>تحميل كارت التذكرة</span>
+              </button>
+              <button
+                type="button"
+                className="bqp-zoom-action-close"
+                onClick={() => setIsZoomOpen(false)}
+              >
+                إغلاق المعاينة
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

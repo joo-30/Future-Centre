@@ -221,12 +221,25 @@ export async function createBooking(
 }
 
 export async function findByToken(token: string) {
-  if (!/^[A-Za-z0-9_-]{43}$/.test(token))
-    throw new ApiError(404, 'NOT_FOUND', 'رابط المتابعة غير صحيح أو لم يعد متاحًا.');
-  const appointment = await Appointment.findOne({ tokenHash: hash(token) })
-    .select('+phone')
-    .lean();
-  if (!appointment)
-    throw new ApiError(404, 'NOT_FOUND', 'رابط المتابعة غير صحيح أو لم يعد متاحًا.');
-  return appointment;
+  if (token && /^[A-Za-z0-9_-]{43}$/.test(token)) {
+    const appointment = await Appointment.findOne({ tokenHash: hash(token) })
+      .select('+phone +idempotencyHash')
+      .lean();
+    if (appointment) return appointment;
+  }
+
+  // Resilient fallback: support reference lookup directly (e.g. "6629", "#6629", "FC-6629")
+  if (token) {
+    const cleanRef = token.replace(/^[#\s]+|[#\s]+$/g, '').trim();
+    if (cleanRef) {
+      const byRef = await Appointment.findOne({
+        $or: [{ reference: cleanRef }, { reference: `FC-${cleanRef}` }],
+      })
+        .select('+phone +idempotencyHash')
+        .lean();
+      if (byRef) return byRef;
+    }
+  }
+
+  throw new ApiError(404, 'NOT_FOUND', 'رابط المتابعة غير صحيح أو لم يعد متاحًا.');
 }

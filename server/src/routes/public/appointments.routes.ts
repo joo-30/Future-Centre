@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { ApiError } from '../../lib/api-error.js';
 import { bearer } from '../../lib/http.js';
+import { privateTokenFor } from '../../lib/tracking-tokens.js';
 import { bookingLimiter } from '../../middleware/booking-limiter.js';
 import { Appointment } from '../../models/appointment.model.js';
 import { publicAppointment } from '../../presenters/appointment.js';
@@ -114,7 +115,7 @@ router.post('/appointments/lookup', bookingLimiter, async (req, res) => {
 
   const appointment = await Appointment.findOne(filter)
     .sort({ createdAt: -1 })
-    .select('+phone +whatsapp')
+    .select('+phone +whatsapp +idempotencyHash')
     .lean();
 
   if (!appointment) {
@@ -127,9 +128,12 @@ router.post('/appointments/lookup', bookingLimiter, async (req, res) => {
     throw new ApiError(404, 'NOT_FOUND', errorMsg);
   }
 
+  const trackingToken = privateTokenFor(appointment);
+
   res.set('Cache-Control', 'no-store');
   res.json({
     appointment: publicAppointment(appointment),
+    trackingToken,
   });
 });
 

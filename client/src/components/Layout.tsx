@@ -1,5 +1,5 @@
 import { normalizePhone } from '@future/shared';
-import { ArrowLeft, LogIn, Menu, Phone, UserRound, X } from 'lucide-react';
+import { ArrowLeft, CalendarDays, LogIn, Menu, Phone, UserRound, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useCatalog } from '../hooks/useCatalog';
@@ -22,8 +22,17 @@ const links = [
 export function Layout() {
   const { user } = useAuth();
   const [menu, setMenu] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const { data } = useCatalog();
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 380);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     setMenu(false);
@@ -168,7 +177,7 @@ export function Layout() {
         <Outlet />
       </div>
       <Footer />
-      {data?.clinic.whatsapp && location.pathname !== '/booking' && (
+      {data?.clinic.whatsapp && !location.pathname.startsWith('/booking') && (
         <a
           className="whatsapp"
           href={whatsappUrl(data.clinic.whatsapp, 'أهلاً، أود الاستفسار عن خدمات مركز المستقبل.')}
@@ -178,6 +187,21 @@ export function Layout() {
         >
           <WhatsAppIcon size={30} color="#ffffff" />
         </a>
+      )}
+      {!location.pathname.startsWith('/booking') && scrolled && (
+        <Link
+          to="/booking"
+          className="floating-book-pill"
+          aria-label="احجزي موعدك بالعيادة"
+        >
+          <div className="fbp-content">
+            <CalendarDays size={17} className="fbp-icon" />
+            <span className="fbp-text">احجزي موعدك</span>
+          </div>
+          <span className="fbp-arrow">
+            <ArrowLeft size={15} />
+          </span>
+        </Link>
       )}
     </>
   );

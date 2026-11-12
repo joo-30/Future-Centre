@@ -124,6 +124,7 @@
   }
   .hero-copy {
     padding: 0;
+    margin-right: 0;
     order: 0;
     display: flex;
     flex-direction: column;
@@ -1140,8 +1141,10 @@
     margin-top: 30px;
   }
   .tracking-wrap {
-    margin-inline: 20px;
+    margin-inline: clamp(10px, 3.5vw, 20px);
     padding-top: 24px;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   .tracking-head {
     text-align: right;
@@ -1161,6 +1164,10 @@
   .tracking-card {
     display: flex;
     flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
   .tracking-core {
     padding: 24px;
@@ -1204,7 +1211,12 @@
     min-height: 50px;
   }
   .tracking-receipt {
-    padding: 27px 24px;
+    padding: 20px 14px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow: hidden;
   }
   .tracking-receipt .fact {
     font-size: 15px;

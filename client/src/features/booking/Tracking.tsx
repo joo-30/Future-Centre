@@ -19,6 +19,7 @@ import {
   Search,
   ShieldCheck,
   Stethoscope,
+  FileText,
   Ticket,
   X,
 } from 'lucide-react';
@@ -32,8 +33,11 @@ import { api, dateLabel, formatPrice, timeLabel } from '../../lib/api';
 import { RescheduleDialog } from './components/RescheduleDialog';
 
 export function Tracking() {
-  const token = useLocation().hash.slice(1);
+  const hashToken = useLocation().hash.slice(1);
   const location = useLocation();
+  const [lookupToken, setLookupToken] = useState('');
+  const token = hashToken || lookupToken;
+
   const { data: catalog } = useCatalog();
   const [copyMessage, setCopyMessage] = useState('');
   const [cancelOpen, setCancelOpen] = useState(false);
@@ -82,9 +86,10 @@ export function Tracking() {
       q.state.data && ['pending', 'confirmed'].includes(q.state.data.status) ? 15000 : false,
   });
   const cancel = useMutation({
-    mutationFn: () => api.cancel(token),
-    onSuccess: (a) => {
-      client.setQueryData(['tracking', token], a);
+    mutationFn: () => api.cancel(token || lookupData?.reference || ''),
+    onSuccess: (updated) => {
+      if (token) client.setQueryData(['tracking', token], updated);
+      setLookupData(updated);
       setCancelOpen(false);
     },
   });
@@ -103,6 +108,10 @@ export function Tracking() {
     try {
       const res = await api.lookup({ query: cleanInput });
       setLookupData(res.appointment);
+      if (res.trackingToken) {
+        setLookupToken(res.trackingToken);
+        window.history.replaceState(null, '', '#' + res.trackingToken);
+      }
     } catch (err) {
       setLookupError(
         (err as Error).message ||
@@ -788,94 +797,51 @@ export function Tracking() {
               status={a.status}
               clinicAddress={catalog?.clinic.address}
               qrToken={a.qrToken}
+              price={svcPrice || undefined}
             />
 
-            <span className="latin" lang="en">
-              APPOINTMENT REQUEST
-            </span>
-
-            <div className="ticket-code">
-              <small>رقم طلبك</small>
-              <bdi dir="ltr">#{a.reference}</bdi>
-            </div>
-
-            <div className="rule" />
-
-            <div className="fact fact-stacked">
-              <span className="fact-label" style={{ color: '#a6c4b0', fontSize: '13px' }}>
-                الخدمة الطبية
-              </span>
-              <strong className="fact-value" style={{ fontSize: '15.5px', color: '#ffffff' }}>
-                {a.serviceTitle}
-              </strong>
-            </div>
-
-            <div className="fact fact-stacked">
-              <span className="fact-label" style={{ color: '#a6c4b0', fontSize: '13px' }}>
-                مكان الكشف
-              </span>
-              <span className="fact-value" style={{ color: '#ffffff', fontSize: '14px' }}>
-                <MapPin size={13} style={{ display: 'inline', verticalAlign: 'middle', marginInlineEnd: '4px' }} />
-                {catalog?.clinic.address || 'كفر الزيات، شارع الجيش عند توكيل أورنج'}
-              </span>
-            </div>
-
-            <div className="fact">
-              <span style={{ color: '#a6c4b0' }}>اليوم</span>
-              <span style={{ fontWeight: 700 }}>{dateLabel(a.date)}</span>
-            </div>
-
-            <div className="fact">
-              <span style={{ color: '#a6c4b0' }}>الوقت</span>
-              <span style={{ fontWeight: 700 }}>{timeLabel(a.time)}</span>
-            </div>
-
-            <div className="fact">
-              <span style={{ color: '#a6c4b0' }}>المدة</span>
-              <span>{a.duration} دقيقة</span>
-            </div>
-
-            {svcPrice && (
-              <div className="receipt-price-box-v2">
-                <div className="price-row-header">
-                  <span className="price-title-label">قيمة الكشف:</span>
-                  <span className="price-subtitle-label">(شامل الاستشارة وفحص InBody)</span>
-                </div>
-                <div className="price-row-digits">
-                  <strong className="price-amount">{formatPrice(svcPrice)}</strong>
-                  <span className="price-currency">ج.م</span>
-                </div>
+            {/* Clean Understated Booking Management Actions */}
+            {(a.canReschedule || a.canCancel) && (
+              <div className="track-manage-actions">
+                {a.canReschedule && (
+                  <button
+                    type="button"
+                    className="track-manage-btn"
+                    onClick={() => setRescheduleOpen(true)}
+                  >
+                    <Calendar size={14} />
+                    <span>طلب تغيير الموعد</span>
+                    <ArrowLeft size={13} style={{ marginInlineStart: 'auto' }} />
+                  </button>
+                )}
+                {a.canCancel && (
+                  <button
+                    type="button"
+                    className="track-manage-btn is-cancel"
+                    onClick={() => setCancelOpen(true)}
+                  >
+                    <X size={14} />
+                    <span>إلغاء الموعد</span>
+                  </button>
+                )}
               </div>
             )}
 
-            <div className="rule" />
-
-            <div className="small" style={{ color: '#a6c4b0', fontSize: '12.5px', marginBottom: '4px' }}>
-              نتواصل معك على
-            </div>
-            <bdi className="ltr" dir="ltr" style={{ fontWeight: 700, fontSize: '15px' }}>
-              {a.phoneMasked}
-            </bdi>
-
-            <div className="rule" />
-
-            <div className="col" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {a.canReschedule && (
-                <button className="link" onClick={() => setRescheduleOpen(true)}>
-                  طلب تغيير الموعد
-                  <ArrowLeft size={18} />
-                </button>
-              )}
-              {a.canCancel && (
-                <button className="link cancel-link" onClick={() => setCancelOpen(true)}>
-                  إلغاء الموعد
-                </button>
-              )}
-              {!a.canCancel && (
-                <ButtonLink to="/booking" kind="lime">
-                  طلب موعد جديد
-                </ButtonLink>
-              )}
+            {/* Direct Shortcut to Prescriptions & Health Records */}
+            <div className="track-prescriptions-shortcut">
+              <div className="track-rx-top">
+                <span className="track-rx-icon-box">
+                  <FileText size={18} />
+                </span>
+                <div>
+                  <strong>الروشتات والبرامج الغذائية</strong>
+                  <p>يمكنك الدخول لحسابك للاطلاع على جميع روشتاتك وبرامجك الغذائية المعتمدة وطباعتها بصيغة PDF في أي وقت.</p>
+                </div>
+              </div>
+              <Link to="/account?tab=prescriptions" className="track-rx-action-btn">
+                <span>فتح ملف الروشتات</span>
+                <ArrowLeft size={13} />
+              </Link>
             </div>
           </aside>
         )}
@@ -918,8 +884,9 @@ export function Tracking() {
       <RescheduleDialog
         open={rescheduleOpen}
         onClose={() => setRescheduleOpen(false)}
-        token={token}
+        token={token || a.reference}
         serviceId={a.serviceId}
+        onRescheduled={(updated) => setLookupData(updated)}
       />
     </main>
   );

@@ -370,7 +370,7 @@
     font-size: 16px;
   }
   .tracking-card {
-    grid-template-columns: 1.5fr 1fr;
+    grid-template-columns: minmax(0, 1fr) 350px;
   }
   .tracking-core {
     padding: 28px;
@@ -382,7 +382,8 @@
     width: 100%;
   }
   .tracking-receipt {
-    padding: 28px 23px;
+    padding: 16px 14px 20px;
+    max-width: 350px;
   }
   .footer {
     margin-inline: 40px;
@@ -414,6 +415,7 @@
   }
   .hero-copy {
     padding: 0 !important;
+    margin-right: 0 !important;
     max-width: 100% !important;
   }
   .hero-copy h1 {

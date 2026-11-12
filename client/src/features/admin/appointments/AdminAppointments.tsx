@@ -376,8 +376,10 @@ export function AdminAppointments() {
                     type="button"
                     className="agenda-jump-btn"
                     onClick={() => handleJumpDay()}
+                    title="الانتقال الفوري إلى اليوم المحدد"
                   >
-                    انتقال سريع ⚡
+                    <Zap size={14} />
+                    <span>انتقال سريع</span>
                   </button>
                 </div>
               </div>
@@ -455,34 +457,37 @@ export function AdminAppointments() {
                   </div>
                 </div>
                 <div className="today-card-actions">
+                  <div className="today-card-actions-top">
+                    <button
+                      type="button"
+                      className="today-rx-btn"
+                      onClick={() => setPrescriptionPatient({ name: a.name, phone: a.whatsapp || a.phone })}
+                      title="تحرير روشتة الدايت والنظام الغذائي للمريض"
+                    >
+                      <span>روشتة دايت</span>
+                    </button>
+                    <a
+                      href={whatsappUrl(
+                        a.whatsapp || a.phone,
+                        `أهلاً بحضرتك ${a.name}، معك مركز المستقبل للتغذية بخصوص موعد ${a.serviceTitle} ${agendaDate === todayStr ? 'اليوم' : 'يوم ' + dateLabel(agendaDate)} الساعة ${timeLabel(a.time)}.`
+                      )}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="today-whatsapp-btn"
+                      title="مراسلة عبر واتساب مباشرة"
+                    >
+                      <WhatsAppIcon size={14} color="#ffffff" />
+                      <span>واتساب</span>
+                    </a>
+                  </div>
                   <button
                     type="button"
-                    className="btn light"
-                    style={{ fontSize: '13px', padding: '6px 10px', flex: 1 }}
-                    onClick={() => setPrescriptionPatient({ name: a.name, phone: a.whatsapp || a.phone })}
-                  >
-                    روشتة دايت
-                  </button>
-                  <a
-                    href={whatsappUrl(
-                      a.whatsapp || a.phone,
-                      `أهلاً بحضرتك ${a.name}، معك مركز المستقبل للتغذية بخصوص موعد ${a.serviceTitle} ${agendaDate === todayStr ? 'اليوم' : 'يوم ' + dateLabel(agendaDate)} الساعة ${timeLabel(a.time)}.`
-                    )}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="table-whatsapp-btn"
-                    title="مراسلة عبر واتساب مباشرة"
-                  >
-                    <WhatsAppIcon size={14} color="#ffffff" />
-                    <span>واتساب</span>
-                  </a>
-                  <button
-                    type="button"
-                    className="btn outline"
-                    style={{ fontSize: '13px', padding: '6px 10px' }}
+                    className="today-details-full-btn"
                     onClick={() => setSelected(a.reference)}
+                    title="عرض كافة تفاصيل الحجز"
                   >
-                    تفاصيل
+                    <span>تفاصيل الموعد</span>
+                    <ChevronLeft size={14} />
                   </button>
                 </div>
               </article>

@@ -806,3 +806,107 @@ button {
   width: 55px;
   font-size: 22px;
 }
+
+
+/* ==========================================================================
+   FLOATING BOOKING CTA (Mobile-First High Conversion)
+   ========================================================================== */
+.floating-book-pill {
+  position: fixed;
+  right: 28px;
+  bottom: 24px;
+  z-index: 895;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #073f33 0%, #0e5646 100%);
+  color: #ffffff !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  box-shadow: 
+    0 10px 32px rgba(7, 63, 51, 0.32),
+    0 2px 8px rgba(7, 63, 51, 0.12);
+  text-decoration: none !important;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  animation: floatingPillSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.floating-book-pill:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 
+    0 16px 36px rgba(7, 63, 51, 0.42),
+    0 4px 12px rgba(7, 63, 51, 0.16);
+  background: linear-gradient(135deg, #0a4f40 0%, #116854 100%);
+}
+
+.floating-book-pill:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+.fbp-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fbp-icon {
+  color: #a8df8e;
+  flex-shrink: 0;
+}
+
+.fbp-text {
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+}
+
+.fbp-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.floating-book-pill:hover .fbp-arrow {
+  transform: translateX(-3px);
+  background: rgba(255, 255, 255, 0.28);
+}
+
+@keyframes floatingPillSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 760px) {
+  .floating-book-pill {
+    right: 14px;
+    bottom: 18px;
+    padding: 11px 16px;
+    font-size: 13.5px;
+    gap: 8px;
+    box-shadow: 0 8px 24px rgba(7, 63, 51, 0.38);
+  }
+  .fbp-arrow {
+    width: 22px;
+    height: 22px;
+  }
+  .fbp-arrow svg {
+    width: 14px;
+    height: 14px;
+  }
+}

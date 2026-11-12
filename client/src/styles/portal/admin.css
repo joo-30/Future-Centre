@@ -5388,6 +5388,14 @@
   padding: 18px;
   animation: popup-calendar-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   direction: rtl;
+  box-sizing: border-box;
+}
+.custom-datepicker-popup.align-left,
+.custom-datepicker-popup.open-upward.align-left,
+.agenda-datepicker-holder .custom-datepicker-popup,
+.agenda-datepicker-holder .custom-datepicker-popup.open-upward {
+  right: auto !important;
+  left: 0 !important;
 }
 @keyframes popup-calendar-in {
   from {
@@ -6367,13 +6375,17 @@
 .rx-logo-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
-.rx-logo-leaf {
-  font-size: 26px;
+.rx-brand-logo-img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
   flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(7, 63, 51, 0.08));
 }
 .rx-logo-title h2 {
+  font-family: 'Alexandria', sans-serif;
   font-size: 24px;
   font-weight: 800;
   color: #193826;
@@ -7289,6 +7301,8 @@ input.rx-num-input,
   padding: 22px 24px;
   margin-bottom: 24px;
   box-shadow: 0 4px 18px rgba(25, 55, 35, 0.05);
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .today-agenda-header {
   display: flex;
@@ -7338,8 +7352,11 @@ input.rx-num-input,
 }
 .today-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 14px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 .today-card {
   background: #fbfdf9;
@@ -7351,6 +7368,10 @@ input.rx-num-input,
   gap: 12px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 2px 6px rgba(25, 55, 35, 0.04);
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 .today-card:hover {
   border-color: #8bb577;
@@ -7409,12 +7430,115 @@ input.rx-num-input,
 }
 .today-card-actions {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
   margin-top: auto;
-  padding-top: 10px;
+  padding-top: 12px;
   border-top: 1px solid #eaf0e4;
+  width: 100%;
+  box-sizing: border-box;
 }
+
+.today-card-actions-top {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.today-rx-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1.5px solid #bbf7d0;
+  border-radius: 10px;
+  height: 38px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.today-rx-btn:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #14532d;
+  transform: translateY(-1px);
+}
+
+.today-whatsapp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #25D366;
+  color: #ffffff !important;
+  border: 1px solid #1ebe5d;
+  border-radius: 10px;
+  height: 38px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  box-sizing: border-box;
+  width: 100%;
+  box-shadow: 0 2px 6px rgba(37, 211, 102, 0.22);
+}
+
+.today-whatsapp-btn:hover {
+  background: #20ba5a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.32);
+}
+
+.today-details-full-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 38px;
+  background: #ffffff;
+  color: #1e4a2d;
+  border: 1.5px solid #d8e4d2;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(25, 55, 35, 0.04);
+}
+
+.today-details-full-btn:hover {
+  background: #f4f8ed;
+  border-color: #1e4a2d;
+  color: #0d2816;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(25, 55, 35, 0.08);
+}
+
+.today-details-full-btn svg {
+  color: #557544;
+  transition: transform 0.18s ease;
+}
+
+.today-details-full-btn:hover svg {
+  color: #1e4a2d;
+  transform: translateX(-2px);
+}
+
 .today-empty-state {
   padding: 32px 20px;
   text-align: center;

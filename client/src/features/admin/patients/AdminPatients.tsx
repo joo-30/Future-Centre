@@ -1448,6 +1448,7 @@ export function AdminPatients() {
         open={!!editing}
         onClose={() => setEditing(null)}
         title={editing?.id ? 'إدارة الاشتراك' : 'تسجيل اشتراك جديد'}
+        className="modal-subscription"
       >
         {editing && (
           <SubscriptionEditor

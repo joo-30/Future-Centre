@@ -1169,3 +1169,9 @@ input[aria-invalid='true'] {
   background: rgba(255, 255, 255, 0.28);
   transform: scale(1.08);
 }
+
+.modal.modal-reschedule,
+dialog.modal.modal-reschedule,
+.modal:has(.custom-datepicker-container) {
+  overflow: visible !important;
+}

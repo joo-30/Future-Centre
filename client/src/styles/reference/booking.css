@@ -1,8 +1,11 @@
 /* Booking and patient product surfaces. */
 .app-wrap {
-  max-width: 1290px;
-  margin: auto;
-  padding: 31px 0 65px;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding-inline: clamp(16px, 2.5vw, 32px);
+  padding-top: 36px;
+  padding-bottom: 70px;
+  box-sizing: border-box;
 }
 .page-title {
   margin-bottom: 25px;
@@ -564,20 +567,6 @@
 @media (max-width: 760px) {
   .booking-days-grid {
     grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-  }
-}
-
-@media (max-width: 480px) {
-  .booking-days-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-  }
-}
-
-@media (max-width: 380px) {
-  .booking-days-grid {
-    grid-template-columns: repeat(3, 1fr);
     gap: 6px;
   }
 }
@@ -1472,9 +1461,11 @@
 .tracking-wrap {
   max-width: 1180px;
   margin: 0 auto;
+  padding-inline: clamp(24px, 4.5vw, 54px);
   padding-top: 28px;
   padding-bottom: 60px;
   direction: rtl;
+  box-sizing: border-box;
 }
 
 /* ==========================================================================
@@ -1695,8 +1686,8 @@
    ========================================================================== */
 .tracking-card {
   display: grid;
-  grid-template-columns: 1.6fr 1.05fr;
-  gap: 26px;
+  grid-template-columns: minmax(0, 1fr) 350px;
+  gap: 28px;
   align-items: start;
   border: none;
   background: transparent;
@@ -2179,9 +2170,13 @@
 .tracking-receipt {
   background: #0f351e;
   color: #eaf3e5;
-  padding: 30px 24px;
+  padding: 16px 14px 20px;
   border-radius: 24px;
   box-shadow: 0 10px 30px rgba(15, 53, 30, 0.2);
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .tracking-receipt .ticket-code {
@@ -2720,3 +2715,835 @@
 }
 
 
+
+/* ==========================================================================
+   SAFE TRACKING LINK CARD & BUTTONS SPACING (PRO MAX)
+   ========================================================================== */
+.tracking-safe {
+  margin: 26px 0 20px !important;
+  background: #f8faf6 !important;
+  border: 1.5px solid #dce8d6 !important;
+  border-radius: 18px !important;
+  padding: 18px 22px !important;
+  box-shadow: 0 2px 10px rgba(27, 67, 42, 0.03) !important;
+}
+
+.tracking-safe .row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.tracking-safe .row > svg {
+  color: #1a4d2e;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.tracking-safe strong {
+  display: block;
+  font-size: 15.5px;
+  font-weight: 800;
+  color: #153e24;
+  margin-bottom: 8px; /* Clean breathing space between title and description */
+}
+
+.tracking-safe p {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #4f7059;
+  margin: 0;
+}
+
+.tracking-core .btn-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 16px !important; /* Clean horizontal space between WhatsApp and Copy buttons */
+  margin-top: 20px !important; /* Space above buttons row */
+  margin-bottom: 16px !important;
+  flex-wrap: wrap;
+}
+
+.tracking-core .btn-row .btn,
+.tracking-core .btn-row a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  height: 44px;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   BOOKING PAGE SPACING & HARMONY (UI/UX PRO MAX)
+   ========================================================================== */
+.live-booking {
+  max-width: 1360px !important;
+  margin-inline: auto !important;
+  padding-inline: clamp(16px, 2.5vw, 32px) !important;
+  box-sizing: border-box !important;
+}
+
+.live-booking .page-title {
+  margin-bottom: 26px !important;
+}
+
+.live-booking .page-title h1 {
+  font-size: 34px !important;
+  line-height: 1.35 !important;
+  margin-bottom: 10px !important;
+  letter-spacing: -0.5px !important;
+}
+
+.live-booking .page-title p {
+  font-size: 15.5px !important;
+  line-height: 1.65 !important;
+  color: #50705a !important;
+  margin-top: 0 !important;
+  margin-bottom: 18px !important;
+}
+
+.live-booking .booking-lookup-banner {
+  margin: 18px 0 22px !important;
+  width: 100%;
+}
+
+.live-booking .booking-lookup-banner-link {
+  padding: 13px 20px !important;
+  border-radius: 16px !important;
+}
+
+.live-booking .demo-notice {
+  margin: 16px 0 26px !important;
+  padding: 12px 20px !important;
+  border-radius: 14px !important;
+  font-size: 13.5px !important;
+  border: 1px solid #fde047 !important;
+}
+
+/* ==========================================================================
+   DESKTOP VIEW (min-width: 1025px): 2-COLUMN GRID WITH STICKY SUMMARY
+   ========================================================================== */
+@media (min-width: 1025px) {
+  .live-booking .book-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 320px !important;
+    gap: 24px !important;
+    align-items: start !important;
+  }
+
+  .live-booking .book-main {
+    background: #ffffff !important;
+    border-radius: 24px !important;
+    border: 1.5px solid #dce8d6 !important;
+    padding: 28px 28px !important;
+    box-shadow: 0 8px 30px rgba(27, 67, 42, 0.04) !important;
+  }
+
+  .live-booking .service-cards-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 14px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .live-booking .booking-summary {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    position: sticky !important;
+    top: 90px !important;
+  }
+
+  .live-booking .service-select-card {
+    padding: 18px 20px !important;
+    border-radius: 18px !important;
+    min-height: 126px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    gap: 14px !important;
+  }
+
+  .live-booking .card-service-title {
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    line-height: 1.45 !important;
+  }
+
+  .live-booking .service-venue-banner {
+    padding: 13px 20px !important;
+    border-radius: 14px !important;
+    margin-bottom: 28px !important;
+    gap: 10px !important;
+    font-size: 13.5px !important;
+  }
+
+  .live-booking .booking-calendar-card {
+    padding: 26px 24px !important;
+    border-radius: 22px !important;
+    margin-bottom: 28px !important;
+  }
+
+  .live-booking .calendar-head-pro {
+    margin-bottom: 22px !important;
+  }
+
+  .live-booking .booking-days-grid {
+    gap: 12px !important;
+  }
+
+  .live-booking .booking-day-card {
+    padding: 12px 8px !important;
+    border-radius: 14px !important;
+  }
+
+  .live-booking .booking-calendar-legend {
+    margin-top: 20px !important;
+    padding-top: 16px !important;
+  }
+
+  .live-booking .slot-area {
+    margin-top: 26px !important;
+    padding-top: 22px !important;
+  }
+
+  .live-booking .booking-summary .receipt {
+    border-radius: 24px !important;
+    overflow: hidden !important;
+  }
+
+  .live-booking .booking-summary .receipt-content {
+    padding: 26px 22px !important;
+  }
+
+  .live-booking .booking-summary .receipt .facts {
+    margin-top: 18px !important;
+    gap: 13px !important;
+  }
+}
+
+/* ==========================================================================
+   TABLET & MOBILE VIEW (max-width: 1024px): STREAMLINED SINGLE-COLUMN WIZARD
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .live-booking .book-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .live-booking .book-main {
+    width: 100% !important;
+    max-width: 100% !important;
+    background: #ffffff !important;
+    border-radius: 22px !important;
+    border: 1.5px solid #dce8d6 !important;
+    padding: 22px 18px !important;
+    box-shadow: 0 4px 20px rgba(27, 67, 42, 0.04) !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Desktop summary is completely hidden on mobile/tablet to avoid squishing and duplication */
+  .live-booking .booking-summary {
+    display: none !important;
+  }
+
+  .live-booking .service-cards-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    margin-bottom: 20px !important;
+  }
+}
+
+.live-booking .guest-strip {
+  padding: 13px 20px !important;
+  border-radius: 16px !important;
+  margin-bottom: 28px !important;
+  font-size: 14px !important;
+}
+
+.live-booking .form-chapter {
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  margin-bottom: 20px !important;
+  margin-top: 8px !important;
+}
+
+/* ==========================================================================
+   BOOKING CAPACITY BANNER (CLINICAL TRUST & APPOINTMENT AVAILABILITY)
+   ========================================================================== */
+.booking-capacity-banner {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  background: linear-gradient(135deg, #f4f9f2 0%, #e8f4e5 100%) !important;
+  border: 1.5px solid #cce4c7 !important;
+  border-radius: 16px !important;
+  padding: 14px 18px !important;
+  margin-bottom: 22px !important;
+  box-shadow: 0 2px 8px rgba(27, 67, 42, 0.04) !important;
+}
+
+.booking-capacity-banner .bcb-content {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+  flex: 1 !important;
+}
+
+.booking-capacity-banner .bcb-icon-wrap {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  color: #1a4d2e !important;
+  border: 1px solid #c0dec0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  margin-top: 2px !important;
+  box-shadow: 0 1px 4px rgba(26, 77, 46, 0.08) !important;
+}
+
+.booking-capacity-banner .bcb-text {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.booking-capacity-banner .bcb-text strong {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  color: #154124 !important;
+  line-height: 1.35 !important;
+}
+
+.booking-capacity-banner .bcb-text span {
+  font-size: 12.5px !important;
+  color: #4a6c53 !important;
+  line-height: 1.5 !important;
+  font-weight: 500 !important;
+}
+
+.booking-capacity-banner .bcb-badge {
+  flex-shrink: 0 !important;
+}
+
+.booking-capacity-banner .bcb-available {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: #ffffff !important;
+  color: #174c28 !important;
+  border: 1.5px solid #a6d89f !important;
+  padding: 6px 14px !important;
+  border-radius: 999px !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 6px rgba(23, 76, 40, 0.08) !important;
+  white-space: nowrap !important;
+}
+
+.booking-capacity-banner .bcb-urgent {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: #fef3c7 !important;
+  color: #92400e !important;
+  border: 1.5px solid #fcd34d !important;
+  padding: 6px 14px !important;
+  border-radius: 999px !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 6px rgba(146, 64, 14, 0.08) !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 640px) {
+  .live-booking {
+    padding-inline: 14px !important;
+  }
+
+  .live-booking .page-title h1 {
+    font-size: 24px !important;
+    line-height: 1.35 !important;
+  }
+
+  .live-booking .page-title p {
+    font-size: 13.5px !important;
+    line-height: 1.6 !important;
+  }
+
+  .live-booking .booking-lookup-banner-link {
+    padding: 11px 14px !important;
+    gap: 10px !important;
+    border-radius: 14px !important;
+  }
+
+  .live-booking .booking-lookup-banner-link .banner-icon-circle {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .live-booking .booking-lookup-banner-link .banner-text strong {
+    font-size: 13.5px !important;
+  }
+
+  .live-booking .booking-lookup-banner-link .banner-text span {
+    font-size: 11.5px !important;
+  }
+
+  .live-booking .book-main {
+    padding: 16px 14px !important;
+    border-radius: 18px !important;
+  }
+
+  .live-booking .booking-step-one {
+    padding-bottom: 24px !important;
+  }
+
+  .live-booking .guest-strip {
+    padding: 10px 14px !important;
+    border-radius: 12px !important;
+    margin-bottom: 18px !important;
+    font-size: 12.5px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .live-booking .form-chapter {
+    font-size: 18px !important;
+    margin-bottom: 16px !important;
+    margin-top: 4px !important;
+    display: flex !important;
+  }
+
+  .live-booking .service-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    margin-bottom: 18px !important;
+  }
+
+  .live-booking .service-select-card {
+    padding: 14px 16px !important;
+    border-radius: 16px !important;
+    min-height: auto !important;
+  }
+
+  .live-booking .card-service-title {
+    font-size: 15px !important;
+  }
+
+  .live-booking .service-venue-banner {
+    padding: 11px 14px !important;
+    border-radius: 12px !important;
+    margin-bottom: 20px !important;
+    font-size: 12px !important;
+    line-height: 1.6 !important;
+  }
+
+  .live-booking .booking-calendar-card {
+    padding: 14px 8px !important;
+    border-radius: 18px !important;
+    margin-bottom: 18px !important;
+  }
+
+  .live-booking .calendar-head-pro {
+    margin-bottom: 12px !important;
+    padding-inline: 4px !important;
+  }
+
+  .live-booking .cal-month-name {
+    font-size: 15.5px !important;
+  }
+
+  .live-booking .cal-subtitle {
+    font-size: 11px !important;
+  }
+
+  /* All 5 days in a clean, perfectly fitted single row */
+  .live-booking .booking-days-grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+    width: 100% !important;
+  }
+
+  .live-booking .booking-day-card {
+    padding: 7px 1px 5px !important;
+    border-radius: 12px !important;
+    min-height: 72px !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
+  }
+
+  .live-booking .day-number-large {
+    font-size: 17px !important;
+    line-height: 1 !important;
+    margin: 2px 0 0 !important;
+  }
+
+  .live-booking .day-weekday-pill {
+    font-size: 10.5px !important;
+    padding: 2px 2px !important;
+    width: 96% !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .live-booking .day-card-footer {
+    min-height: 14px !important;
+    font-size: 9.5px !important;
+  }
+
+  .live-booking .day-tag-chosen {
+    font-size: 9.5px !important;
+    gap: 2px !important;
+  }
+
+  .live-booking .day-tag-closed {
+    font-size: 9.5px !important;
+    gap: 2px !important;
+  }
+
+  .live-booking .booking-calendar-legend {
+    margin-top: 12px !important;
+    padding-top: 10px !important;
+    font-size: 10.5px !important;
+    gap: 10px !important;
+    justify-content: center !important;
+  }
+
+  /* Compact capacity banner on mobile */
+  .booking-capacity-banner {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
+    border-radius: 14px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .booking-capacity-banner .bcb-content {
+    gap: 8px !important;
+  }
+
+  .booking-capacity-banner .bcb-icon-wrap {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  .booking-capacity-banner .bcb-text strong {
+    font-size: 12.5px !important;
+  }
+
+  .booking-capacity-banner .bcb-text span {
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+  }
+
+  .booking-capacity-banner .bcb-badge {
+    width: 100% !important;
+  }
+
+  .booking-capacity-banner .bcb-available,
+  .booking-capacity-banner .bcb-urgent {
+    width: 100% !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    font-size: 11.5px !important;
+    padding: 4px 10px !important;
+  }
+
+  .live-booking .slot-area {
+    margin-top: 16px !important;
+    padding-top: 16px !important;
+    margin-bottom: 10px !important;
+  }
+
+  /* Compact 3-column times grid */
+  .live-booking .times {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .live-booking .time {
+    min-height: 52px !important;
+    font-size: 15px !important;
+    border-radius: 10px !important;
+    padding: 6px 4px !important;
+  }
+
+  .live-booking .time span {
+    font-weight: 700 !important;
+    font-size: 14.5px !important;
+  }
+
+  .live-booking .time small {
+    font-size: 10px !important;
+  }
+
+  /* Modern White Docked Sticky Bottom Bar */
+  .live-booking .mobile-next {
+    display: block !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    background: rgba(255, 255, 255, 0.97) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border-top: 1.5px solid #dce8d6 !important;
+    box-shadow: 0 -8px 24px rgba(27, 67, 42, 0.08) !important;
+    padding: 12px 14px max(14px, env(safe-area-inset-bottom)) !important;
+    margin-inline: -14px !important;
+    margin-bottom: -16px !important;
+    margin-top: 24px !important;
+    border-radius: 0 0 18px 18px !important;
+    z-index: 25 !important;
+    box-sizing: border-box !important;
+  }
+
+  .live-booking .mobile-next .selected-summary {
+    font-size: 12.5px !important;
+    line-height: 1.4 !important;
+    margin-bottom: 10px !important;
+    text-align: center !important;
+  }
+
+  .live-booking .mobile-next .selected-summary strong {
+    color: #174c28 !important;
+    font-weight: 800 !important;
+  }
+
+  .live-booking .mobile-next .row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .live-booking .mobile-next .row > .btn {
+    flex: 1 !important;
+    min-height: 50px !important;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    border-radius: 12px !important;
+  }
+
+  .live-booking .mobile-wa {
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 12px !important;
+  }
+}
+
+/* ==========================================================================
+   EXTRA-SMALL SMARTPHONE (max-width: 360px): NARROW SCREENS
+   ========================================================================== */
+@media (max-width: 360px) {
+  .live-booking {
+    padding-inline: 8px !important;
+  }
+
+  .live-booking .book-main {
+    padding: 14px 10px !important;
+  }
+
+  .live-booking .booking-days-grid {
+    gap: 3px !important;
+  }
+
+  .live-booking .booking-day-card {
+    padding: 6px 1px 4px !important;
+    min-height: 70px !important;
+    border-radius: 10px !important;
+  }
+
+  .live-booking .day-number-large {
+    font-size: 16px !important;
+  }
+
+  .live-booking .day-weekday-pill {
+    font-size: 10px !important;
+  }
+
+  .live-booking .times {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .live-booking .time {
+    min-height: 48px !important;
+    font-size: 14px !important;
+  }
+
+  .live-booking .mobile-next {
+    margin-inline: -10px !important;
+    margin-bottom: -14px !important;
+    padding: 10px 10px max(12px, env(safe-area-inset-bottom)) !important;
+  }
+}
+
+
+/* ==========================================================================
+   PRINT STYLES: EXCLUSIVE 1-PAGE TICKET PRINT
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  header,
+  footer,
+  nav,
+  .site-head,
+  .tracking-top-toolbar,
+  .track-hero-card,
+  .tracking-core,
+  .tracking-bottom,
+  .track-manage-actions,
+  .bqp-actions-row,
+  .bqp-zoom-backdrop,
+  .app-floating-toast,
+  .pwa-install-bar,
+  .pwa-ios-modal-backdrop,
+  .mobile-head-tools {
+    display: none !important;
+  }
+
+  .tracking-wrap,
+  .tracking-card,
+  .tracking-receipt {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .booking-qr-pass-wrapper {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    padding-top: 20px !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+  }
+
+  .booking-qr-pass-card {
+    display: block !important;
+    width: 380px !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    background: #ffffff !important;
+    color: #123720 !important;
+    border: 2px solid #1a4d2e !important;
+    border-radius: 20px !important;
+    padding: 24px 20px !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .bqp-qr-image {
+    display: block !important;
+    margin: 0 auto !important;
+  }
+}
+
+/* Tracking Prescriptions Shortcut Card */
+.track-prescriptions-shortcut {
+  margin-top: 14px;
+  background: #ffffff;
+  border: 1px solid #dce8d4;
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 18px -4px rgba(7, 63, 51, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.track-prescriptions-shortcut:hover {
+  box-shadow: 0 6px 22px -4px rgba(7, 63, 51, 0.08);
+}
+.track-rx-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.track-rx-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #edf6ec;
+  color: #1f6432;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.track-rx-top strong {
+  display: block;
+  font-family: 'Alexandria', sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #193826;
+  margin-bottom: 3px;
+}
+.track-rx-top p {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #557252;
+  margin: 0;
+}
+.track-rx-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #193826;
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.track-rx-action-btn:hover {
+  background: #234e30;
+  color: #ffffff;
+}

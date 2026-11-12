@@ -71,7 +71,7 @@ export const api = {
     } else {
       body = params;
     }
-    return request<{ appointment: AppointmentPublic }>('/appointments/lookup', {
+    return request<{ appointment: AppointmentPublic; trackingToken?: string }>('/appointments/lookup', {
       method: 'POST',
       headers: json({}),
       body: JSON.stringify(body),

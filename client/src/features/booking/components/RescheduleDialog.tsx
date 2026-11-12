@@ -1,3 +1,4 @@
+import type { AppointmentPublic } from '@future/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { DatePicker } from '../../../components/forms/DatePicker';
@@ -9,20 +10,37 @@ export function RescheduleDialog({
   onClose,
   token,
   serviceId,
+  onRescheduled,
 }: {
   open: boolean;
   onClose: () => void;
   token: string;
   serviceId: string;
+  onRescheduled?: (a: AppointmentPublic) => void;
 }) {
   const [date, setDate] = useState(addDays(today(), 1));
   const [time, setTime] = useState('');
   const [message, setMessage] = useState('');
   const client = useQueryClient();
   const slots = useQuery({
-    queryKey: ['reschedule-slots', serviceId, date],
-    queryFn: () => api.privateAvailability(token, date),
-    enabled: open && !!serviceId,
+    queryKey: ['reschedule-slots', serviceId, date, token],
+    queryFn: async () => {
+      if (token) {
+        try {
+          return await api.privateAvailability(token, date);
+        } catch {
+          // Graceful fallback to general availability if private token lookup fails
+          if (serviceId) {
+            return await api.availability(serviceId, date);
+          }
+        }
+      }
+      if (serviceId) {
+        return await api.availability(serviceId, date);
+      }
+      throw new Error('بيانات الخدمة غير متوفرة.');
+    },
+    enabled: open && (!!token || !!serviceId),
   });
   useEffect(() => {
     setTime('');
@@ -31,7 +49,9 @@ export function RescheduleDialog({
   const mutation = useMutation({
     mutationFn: () => api.reschedule(token, date, time),
     onSuccess: (a) => {
-      client.setQueryData(['tracking', token], a);
+      if (token) client.setQueryData(['tracking', token], a);
+      client.invalidateQueries({ queryKey: ['tracking'] });
+      onRescheduled?.(a);
       onClose();
       setTime('');
     },
@@ -41,7 +61,7 @@ export function RescheduleDialog({
     },
   });
   return (
-    <Modal open={open} onClose={onClose} title="اختاري وقتًا بديلًا">
+    <Modal open={open} onClose={onClose} title="اختاري وقتًا بديلًا" className="modal-reschedule">
       <p className="muted">موعدك الحالي قائم حتى يوافق المركز على البديل.</p>
       <label className="field">
         اليوم المقترح
