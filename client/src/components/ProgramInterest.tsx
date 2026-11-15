@@ -144,7 +144,7 @@ export function ProgramInterest({
                 className="interest-whatsapp-cta"
               >
                 <WhatsAppIcon size={18} />
-                <span>متابعة فورية وتأكيد الموعد عبر واتساب</span>
+                <span>تابعي الطلب عبر واتساب</span>
               </a>
             )}
 
@@ -352,7 +352,7 @@ export function ProgramInterest({
               ) : (
                 <>
                   <Send size={16} />
-                  <span>إرسال طلب البرنامج وتأكيد الموعد</span>
+                  <span>إرسال طلب البرنامج</span>
                 </>
               )}
             </button>

@@ -1,10 +1,13 @@
 import { z } from 'zod';
 import { phoneSchema } from './phone.js';
 
+export const NEW_PASSWORD_MIN_LENGTH = 8;
+export const PASSWORD_MAX_LENGTH = 128;
+
 export const passwordSchema = z
   .string()
-  .min(8, 'استخدمي 8 أحرف على الأقل.')
-  .max(128, 'الحد الأقصى 128 حرفًا.');
+  .min(NEW_PASSWORD_MIN_LENGTH, 'استخدمي 8 خانات على الأقل.')
+  .max(PASSWORD_MAX_LENGTH, 'الحد الأقصى 128 خانة.');
 
 export const registerSchema = z
   .object({
@@ -18,7 +21,7 @@ export const registerSchema = z
 export const loginSchema = z
   .object({
     phone: phoneSchema,
-    password: z.string().min(1, 'اكتبي كلمة المرور.').max(128),
+    password: z.string().min(1, 'اكتبي كلمة المرور.').max(PASSWORD_MAX_LENGTH),
     remember: z.boolean().default(false),
   })
   .strict();

@@ -1850,3 +1850,65 @@
   color: #991b1b;
   border: 1px solid #fecaca;
 }
+
+.member-next-visit {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-block-end: clamp(18px, 3vw, 30px);
+  padding: clamp(14px, 2.4vw, 25px);
+  border: 1px solid #c8d8c4;
+  border-inline-start: 4px solid #557458;
+  border-radius: 12px;
+  background: #fafbf5;
+  color: #173e34;
+}
+
+.member-next-visit > svg {
+  flex: 0 0 auto;
+}
+
+.member-next-visit h2 {
+  font-size: clamp(18px, 2.1vw, 25px);
+}
+
+.member-next-visit-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.member-next-visit-actions {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+}
+
+.member-next-visit .btn-heading-book {
+  min-height: 44px;
+}
+
+.member-layout {
+  scroll-margin-block-start: 90px;
+}
+
+@media (max-width: 760px) {
+  .member-page .member-settings {
+    display: none;
+  }
+
+  .member-next-visit {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+  }
+
+  .member-next-visit-copy {
+    flex-basis: calc(100% - 40px);
+  }
+
+  .member-next-visit-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px 12px;
+  }
+}

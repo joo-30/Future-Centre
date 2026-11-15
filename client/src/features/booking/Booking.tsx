@@ -59,6 +59,7 @@ export function Booking() {
   const [mobile, setMobile] = useState(() => window.matchMedia('(max-width:760px)').matches);
   const submission = useRef<{ payload: string; key: string } | null>(null);
   const formTop = useRef<HTMLDivElement>(null);
+  const calendar = useRef<HTMLDivElement>(null);
   const {
     register,
     handleSubmit,
@@ -92,15 +93,16 @@ export function Booking() {
       (a) => a.date === date && (a.status === 'pending' || a.status === 'confirmed')
     );
   }, [userAccount.data, date]);
-  const slots = useQuery({
-    queryKey: ['availability', serviceId, date],
-    queryFn: () => api.availability(serviceId, date),
-    refetchInterval: 20000,
-    enabled: !!data,
-  });
   const service =
-    data?.services.find((s) => s.id === serviceId) ||
-    data?.services.find((s) => s.id === 'nutrition');
+    data?.services.find((s) => s.id === serviceId) ??
+    data?.services.find((s) => s.id === 'nutrition') ??
+    data?.services[0];
+  const slots = useQuery({
+    queryKey: ['availability', service?.id, date],
+    queryFn: () => api.availability(service!.id, date),
+    refetchInterval: 20000,
+    enabled: !!service,
+  });
   useEffect(() => {
     if (data && serviceId !== service?.id && service) setServiceId(service.id);
   }, [data, serviceId, service]);
@@ -148,11 +150,6 @@ export function Booking() {
     setTime(t);
     setValue('time', t, { shouldValidate: true });
     setSlotError('');
-    setTimeout(() => {
-      if (window.innerWidth <= 760) {
-        document.querySelector('.mobile-next')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    }, 120);
   };
 
   const [formAlert, setFormAlert] = useState<{
@@ -273,16 +270,8 @@ export function Booking() {
   );
   const nextStep = () => {
     if (!time) {
-      setSlotError('اختاري وقتًا متاحًا للمتابعة.');
-      setFormAlert({
-        type: 'warning',
-        title: 'تنبيه: اختاري وقت الحجز أولاً',
-        message: 'يرجى النقر على وقت متاح من قائمة المواعيد للانتقال للخطوة التالية.',
-        missingFields: ['اختيار وقت متاح من جدول المواعيد أعلاه'],
-      });
-      setTimeout(() => {
-        document.querySelector('.booking-calendar-card')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 120);
+      calendar.current?.focus({ preventScroll: true });
+      calendar.current?.scrollIntoView({ block: 'start' });
       return;
     }
     setMobileStep(2);
@@ -392,39 +381,36 @@ export function Booking() {
                     const SIcon = icons[s.icon] || Leaf;
                     const isSelected = serviceId === s.id;
                     return (
-                      <div
+                      <label
                         key={s.id}
-                        role="radio"
-                        aria-checked={isSelected}
-                        tabIndex={0}
                         className={`service-select-card ${isSelected ? 'is-selected' : ''}`}
-                        onClick={() => setServiceId(s.id)}
-                        onKeyDown={(e) => {
-                          if (e.key === ' ' || e.key === 'Enter') {
-                            e.preventDefault();
-                            setServiceId(s.id);
-                          }
-                        }}
                       >
-                        <div className="card-top-row">
+                        <input
+                          type="radio"
+                          name="selected-service"
+                          checked={isSelected}
+                          onChange={() => setServiceId(s.id)}
+                        />
+                        <span className="card-top-row" aria-hidden="true">
                           <span className="card-icon-pill">
                             <SIcon size={20} />
                           </span>
                           <span className="card-radio-circle">
                             {isSelected && <Check size={13} strokeWidth={3} />}
                           </span>
-                        </div>
-                        <h3 className="card-service-title">{s.title}</h3>
-                        <div className="card-service-meta">
+                        </span>
+                        <span className="card-service-title">{s.title}</span>
+                        <span className="card-service-meta">
                           <span className="card-meta-pill">
                             <Clock size={13} />
                             {s.duration} دقيقة
                           </span>
                           <span className="card-price-pill">
-                            {formatPrice(s.price)} ج.م
+                            {formatPrice(s.price)}
+                            {s.price !== null && <> ج.م{data.clinic.demoPrices && ' · سعر توضيحي'}</>}
                           </span>
-                        </div>
-                      </div>
+                        </span>
+                      </label>
                     );
                   })}
                 </div>
@@ -435,7 +421,7 @@ export function Booking() {
                     {data.clinic.address || 'كفر الزيات، شارع الجيش عند توكيل أورنج'}
                   </span>
                 </div>
-                <div className="booking-calendar-card">
+                <div ref={calendar} className="booking-calendar-card" tabIndex={-1} aria-label="اختيار اليوم والوقت">
                   <div className="calendar-head-pro">
                     <div className="cal-title-group">
                       <span className="cal-icon-wrap">
@@ -684,12 +670,12 @@ export function Booking() {
                     <strong>
                       {time
                         ? `${dateLabel(date)} · ${timeLabel(time)}`
-                        : 'اختاري وقتًا من الأوقات المتاحة.'}
+                        : 'اختاري الخدمة واليوم والوقت.'}
                     </strong>
                   </div>
                   <div className="row">
                     <Button type="button" onClick={nextStep}>
-                      متابعة لبياناتك
+                      {time ? 'متابعة لبياناتك' : 'اختاري وقت الموعد'}
                     </Button>
                     <a
                       className="mobile-wa"
@@ -831,7 +817,10 @@ export function Booking() {
                         <span className="review-lbl">الخدمة الطبية</span>
                         <strong className="review-val">{service.title}</strong>
                         <div className="review-val-tags">
-                          <span className="review-tag">{formatPrice(service.price)} ج.م</span>
+                          <span className="review-tag">
+                            {formatPrice(service.price)}
+                            {service.price !== null && <> ج.م{data.clinic.demoPrices && ' · سعر توضيحي'}</>}
+                          </span>
                           <span className="review-tag">{service.duration} دقيقة</span>
                           <span className="review-tag">كشف بالعيادة</span>
                         </div>
@@ -900,7 +889,7 @@ export function Booking() {
                     <div className="review-trust-strip">
                       <Check size={16} className="trust-check" />
                       <span>
-                        <strong>بدون دفع إلكتروني:</strong> الكشف والدفع بمقر العيادة · سيتواصل معكِ فريق المركز عبر واتساب لتأكيد الموعد فور الإرسال.
+                        <strong>بدون دفع إلكتروني:</strong> الكشف والدفع بمقر العيادة · يتواصل معكِ فريق المركز بعد مراجعة الطلب لتأكيد الموعد.
                       </span>
                     </div>
                   </div>
@@ -972,11 +961,11 @@ export function Booking() {
                   <div className="rule" />
                   <div className="receipt-price-box-v2">
                     <span className="receipt-price-lbl">
-                      {data.clinic.demoPrices ? 'سعر توضيحي:' : 'قيمة الكشف:'}
+                      {data.clinic.demoPrices && service.price !== null ? 'سعر توضيحي:' : 'قيمة الخدمة:'}
                     </span>
                     <span className="receipt-price-amt">
                       <strong>{formatPrice(service.price)}</strong>
-                      <small className="receipt-price-curr">ج.م</small>
+                      {service.price !== null && <small className="receipt-price-curr">ج.م</small>}
                     </span>
                   </div>
                   <p className="foot">

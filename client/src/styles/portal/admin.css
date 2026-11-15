@@ -10361,3 +10361,111 @@ dialog.advanced-capacity-modal-dialog {
     height: auto !important;
   }
 }
+
+.admin-appointment-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px 16px;
+  align-items: center;
+  margin-block: 0 18px;
+}
+
+.admin-appointment-search,
+.admin-appointment-review,
+.admin-reminder-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-appointment-search .admin-search-box {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-appointment-search .btn {
+  min-height: 46px;
+}
+
+.admin-appointment-review button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding-inline: 11px;
+  border: 1px solid #b9cabe;
+  border-radius: 8px;
+  color: #173c31;
+  background: #f9fbf4;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.admin-appointment-review button:hover {
+  background: #e6efde;
+}
+
+.admin-appointment-review bdi {
+  min-width: 22px;
+  border-radius: 5px;
+  background: #e6eddd;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.admin-reminder-action {
+  flex-wrap: wrap;
+  margin-block: 0 18px;
+}
+
+.admin-appointment-results {
+  margin-block-end: 12px;
+  scroll-margin-block-start: 100px;
+  font-size: clamp(19px, 2vw, 25px);
+}
+
+@media (max-width: 960px) {
+  .admin-appointment-tools {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .admin-appointment-review button {
+    flex: 1;
+  }
+
+  .admin-appointment-search .admin-search-field {
+    font-size: 13px;
+  }
+
+  .admin-appointment-search .btn {
+    padding-inline: 12px;
+  }
+}
+
+
+.admin-settings-views {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-block-end: 18px;
+}
+
+.admin-settings-views button {
+  min-height: 44px;
+  padding-inline: 16px;
+  border: 1px solid #b9cabe;
+  border-radius: 8px;
+  color: #173c31;
+  background: #f9fbf4;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.admin-settings-views button[aria-pressed='true'] {
+  border-color: #173c31;
+  color: #fff;
+  background: #173c31;
+}

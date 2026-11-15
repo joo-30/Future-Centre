@@ -4,6 +4,8 @@ import {
   Bell,
   Calculator,
   CalendarDays,
+  CalendarClock,
+  Gauge,
   ExternalLink,
   FileText,
   Leaf,
@@ -14,7 +16,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../../components/Auth';
@@ -31,6 +33,8 @@ const navSections = [
     items: [
       { path: '/admin', label: 'المواعيد والحجوزات', icon: CalendarDays },
       { path: '/admin/patients', label: 'العملاء والاشتراكات', icon: Users },
+      { path: '/admin/schedule', label: 'أوقات العمل', icon: CalendarClock },
+      { path: '/admin/capacity', label: 'سعة العيادة', icon: Gauge },
       { path: '/admin/bmi', label: 'حاسبة الـ BMI والمؤشرات', icon: Calculator },
     ],
   },
@@ -47,6 +51,8 @@ const navSections = [
 
 export function AdminLayout() {
   const { user, logout } = useAuth();
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const [globalScannerOpen, setGlobalScannerOpen] = useState(false);
   const location = useLocation();
@@ -70,6 +76,33 @@ export function AdminLayout() {
       navigate(`/admin/patients/${encodeURIComponent(target)}`);
     }
   };
+
+  const closeMenu = () => {
+    setOpen(false);
+    requestAnimationFrame(() => menuButton.current?.focus());
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    closeButton.current?.focus();
+    const media = window.matchMedia('(max-width: 760px)');
+    const onResize = () => {
+      if (!media.matches) setOpen(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !event.defaultPrevented) closeMenu();
+    };
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    media.addEventListener('change', onResize);
+
+    return () => {
+      document.body.style.overflow = overflow;
+      window.removeEventListener('keydown', onKey);
+      media.removeEventListener('change', onResize);
+    };
+  }, [open]);
 
   const handleLogout = async () => {
     try {
@@ -95,16 +128,18 @@ export function AdminLayout() {
         <button
           className="console-scrim"
           aria-label="إغلاق القائمة"
-          onClick={() => setOpen(false)}
+          tabIndex={-1}
+          onClick={closeMenu}
         />
       )}
-      <aside className={'console-sidebar ' + (open ? 'is-open' : '')}>
+      <aside id="console-navigation" className={'console-sidebar ' + (open ? 'is-open' : '')}>
         <div className="console-brand">
           <Brand />
           <button
             className="icon-button console-mobile"
             aria-label="إغلاق القائمة"
-            onClick={() => setOpen(false)}
+            ref={closeButton}
+            onClick={closeMenu}
           >
             <X />
           </button>
@@ -155,7 +190,6 @@ export function AdminLayout() {
           <div className="sidebar-doctor-profile-card">
             <div className="doctor-avatar-circle">
               <span className="avatar-text">ر</span>
-              <span className="doctor-online-pulse" title="متصل الآن" />
             </div>
             <div className="doctor-profile-details">
               <strong className="doctor-name">د. رنا ياسر الشورى</strong>
@@ -180,12 +214,15 @@ export function AdminLayout() {
           </div>
         </div>
       </aside>
-      <div className="console-body">
+      <div className="console-body" inert={open}>
         <header className="console-topbar">
           <div className="row">
             <button
               className="icon-button console-mobile"
               aria-label="فتح قائمة الإدارة"
+              aria-expanded={open}
+              aria-controls="console-navigation"
+              ref={menuButton}
               onClick={() => setOpen(true)}
               style={{ position: 'relative' }}
             >

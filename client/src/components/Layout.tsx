@@ -1,6 +1,6 @@
 import { normalizePhone } from '@future/shared';
 import { ArrowLeft, CalendarDays, LogIn, Menu, Phone, ShieldCheck, UserRound, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useCatalog } from '../hooks/useCatalog';
 import { whatsappUrl } from '../lib/api';
@@ -21,6 +21,7 @@ const links = [
 
 export function Layout() {
   const { user, adminUser } = useAuth();
+  const menuButton = useRef<HTMLButtonElement>(null);
   const [menu, setMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -30,22 +31,27 @@ export function Layout() {
     const onScroll = () => {
       setScrolled(window.scrollY > 380);
     };
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   useEffect(() => {
     setMenu(false);
+    setScrolled(false);
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [location.pathname]);
 
   useEffect(() => {
+    if (!menu) return;
     const fn = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMenu(false);
+      if (e.key !== 'Escape' || e.defaultPrevented || document.querySelector('dialog[open]')) return;
+      setMenu(false);
+      menuButton.current?.focus();
     };
     window.addEventListener('keydown', fn);
     return () => window.removeEventListener('keydown', fn);
-  }, []);
+  }, [menu]);
 
   return (
     <>
@@ -56,7 +62,7 @@ export function Layout() {
         <div className="site-head-container">
           <Brand />
           <nav className="nav-capsule" aria-label="التنقل الرئيسي">
-            {links.slice(0, 4).map(([to, t]) => (
+            {links.map(([to, t]) => (
               <NavLink
                 key={to}
                 to={to}
@@ -68,7 +74,6 @@ export function Layout() {
             ))}
           </nav>
           <div className="head-actions">
-            <PwaInstallButton />
             {adminUser && (
               <Link to="/admin" className="head-auth-pill is-admin" title="لوحة الإدارة">
                 <ShieldCheck size={16} />
@@ -98,6 +103,7 @@ export function Layout() {
             <button
               type="button"
               className="menu-mobile icon-button"
+              ref={menuButton}
               aria-expanded={menu}
               aria-controls="mobile-navigation"
               aria-label={menu ? 'إغلاق القائمة' : 'فتح القائمة'}
@@ -205,9 +211,9 @@ export function Layout() {
         <Outlet />
       </div>
       <Footer />
-      {data?.clinic.whatsapp && !location.pathname.startsWith('/booking') && !location.pathname.startsWith('/account') && !location.pathname.startsWith('/admin') && !location.pathname.startsWith('/login') && (
+      {data?.clinic.whatsapp && (location.pathname !== '/' || scrolled) && !location.pathname.startsWith('/booking') && !location.pathname.startsWith('/account') && !location.pathname.startsWith('/admin') && !location.pathname.startsWith('/login') && (
         <a
-          className="whatsapp"
+          className="whatsapp site-whatsapp"
           href={whatsappUrl(data.clinic.whatsapp, 'أهلاً، أود الاستفسار عن خدمات مركز المستقبل.')}
           target="_blank"
           rel="noopener noreferrer"

@@ -2006,3 +2006,23 @@
     padding: 8px 12px;
   }
 }
+
+dialog:is(.case-modal-backdrop, .review-modal-backdrop, .story-lightbox-backdrop) {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  border: 0;
+}
+
+dialog:is(.case-modal-backdrop, .review-modal-backdrop, .story-lightbox-backdrop):not([open]) {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog:is(.case-modal-backdrop, .review-modal-backdrop, .story-lightbox-backdrop),
+  dialog :is(.case-modal-dialog, .review-modal-dialog, .story-lightbox-dialog) {
+    animation: none;
+  }
+}

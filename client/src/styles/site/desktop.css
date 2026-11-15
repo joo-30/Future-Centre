@@ -457,3 +457,28 @@
     grid-template-columns: 1fr !important;
   }
 }
+
+@media (min-width: 1041px) and (max-width: 1320px) {
+  .site-head .site-head-container {
+    gap: 10px;
+  }
+
+  .site-head .nav-capsule {
+    gap: 2px;
+    padding-inline: 4px;
+  }
+
+  .site-head .nav-capsule-link {
+    padding-inline: clamp(8px, calc((100vw - 1000px) / 20), 15px);
+    font-size: 14px;
+  }
+
+  .site-head .head-actions {
+    gap: 7px;
+  }
+
+  .site-head .head-auth-pill,
+  .site-head .head-cta-btn {
+    padding-inline: 10px;
+  }
+}

@@ -80,7 +80,8 @@ function formatRelativeTime(dateStr: string) {
 
 export function AdminSettings() {
   const settingsQuery = useQuery({ queryKey: ['admin', 'settings'], queryFn: adminApi.settings });
-  const audit = useQuery({ queryKey: ['admin', 'audit'], queryFn: adminApi.audit });
+  const [view, setView] = useState<'settings' | 'audit'>('settings');
+  const audit = useQuery({ queryKey: ['admin', 'audit'], queryFn: adminApi.audit, enabled: view === 'audit' });
 
   const [filter, setFilter] = useState<'all' | 'article' | 'service' | 'settings' | 'clinical'>('all');
 
@@ -108,6 +109,16 @@ export function AdminSettings() {
         description="إدارة بيانات التواصل الرسمية، الموقع الجغرافي، وسياسة تسعير الخدمات عبر المنصة."
       />
 
+      <div className="admin-settings-views" role="group" aria-label="عرض الإعدادات">
+        <button type="button" aria-pressed={view === 'settings'} onClick={() => setView('settings')}>
+          إعدادات المركز
+        </button>
+        <button type="button" aria-pressed={view === 'audit'} onClick={() => setView('audit')}>
+          سجل العمليات
+        </button>
+      </div>
+
+      <div hidden={view !== 'settings'}>
       {settingsQuery.isPending ? (
         <Loading />
       ) : settingsQuery.error || !settingsQuery.data ? (
@@ -116,8 +127,9 @@ export function AdminSettings() {
         <SettingsEditor settings={settingsQuery.data} />
       )}
 
+      </div>
       {/* Upgraded Audit Log Section */}
-      <section className="audit-pro-section">
+      {view === 'audit' && <section className="audit-pro-section">
         <div className="audit-head-wrap">
           <div className="audit-title-block">
             <div className="audit-icon-ring">
@@ -168,7 +180,11 @@ export function AdminSettings() {
           </div>
         </div>
 
-        {filteredEvents.length === 0 ? (
+        {audit.isPending ? (
+          <Loading label="جاري تحميل سجل العمليات..." />
+        ) : audit.isError ? (
+          <ErrorState message="تعذر تحميل سجل العمليات." onRetry={() => void audit.refetch()} />
+        ) : filteredEvents.length === 0 ? (
           <div className="audit-empty-card">
             <History size={32} />
             <p>لا توجد تعديلات مسجلة مطابقة لهذا التصنيف.</p>
@@ -211,7 +227,7 @@ export function AdminSettings() {
             })}
           </div>
         )}
-      </section>
+      </section>}
     </>
   );
 }

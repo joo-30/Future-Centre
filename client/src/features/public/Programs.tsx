@@ -69,7 +69,7 @@ export function Programs() {
                 </span>
                 <span className="price">
                   {formatPrice(s.price)}
-                  {s.price !== null && <small> ج.م</small>}
+                  {s.price !== null && <small> ج.م{data.clinic.demoPrices && ' · سعر توضيحي'}</small>}
                 </span>
               </div>
               <div className="col mt-6">

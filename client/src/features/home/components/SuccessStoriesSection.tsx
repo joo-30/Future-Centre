@@ -17,7 +17,7 @@ import {
   X,
   ZoomIn,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { gsap, isReducedMotion, useGSAP } from '../../../lib/motion';
 import { Link } from 'react-router-dom';
 import type { SuccessStory } from '@future/shared';
@@ -25,6 +25,47 @@ import { WhatsAppIcon } from '../../../components/icons/WhatsAppIcon';
 import { useCatalog } from '../../../hooks/useCatalog';
 import { whatsappUrl } from '../../../lib/api';
 import { publicApi } from '../../../lib/portal-api';
+
+function StoryDialog({
+  label,
+  className,
+  onClose,
+  children,
+}: {
+  label: string;
+  className: string;
+  onClose: () => void;
+  children: ReactNode;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+
+  useLayoutEffect(() => {
+    const trigger = document.activeElement;
+    const element = dialog.current;
+    if (element && !element.open) element.showModal();
+    return () => {
+      requestAnimationFrame(() => {
+        if (document.activeElement === document.body && trigger instanceof HTMLElement) {
+          trigger.focus({ preventScroll: true });
+        }
+      });
+    };
+  }, []);
+
+  return (
+    <dialog
+      ref={dialog}
+      className={className}
+      aria-label={label}
+      onClose={onClose}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) event.currentTarget.close();
+      }}
+    >
+      {children}
+    </dialog>
+  );
+}
 
 export function SuccessStoriesSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -121,11 +162,10 @@ export function SuccessStoriesSection() {
   }, [reviews, selectedReviewIndex]);
 
   useEffect(() => {
-    if (!selectedReview) return;
+    if (!selectedReview || lightboxImage) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setSelectedReview(null);
-      } else if (e.key === 'ArrowLeft') {
+      if (e.target instanceof HTMLElement && e.target.closest('input, textarea, select, [contenteditable]')) return;
+      if (e.key === 'ArrowLeft') {
         handleNextReview();
       } else if (e.key === 'ArrowRight') {
         handlePrevReview();
@@ -133,7 +173,7 @@ export function SuccessStoriesSection() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedReview, handleNextReview, handlePrevReview]);
+  }, [selectedReview, lightboxImage, handleNextReview, handlePrevReview]);
 
   if (!stories.length && !storiesQuery.isPending) {
     return null;
@@ -428,7 +468,7 @@ export function SuccessStoriesSection() {
 
       {/* 7. Clinical Case Deep-Dive Modal (When clicking any Transformation Card) */}
       {selectedCase && (
-        <div className="case-modal-backdrop" onClick={() => setSelectedCase(null)}>
+        <StoryDialog className="case-modal-backdrop" label="تفاصيل تجربة العميل" onClose={() => setSelectedCase(null)}>
           <div className="case-modal-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="cmd-header">
               <div className="cmd-header-info">
@@ -580,18 +620,12 @@ export function SuccessStoriesSection() {
               </div>
             </div>
           </div>
-        </div>
+        </StoryDialog>
       )}
 
       {/* 8. Customer Review Deep-Dive & Enlarged Message Modal */}
       {selectedReview && (
-        <div
-          className="review-modal-backdrop"
-          onClick={() => setSelectedReview(null)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="معاينة تجربة العميل الأصلية"
-        >
+        <StoryDialog className="review-modal-backdrop" label="معاينة تجربة العميل الأصلية" onClose={() => setSelectedReview(null)}>
           <div className="review-modal-dialog" onClick={(e) => e.stopPropagation()}>
             {/* Modal Header - Ultra clean & minimal */}
             <div className="rmd-header">
@@ -766,12 +800,12 @@ export function SuccessStoriesSection() {
               </div>
             </div>
           </div>
-        </div>
+        </StoryDialog>
       )}
 
       {/* 9. Lightbox Image Viewer Modal */}
       {lightboxImage && (
-        <div className="story-lightbox-backdrop" onClick={() => setLightboxImage(null)}>
+        <StoryDialog className="story-lightbox-backdrop" label="معاينة الصورة" onClose={() => setLightboxImage(null)}>
           <div className="story-lightbox-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="story-lightbox-header">
               <div>
@@ -804,7 +838,7 @@ export function SuccessStoriesSection() {
               </Link>
             </div>
           </div>
-        </div>
+        </StoryDialog>
       )}
     </section>
   );

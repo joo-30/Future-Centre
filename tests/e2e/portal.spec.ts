@@ -8,9 +8,9 @@ async function adminLogin(page: Page) {
   const phone = credentials.match(/^Phone: (.+)$/m)![1];
   const password = credentials.match(/^Password: (.+)$/m)![1];
   await page.goto('/login?next=%2Fadmin');
-  await page.getByRole('textbox', { name: 'رقم الهاتف', exact: true }).fill(phone);
+  await page.getByRole('textbox', { name: 'رقم الهاتف المسجل', exact: true }).fill(phone);
   await page.getByLabel('كلمة المرور', { exact: true }).fill(password);
-  await page.getByRole('button', { name: 'تسجيل الدخول', exact: true }).click();
+  await page.getByRole('button', { name: 'تسجيل الدخول إلى حسابي', exact: true }).click();
   await expect(page).toHaveURL(/\/admin$/);
   await expect(page.getByRole('heading', { name: 'المواعيد وطلبات الحجز' })).toBeVisible();
 }

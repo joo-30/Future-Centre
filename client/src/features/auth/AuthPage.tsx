@@ -294,25 +294,7 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                   </div>
                 )}
 
-                <form onSubmit={submit} className="auth-actual-form" autoComplete="off">
-                  {/* Invisible deflectors to prevent Chrome/Edge aggressive credential autofill */}
-                  <input
-                    type="text"
-                    name="_trap_user"
-                    tabIndex={-1}
-                    aria-hidden="true"
-                    autoComplete="off"
-                    style={{ position: 'absolute', opacity: 0, height: 0, width: 0, pointerEvents: 'none', zIndex: -1 }}
-                  />
-                  <input
-                    type="password"
-                    name="_trap_pwd"
-                    tabIndex={-1}
-                    aria-hidden="true"
-                    autoComplete="new-password"
-                    style={{ position: 'absolute', opacity: 0, height: 0, width: 0, pointerEvents: 'none', zIndex: -1 }}
-                  />
-
+                <form onSubmit={submit} className="auth-actual-form">
                   <fieldset disabled={busy}>
                     {registering && (
                       <label className="field">
@@ -341,13 +323,10 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                           name="phone"
                           type="tel"
                           dir="ltr"
-                          autoComplete="off"
+                          autoComplete={registering ? 'tel' : 'username'}
                           autoCorrect="off"
                           autoCapitalize="none"
                           spellCheck={false}
-                          data-lpignore="true"
-                          data-1p-ignore="true"
-                          data-form-type="other"
                           required
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
@@ -369,7 +348,7 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                             autoComplete="off"
                             value={recoveryCode}
                             onChange={(e) => setRecoveryCode(e.target.value)}
-                            placeholder="أدخلي الرمز المكون من أرقام وحروف"
+                            placeholder="أدخلي رمز الاستعادة"
                             maxLength={100}
                           />
                         </div>
@@ -380,9 +359,8 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                       <PasswordField
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        autoComplete="new-password"
+                        autoComplete={registering || recovering ? 'new-password' : 'current-password'}
                         current={!registering && !recovering}
-                        showStrengthMeter={true}
                         placeholder=""
                         label={recovering ? 'كلمة المرور الجديدة' : 'كلمة المرور'}
                       />

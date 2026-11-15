@@ -6,7 +6,7 @@ export function ConsoleTitle({
 }: {
   kicker?: string;
   title: string;
-  description: string;
+  description?: string;
   children?: React.ReactNode;
 }) {
   return (
@@ -14,7 +14,7 @@ export function ConsoleTitle({
       <div>
         <span className="kicker">{kicker}</span>
         <h1>{title}</h1>
-        <p>{description}</p>
+        {description && <p>{description}</p>}
       </div>
       {children}
     </div>

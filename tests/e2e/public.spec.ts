@@ -1,15 +1,15 @@
 import { expect, test } from '@playwright/test';
 test('public pages, program requests and readable responsive navigation', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'صحتك تبدأ بفهمك.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'تغذية علاجية تناسب حياتكِ.' })).toBeVisible();
   expect(await page.locator('main.home-body > section').count()).toBeGreaterThanOrEqual(5);
-  await page.getByRole('button', { name: 'طلب اشتراك', exact: true }).click();
+  await page.getByRole('button', { name: 'طلب البرنامج', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.getByRole('textbox', { name: 'الاسم بالكامل' }).fill('عميلة اختبار للمتصفح');
-  await page.getByRole('textbox', { name: 'رقم الهاتف وواتساب' }).fill('01000000002');
+  await page.getByRole('textbox', { name: /رقم الهاتف والواتساب/ }).fill('01000000002');
   await page.getByRole('checkbox').check();
   await page.getByRole('button', { name: 'إرسال طلب البرنامج' }).click();
-  await expect(page.getByText('تم حفظ طلب البرنامج.')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'تم إرسال طلبكِ بنجاح' })).toBeVisible();
   await page.getByRole('button', { name: 'إغلاق', exact: true }).click();
   for (const path of [
     '/programs',

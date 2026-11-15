@@ -61,9 +61,9 @@ export function ProgramDetail() {
             {s.period} · {s.sessions} {s.sessions === 1 ? 'جلسة' : 'جلسات'}
           </p>
           <div className="price">
-            {formatPrice(s.price)} <small>ج.م</small>
+            {formatPrice(s.price)} {s.price !== null && <small>ج.م</small>}
           </div>
-          {data.clinic.demoPrices && <p className="small muted">سعر توضيحي لحين الاعتماد.</p>}
+          {data.clinic.demoPrices && s.price !== null && <p className="small muted">سعر توضيحي لحين الاعتماد.</p>}
           <ButtonLink to={'/booking?service=' + s.id}>
             {s.id === 'nutrition' ? 'حجز كشف عيادة' : 'حجز موعد بالعيادة'}
           </ButtonLink>

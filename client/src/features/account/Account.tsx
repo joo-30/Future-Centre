@@ -122,8 +122,11 @@ export function Account() {
     queryFn: accountApi.get,
     refetchInterval: 20000,
   });
-  const [tab, setTab] = useState(params.get('tab') || 'overview');
+  const requestedTab = params.get('tab');
+  const tab = ACCOUNT_TABS.find(({ id }) => id === requestedTab)?.id ?? 'overview';
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerTrigger = useRef<HTMLButtonElement>(null);
+  const drawerClose = useRef<HTMLButtonElement>(null);
   const navScrollRef = useRef<HTMLElement>(null);
   const [claim, setClaim] = useState(false);
   const [profile, setProfile] = useState(false);
@@ -290,20 +293,24 @@ export function Account() {
     return () => clearTimeout(timer);
   }, [toast]);
   useEffect(() => {
-    setTab(params.get('tab') || 'overview');
-  }, [params]);
-
-  useEffect(() => {
     const activeBtn = navScrollRef.current?.querySelector('button.active');
     if (activeBtn) {
-      activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      const nav = navScrollRef.current;
+      const activeBounds = activeBtn.getBoundingClientRect();
+      const navBounds = nav?.getBoundingClientRect();
+      if (nav && navBounds && (activeBounds.left < navBounds.left || activeBounds.right > navBounds.right)) {
+        nav.scrollBy({ left: activeBounds.left - navBounds.left });
+      }
     }
   }, [tab]);
 
   useEffect(() => {
     if (!drawerOpen) return;
+    const trigger = drawerTrigger.current;
+    drawerClose.current?.focus();
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setDrawerOpen(false);
+      if (e.key !== 'Escape' || e.defaultPrevented) return;
+      setDrawerOpen(false);
     };
     window.addEventListener('keydown', handleKeyDown);
     const prevOverflow = document.body.style.overflow;
@@ -311,6 +318,11 @@ export function Account() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = prevOverflow;
+      requestAnimationFrame(() => {
+        if (document.activeElement === document.body || document.activeElement?.closest('#member-drawer')) {
+          trigger?.focus({ preventScroll: true });
+        }
+      });
     };
   }, [drawerOpen]);
   const reload = () => void client.invalidateQueries({ queryKey: ['account'] });
@@ -326,6 +338,7 @@ export function Account() {
   const upcoming = appointments
     .filter((a) => ['pending', 'confirmed'].includes(a.status))
     .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  const nextAppointment = upcoming[0];
   const historyList = appointments.filter((a) => !['pending', 'confirmed'].includes(a.status));
   const selected = tab === 'history' ? historyList : upcoming;
   const activeSubs = accountQuery.data.subscriptions.filter(
@@ -851,24 +864,46 @@ export function Account() {
       <div className="member-heading">
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span className="kicker">🌿 مساحتك الصحية المتكاملة · مركز المستقبل</span>
+            <span className="kicker">حسابي في مركز المستقبل</span>
             {user?.fileNumber && (
               <span className="kicker-file-badge" title="رقم ملفك الطبي الدائم">
                 رقم الملف: #{user.fileNumber}
               </span>
             )}
           </div>
-          <h1>أهلًا {user?.name.split(' ')[0]}، رعايتك مستمرة.</h1>
-          <p>مواعيدك، خطتك الغذائية، وقياسات الـ InBody، محدثة مباشرة من العيادة.</p>
+          <h1>أهلًا {user?.name.split(' ')[0]}</h1>
         </div>
-        <div className="account-top-cta-row">
-          <PwaInstallButton variant="account" />
+        {tab !== 'overview' && <div className="account-top-cta-row">
           <Link to="/booking" className="btn-heading-book">
             <Plus size={16} />
             <span>احجزي موعدًا جديدًا</span>
           </Link>
-        </div>
+        </div>}
       </div>
+      {tab === 'overview' && (
+        <section className="member-next-visit" aria-labelledby="next-visit-title">
+          <CalendarDays size={24} aria-hidden="true" />
+          <div className="member-next-visit-copy">
+            <h2 id="next-visit-title">{nextAppointment ? 'موعدك القادم' : 'لا توجد مواعيد قادمة'}</h2>
+            {nextAppointment && (
+              <>
+                <p>{nextAppointment.serviceTitle}</p>
+                <p>{dateLabel(nextAppointment.date)} · {timeLabel(nextAppointment.time)}</p>
+              </>
+            )}
+          </div>
+          {nextAppointment ? (
+            <div className="member-next-visit-actions">
+              <StatusBadge status={nextAppointment.status} />
+              <button type="button" className="link" onClick={() => selectTab('appointments')}>
+                تفاصيل الموعد <ArrowLeft size={16} aria-hidden="true" />
+              </button>
+            </div>
+          ) : (
+            <Link to="/booking" className="btn-heading-book">احجزي موعدًا <ArrowLeft size={16} aria-hidden="true" /></Link>
+          )}
+        </section>
+      )}
       <div className="member-layout">
         <aside className="member-nav">
           <div className="member-person">
@@ -895,11 +930,14 @@ export function Account() {
             <button
               type="button"
               className="btn-open-sidebar"
+              ref={drawerTrigger}
+              aria-controls="member-drawer"
+              aria-expanded={drawerOpen}
               onClick={() => setDrawerOpen(true)}
-              aria-label="عرض قائمة الأقسام كاملة"
+              aria-label="أقسام الحساب والإعدادات"
             >
               <Menu size={16} />
-              <span>استعراض أقسام العيادة الـ 6</span>
+              <span>أقسام الحساب والإعدادات</span>
             </button>
             <div className="member-role-badge">
               <ShieldCheck size={13} />
@@ -927,6 +965,7 @@ export function Account() {
                     key={id}
                     type="button"
                     className={tab === id ? 'active' : ''}
+                    aria-current={tab === id ? 'page' : undefined}
                     onClick={() => selectTab(id)}
                   >
                     <span className="tab-icon-wrap">
@@ -956,6 +995,7 @@ export function Account() {
 
           <div className="member-settings">
             <div className="sidebar-nav-label">إعدادات الحساب</div>
+            <PwaInstallButton variant="account" />
             <button
               type="button"
               onClick={() => {
@@ -1992,9 +2032,11 @@ export function Account() {
         className={`member-drawer-overlay ${drawerOpen ? 'open' : ''}`}
         onClick={() => setDrawerOpen(false)}
         aria-hidden={!drawerOpen}
+        inert={!drawerOpen}
       >
         <aside
           className="member-drawer"
+          id="member-drawer"
           onClick={(e) => e.stopPropagation()}
           aria-label="قائمة أقسام الحساب"
         >
@@ -2006,6 +2048,7 @@ export function Account() {
             <button
               type="button"
               className="drawer-close-btn"
+              ref={drawerClose}
               onClick={() => setDrawerOpen(false)}
               aria-label="إغلاق القائمة"
             >
@@ -2064,6 +2107,7 @@ export function Account() {
 
           <div className="drawer-footer">
             <span className="drawer-section-label">إعدادات الحساب</span>
+            <PwaInstallButton variant="account" />
             <div className="drawer-actions-grid">
               <button
                 type="button"

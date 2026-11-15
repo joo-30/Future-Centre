@@ -1,3 +1,4 @@
+import { PwaInstallButton } from './pwa/PwaInstallButton';
 import { normalizePhone } from '@future/shared';
 import {
   Award,
@@ -141,6 +142,7 @@ export function Footer() {
                 <span>تواصل معنا ↗</span>
               </Link>
             </div>
+            <PwaInstallButton />
           </div>
         </div>
       </div>

@@ -14,7 +14,6 @@ import {
   Pencil,
   Plus,
   Printer,
-  QrCode,
   RefreshCw,
   RotateCcw,
   Search,
@@ -24,7 +23,6 @@ import {
   Zap,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { StatusBadge } from '../../../components/StatusBadge';
 import { DatePicker } from '../../../components/forms/DatePicker';
 import { WhatsAppIcon } from '../../../components/icons/WhatsAppIcon';
@@ -41,10 +39,6 @@ import {
 import { adminApi } from '../../../lib/portal-api';
 import { ConsoleTitle } from '../components/ConsoleTitle';
 import { DailyOperationsPulse } from '../components/DailyOperationsPulse';
-import {
-  AdminQrScannerModal,
-  type QrScanResult,
-} from '../components/AdminQrScannerModal';
 import { refreshAdmin } from '../lib/cache';
 import { DietPrescriptionModal } from '../prescription/DietPrescriptionModal';
 import { AppointmentReview } from './AppointmentReview';
@@ -54,7 +48,7 @@ import { ManualBooking } from './ManualBooking';
 
 export function AdminAppointments() {
   const client = useQueryClient();
-  const navigate = useNavigate();
+  const results = useRef<HTMLHeadingElement>(null);
   const [search, setSearch] = useState('');
   const [debounced, setDebounced] = useState('');
   const [date, setDate] = useState('');
@@ -64,7 +58,6 @@ export function AdminAppointments() {
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState('');
   const [manual, setManual] = useState(false);
-  const [scannerOpen, setScannerOpen] = useState(false);
   const [prescriptionPatient, setPrescriptionPatient] = useState<{ name: string; phone: string } | null>(null);
 
   // Agenda Date & Flexible Capacity Controls
@@ -113,14 +106,6 @@ export function AdminAppointments() {
     setAgendaDate(`${yyyy}-${mm}-${dd}`);
     setDatePickerPopoverOpen(false);
     setQuickDayInput('');
-  };
-
-  const handleQrScan = (result: QrScanResult) => {
-    setScannerOpen(false);
-    const target = result.reference || result.patientId || result.phone;
-    if (target) {
-      navigate(`/admin/patients/${encodeURIComponent(target)}`);
-    }
   };
 
   // Custom Dropdown Menus states & click outside handlers
@@ -192,37 +177,79 @@ export function AdminAppointments() {
     refetchInterval: 15000,
   });
 
+  const remindersQuery = useQuery({
+    queryKey: ['admin', 'appointments', 'agenda', todayStr],
+    queryFn: () => adminApi.appointments('date=' + todayStr + '&limit=100'),
+    refetchInterval: 15000,
+  });
+  const todayAppointments = remindersQuery.data?.appointments ?? [];
+  const revealResults = () => {
+    results.current?.focus({ preventScroll: true });
+    results.current?.scrollIntoView({ block: 'start' });
+  };
+  const reviewRequests = (rescheduling: boolean) => {
+    setDate('');
+    setService('');
+    setSearch('');
+    setDebounced('');
+    setStatus(rescheduling ? '' : 'pending');
+    setChanges(rescheduling);
+    setPage(1);
+    revealResults();
+  };
+
   const agendaBookedCount = agendaQuery.data?.appointments.length ?? 0;
   const agendaRemainingSeats = Math.max(0, effectiveAgendaLimit - agendaBookedCount);
   const isCustomAgendaDate = Boolean(agendaOverride);
   return (
     <>
-      <ConsoleTitle
-        title="المواعيد وطلبات الحجز"
-        description="يوم المركز واضح، وكل طلب له خطوة تالية."
-      >
-        <div className="console-title-actions admin-header-actions-pro">
-          <Button kind="outline" onClick={() => setScannerOpen(true)} icon={false}>
-            <QrCode size={18} />
-            مسح كود الحجز (QR)
-          </Button>
-          <Button
-            kind="outline"
-            onClick={() => setRemindersOpen(true)}
-            icon={false}
-            style={{ borderColor: '#86efac', background: '#f0fdf4', color: '#166534', fontWeight: 800 }}
-            title="تجهيز وإرسال تذكيرات مواعيد اليوم عبر واتساب"
-          >
-            <WhatsAppIcon size={17} color="#16a34a" />
-            <span>تذكير الصباح لمواعيد اليوم ({agendaQuery.data?.appointments.length ?? 0})</span>
-          </Button>
-          <Button onClick={() => setManual(true)} icon={false}>
-            <Plus size={19} />
-            إضافة موعد يدوي
-          </Button>
-        </div>
+      <ConsoleTitle title="المواعيد وطلبات الحجز">
+        <Button onClick={() => setManual(true)} icon={false}>
+          <Plus size={18} /> إضافة موعد يدوي
+        </Button>
       </ConsoleTitle>
-      <DailyOperationsPulse overview={overview.data} />
+      <section className="admin-appointment-tools" aria-label="إجراءات المواعيد">
+        <form
+          className="admin-appointment-search"
+          role="search"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setDebounced(search);
+            setPage(1);
+            revealResults();
+          }}
+        >
+          <div className="admin-search-box">
+              <Search size={16} className="search-icon-svg" />
+              <input
+                aria-label="البحث عن موعد"
+                placeholder="اسم المريض، الهاتف، رقم الملف أو الحجز"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="admin-search-field"
+              />
+              {search && (
+                <button
+                  type="button"
+                  className="search-clear-icon"
+                  onClick={() => setSearch('')}
+                  aria-label="مسح البحث"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          <Button type="submit" kind="outline" icon={false}>بحث</Button>
+        </form>
+        <div className="admin-appointment-review">
+          <button type="button" onClick={() => reviewRequests(false)}>
+            طلبات الحجز{counts && <bdi>{counts.pending}</bdi>}
+          </button>
+          <button type="button" onClick={() => reviewRequests(true)}>
+            طلبات التغيير{counts && <bdi>{counts.changes}</bdi>}
+          </button>
+        </div>
+      </section>
 
       {/* جدول مواعيد اليوم · المطلوب منكِ اليوم */}
       <section className="today-agenda-section">
@@ -495,15 +522,30 @@ export function AdminAppointments() {
         )}
       </section>
 
+      <div className="admin-reminder-action">
+        <Button
+          kind="outline"
+          onClick={() => setRemindersOpen(true)}
+          disabled={todayAppointments.length === 0}
+          icon={false}
+        >
+          <WhatsAppIcon size={17} /> تذكيرات مواعيد اليوم
+        </Button>
+        {!remindersQuery.isPending && !remindersQuery.isError && todayAppointments.length === 0 && (
+          <small>لا توجد مواعيد للتذكير اليوم.</small>
+        )}
+      </div>
+
       <DailyRemindersModal
         open={remindersOpen}
         onClose={() => setRemindersOpen(false)}
-        appointments={(agendaQuery.data?.appointments || []) as any}
+        appointments={todayAppointments}
         todayStr={todayStr}
       />
 
       <div className={'booking-console-grid ' + (current ? 'has-detail' : '')}>
         <section className="console-panel">
+          <h2 className="admin-appointment-results" ref={results} tabIndex={-1}>قائمة المواعيد</h2>
           {/* Modern Segmented Status Tabs */}
           <div className="admin-tabs-segmented" role="tablist" aria-label="تصفية حالة الحجز">
             {[
@@ -586,27 +628,6 @@ export function AdminAppointments() {
 
           {/* Modern Filter & Search Controls */}
           <div className="admin-filters-bar-modern">
-            <div className="admin-search-box">
-              <Search size={16} className="search-icon-svg" />
-              <input
-                aria-label="البحث عن موعد"
-                placeholder="البحث في المواعيد: اسم المريض، الهاتف، رقم الملف أو كود الحجز..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="admin-search-field"
-              />
-              {search && (
-                <button
-                  type="button"
-                  className="search-clear-icon"
-                  onClick={() => setSearch('')}
-                  title="مسح البحث"
-                >
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-
             <div className="admin-filter-chip-group">
               <div
                 className="filter-chip-select"
@@ -1098,6 +1119,8 @@ export function AdminAppointments() {
           </>
         )}
       </div>
+      <DailyOperationsPulse overview={overview.data} />
+
       <Modal open={manual} onClose={() => setManual(false)} title="إضافة موعد يدوي">
         {manual && (
           <ManualBooking
@@ -1127,14 +1150,6 @@ export function AdminAppointments() {
               }
             : undefined
         }
-      />
-
-      <AdminQrScannerModal
-        isOpen={scannerOpen}
-        onClose={() => setScannerOpen(false)}
-        onScanSuccess={handleQrScan}
-        title="مسح تذكرة المريض / كود الحجز"
-        subtitle="امسحي كود الـ QR من موبايل المريض أو تذكرته الرقمية للوصول لحجزه وفتح ملفه فوراً"
       />
 
       <AdvancedCapacityModal
