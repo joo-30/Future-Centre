@@ -15,6 +15,7 @@ import { router as appointmentsRouter } from './routes/public/appointments.route
 import { router as catalogRouter } from './routes/public/catalog.routes.js';
 import { router as interestsRouter } from './routes/public/interests.routes.js';
 import { router as storiesRouter } from './routes/public/stories.routes.js';
+
 export function createApp() {
   const app = express();
   app.set('trust proxy', 1);
@@ -59,13 +60,21 @@ export function createApp() {
   app.use('/api', (_req, res) =>
     res.status(404).json({ error: { code: 'NOT_FOUND', message: 'المسار المطلوب غير موجود.' } }),
   );
-  if (config.NODE_ENV === 'production') {
-    const clientDist = path.resolve('client/dist');
-    if (existsSync(clientDist)) {
-      app.use(express.static(clientDist));
-      app.get('/{*path}', (_req, res) => res.sendFile(path.join(clientDist, 'index.html')));
-    }
+
+  const clientDist = path.resolve('client/dist');
+  if (existsSync(clientDist)) {
+    app.use(express.static(clientDist));
+    app.get('/{*path}', (_req, res, next) => {
+      if (_req.path.startsWith('/api')) return next();
+      res.sendFile(path.join(clientDist, 'index.html'));
+    });
+  } else if (config.NODE_ENV === 'development') {
+    app.get('/{*path}', (req, res, next) => {
+      if (req.path.startsWith('/api')) return next();
+      res.redirect(config.CLIENT_ORIGIN + req.originalUrl);
+    });
   }
+
   app.use(handleApiError);
   return app;
 }

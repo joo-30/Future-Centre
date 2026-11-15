@@ -297,7 +297,7 @@ export function AdminBmi() {
         kicker="الأدوات السريرية"
         description="حساب فوري لمؤشر كتلة الجسم، معدل الحرق الأساسي BMR، السعرات المقترحة، واحتياج الماء."
       >
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="console-title-actions bmi-header-actions">
           {selectedPatient && (
             <Button
               kind="outline"
@@ -346,7 +346,7 @@ export function AdminBmi() {
             selectedId={selectedPatientId}
             onSelect={handleSelectPatient}
             onScanClick={() => setScannerOpen(true)}
-            placeholder="ابحثي بالاسم أو رقم الهاتف أو اختاري من القائمة..."
+            placeholder="ابحثي بالاسم، رقم الملف، أو الهاتف..."
           />
         </div>
       </div>
@@ -645,23 +645,14 @@ export function AdminBmi() {
           </div>
 
           {/* Quick Action Button */}
-          <div className="calc-cta-row" style={{ marginTop: '16px' }}>
+          <div className="calc-cta-row bmi-cta-row">
             <button
               type="button"
-              className="btn lime full"
+              className="btn lime full bmi-create-rx-btn"
               onClick={handleCreatePrescriptionWithCalculations}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                padding: '13px 18px',
-                fontSize: '14px',
-                fontWeight: 700,
-              }}
-            >
-              <Printer size={18} />
-              <span>إنشاء وتجهيز روشتة دايت بهذه الحسابات</span>
+              >
+              <Printer size={18} className="bmi-btn-icon" />
+              <span className="bmi-btn-label">إنشاء وتجهيز روشتة دايت بهذه الحسابات</span>
             </button>
           </div>
         </div>

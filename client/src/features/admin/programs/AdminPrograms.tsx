@@ -243,37 +243,8 @@ export function AdminPrograms() {
                   ))}
                 </ul>
 
-                {/* Action Buttons Row */}
+                {/* Action Buttons Grid */}
                 <div className="prog-actions-row">
-                  <button
-                    type="button"
-                    className={`prog-action-btn ${isActive ? 'deactivate' : 'activate'}`}
-                    onClick={() => toggleActive(s)}
-                    title={isActive ? 'إخفاء من الموقع' : 'إظهار بالموقع'}
-                  >
-                    {isActive ? (
-                      <>
-                        <EyeOff size={14} />
-                        إخفاء
-                      </>
-                    ) : (
-                      <>
-                        <Globe size={14} />
-                        إظهار
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    className={`prog-action-btn ${s.featured ? 'unstar' : 'star'}`}
-                    onClick={() => toggleFeatured(s)}
-                    title={s.featured ? 'إلغاء التمييز كباقة رئيسية' : 'تمييز كباقة رئيسية موصى بها'}
-                  >
-                    <Award size={14} />
-                    {s.featured ? 'باقة رئيسية' : 'تمييز كباقة رئيسية'}
-                  </button>
-
                   <button
                     type="button"
                     className="prog-btn-edit"
@@ -286,11 +257,41 @@ export function AdminPrograms() {
 
                   <button
                     type="button"
+                    className={`prog-action-btn ${s.featured ? 'unstar' : 'star'}`}
+                    onClick={() => toggleFeatured(s)}
+                    title={s.featured ? 'إلغاء التمييز كباقة رئيسية' : 'تمييز كباقة رئيسية موصى بها'}
+                  >
+                    <Award size={14} />
+                    <span>{s.featured ? 'باقة رئيسية' : 'تمييز رئيسية'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`prog-action-btn ${isActive ? 'deactivate' : 'activate'}`}
+                    onClick={() => toggleActive(s)}
+                    title={isActive ? 'إخفاء من الموقع' : 'إظهار بالموقع'}
+                  >
+                    {isActive ? (
+                      <>
+                        <EyeOff size={14} />
+                        <span>إخفاء</span>
+                      </>
+                    ) : (
+                      <>
+                        <Globe size={14} />
+                        <span>إظهار</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
                     className="prog-btn-delete"
                     onClick={() => setDeleteTarget(s)}
                     title="حذف البرنامج نهائياً"
                   >
-                    <Trash2 size={15} />
+                    <Trash2 size={14} />
+                    <span>حذف</span>
                   </button>
                 </div>
               </article>

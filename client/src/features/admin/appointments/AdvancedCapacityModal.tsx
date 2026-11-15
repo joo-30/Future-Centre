@@ -4,14 +4,16 @@ import {
   CalendarRange,
   Check,
   CheckCircle2,
+  Clock,
   Minus,
   Plus,
   RotateCcw,
+  Sparkles,
   Zap,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { DatePicker } from '../../../components/forms/DatePicker';
-import { Button, Loading, Modal } from '../../../components/ui';
+import { Loading, Modal } from '../../../components/ui';
 import { dateLabel, shortDateLabel, today } from '../../../lib/api';
 import { adminApi } from '../../../lib/portal-api';
 
@@ -22,7 +24,7 @@ const WEEKDAYS = [
   { id: 2, name: 'الثلاثاء', short: 'ثلاثاء' },
   { id: 3, name: 'الأربعاء', short: 'أربعاء' },
   { id: 4, name: 'الخميس', short: 'خميس' },
-  { id: 5, name: 'الجمعة', short: 'جمعة' },
+  { id: 5, name: 'الجمعة', short: 'جمعة', isWeekend: true },
 ] as const;
 
 const COMMON_PRESETS = [5, 10, 15, 20, 25, 30] as const;
@@ -165,6 +167,7 @@ export function AdvancedCapacityModal({
 
   const isTargetDateOverridden = Boolean(dailyLimit?.dateOverrides?.[targetDate]);
   const weeklyTotal = Object.values(weeklyDraft).reduce((sum, v) => sum + v, 0);
+  const dailyAverage = Math.round(weeklyTotal / 7);
 
   // Baseline limit for target date from weekly draft
   const targetDayJs = new Date(targetDate + 'T12:00:00Z').getUTCDay();
@@ -179,171 +182,172 @@ export function AdvancedCapacityModal({
       open={open}
       onClose={onClose}
       title="تخطيط وتعيين سعة الكشوفات (الجدول الأسبوعي واليومي)"
+      className="advanced-capacity-modal-dialog"
     >
-      <div className="advanced-capacity-modal-body">
-        {/* Modern Segmented Navigation Tabs */}
-        <div className="capacity-modal-tabs" role="tablist">
-          <button
-            type="button"
-            className={`capacity-tab-btn ${tab === 'weekly' ? 'is-active' : ''}`}
-            onClick={() => setTab('weekly')}
-            role="tab"
-            aria-selected={tab === 'weekly'}
-          >
-            <CalendarRange size={18} />
-            <span>الخطة الأسبوعية التلقائية (أيام الأسبوع)</span>
-          </button>
-          <button
-            type="button"
-            className={`capacity-tab-btn ${tab === 'specific' ? 'is-active' : ''}`}
-            onClick={() => setTab('specific')}
-            role="tab"
-            aria-selected={tab === 'specific'}
-          >
-            <CheckCircle2 size={18} />
-            <span>سعة تاريخ استثنائي ({shortDateLabel(targetDate)})</span>
-          </button>
-        </div>
+      <div className="acm-dialog-shell">
+        {/* Scrollable Main Body */}
+        <div className="acm-dialog-scrollable">
+          {/* Modern Segmented Navigation Tabs */}
+          <div className="capacity-modal-tabs" role="tablist">
+            <button
+              type="button"
+              className={`capacity-tab-btn ${tab === 'weekly' ? 'is-active' : ''}`}
+              onClick={() => setTab('weekly')}
+              role="tab"
+              aria-selected={tab === 'weekly'}
+            >
+              <CalendarRange size={17} />
+              <span>الخطة الأسبوعية التلقائية (أيام الأسبوع)</span>
+            </button>
+            <button
+              type="button"
+              className={`capacity-tab-btn ${tab === 'specific' ? 'is-active' : ''}`}
+              onClick={() => setTab('specific')}
+              role="tab"
+              aria-selected={tab === 'specific'}
+            >
+              <Clock size={17} />
+              <span>سعة تاريخ استثنائي ({shortDateLabel(targetDate)})</span>
+            </button>
+          </div>
 
-        {capacityQuery.isPending ? (
-          <Loading />
-        ) : tab === 'weekly' ? (
-          <>
-            {/* Executive Summary & Bulk Toolbar */}
-            <div className="weekly-summary-toolbar">
-              <div className="weekly-summary-left">
-                <span className="wst-kpi-badge">
-                  <CheckCircle2 size={16} />
-                  إجمالي السعة الأسبوعية: <strong>{weeklyTotal} حالة</strong>
-                </span>
-                <p className="wst-desc">
-                  حددي سعة كل يوم في الأسبوع مقدماً؛ تُطبّق تلقائياً كل أسبوع دون الحاجة لإعادة ضبطها يوماً بيوم.
-                </p>
-              </div>
+          {capacityQuery.isPending ? (
+            <Loading />
+          ) : tab === 'weekly' ? (
+            <>
+              {/* Executive Summary & Bulk Toolbar */}
+              <div className="weekly-summary-toolbar">
+                <div className="weekly-summary-left">
+                  <div className="wst-badges-row">
+                    <span className="wst-kpi-badge">
+                      <CheckCircle2 size={15} />
+                      إجمالي السعة الأسبوعية: <strong>{weeklyTotal} حالة</strong>
+                    </span>
+                    <span className="wst-avg-badge">
+                      <Sparkles size={13} />
+                      معدل: <strong>{dailyAverage} كشف / يوم</strong>
+                    </span>
+                  </div>
+                  <p className="wst-desc">
+                    حددي سعة كل يوم في الأسبوع مقدماً؛ تُطبّق تلقائياً كل أسبوع للتحكم في الحجوزات المتاحة للمراجعين.
+                  </p>
+                </div>
 
-              <div className="weekly-bulk-wrap">
-                <span className="weekly-bulk-label">
-                  <Zap size={14} />
-                  تطبيق موحد للكل:
-                </span>
-                <div className="weekly-bulk-chips">
-                  {[10, 15, 20, 25, 30].map((num) => (
-                    <button
-                      key={num}
-                      type="button"
-                      className="weekly-bulk-btn"
-                      onClick={() => handleApplyAllWeekdays(num)}
-                      title={`تعيين ${num} حالة لكل أيام الأسبوع`}
-                    >
-                      <span className="bulk-num">{num}</span>
-                      <span className="bulk-unit"> حالة</span>
-                    </button>
-                  ))}
+                <div className="weekly-bulk-wrap">
+                  <span className="weekly-bulk-label">
+                    <Zap size={14} />
+                    تطبيق موحد وسريع لكل الأيام:
+                  </span>
+                  <div className="weekly-bulk-chips">
+                    {[10, 15, 20, 25, 30].map((num) => (
+                      <button
+                        key={num}
+                        type="button"
+                        className="weekly-bulk-btn"
+                        onClick={() => handleApplyAllWeekdays(num)}
+                        title={`تعيين ${num} حالة لكل أيام الأسبوع`}
+                      >
+                        <span className="bulk-num">{num}</span>
+                        <span className="bulk-unit"> حالة</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* 7 Weekday Cards Grid */}
-            <div className="weekly-capacity-container">
-              {WEEKDAYS.map((w) => {
-                const currentVal = weeklyDraft[String(w.id)] ?? defaultLimit;
-                return (
-                  <div key={w.id} className="weekly-day-card">
-                    {/* Day Identification & Badge */}
-                    <div className="weekly-day-badge-col">
-                      <div className="weekly-day-name-row">
-                        <span className="weekly-dot" />
-                        <strong className="weekly-day-name">{w.name}</strong>
+              {/* 7 Weekday Cards List */}
+              <div className="weekly-capacity-container">
+                {WEEKDAYS.map((w) => {
+                  const currentVal = weeklyDraft[String(w.id)] ?? defaultLimit;
+                  return (
+                    <div
+                      key={w.id}
+                      className={`weekly-day-card ${'isWeekend' in w && w.isWeekend ? 'is-weekend' : ''}`}
+                    >
+                      {/* Row 1: Day Name Tag & Prominent Capacity Status */}
+                      <div className="weekly-day-header-row">
+                        <div className="weekly-day-title-wrap">
+                          <span className="weekly-day-name-tag">{w.name}</span>
+                          {'isWeekend' in w && w.isWeekend && (
+                            <span className="weekly-weekend-tag">عطلة</span>
+                          )}
+                        </div>
+                        <div className="weekly-day-status-badge">
+                          <span className="status-label">السعة:</span>
+                          <strong className="status-number">{currentVal}</strong>
+                          <span className="status-unit">كشف متاح</span>
+                        </div>
                       </div>
-                      <span className="weekly-day-sub">
-                        {currentVal} حالة كشف
-                      </span>
+
+                      {/* Row 2: Tactile Stepper Row */}
+                      <div className="weekly-stepper-row">
+                        <span className="weekly-stepper-label">تعديل السعة:</span>
+                        <div className="weekly-stepper-wrap">
+                          <button
+                            type="button"
+                            className="weekly-step-btn is-minus"
+                            onClick={() =>
+                              handleWeekdayChange(w.id, Math.max(1, currentVal - 1))
+                            }
+                            aria-label={`إنقاص سعة يوم ${w.name}`}
+                          >
+                            <Minus size={15} />
+                          </button>
+
+                          <div className="weekly-step-input-wrap">
+                            <input
+                              type="number"
+                              min={1}
+                              max={100}
+                              value={currentVal}
+                              onChange={(e) =>
+                                handleWeekdayChange(
+                                  w.id,
+                                  Math.max(1, Number(e.target.value) || 1),
+                                )
+                              }
+                              className="weekly-step-input"
+                              dir="ltr"
+                            />
+                            <span className="weekly-step-unit">حالة</span>
+                          </div>
+
+                          <button
+                            type="button"
+                            className="weekly-step-btn is-plus"
+                            onClick={() =>
+                              handleWeekdayChange(w.id, Math.min(100, currentVal + 1))
+                            }
+                            aria-label={`زيادة سعة يوم ${w.name}`}
+                          >
+                            <Plus size={15} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Row 3: Quick Preset Chips */}
+                      <div className="weekly-quick-chips-row">
+                        <span className="weekly-chips-kicker">سريعة:</span>
+                        <div className="weekly-chips-grid">
+                          {COMMON_PRESETS.map((val) => (
+                            <button
+                              key={val}
+                              type="button"
+                              className={`weekly-chip-btn ${currentVal === val ? 'is-active' : ''}`}
+                              onClick={() => handleWeekdayChange(w.id, val)}
+                            >
+                              {val}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-
-                    {/* Quick Preset Buttons */}
-                    <div className="weekly-quick-chips">
-                      <span className="weekly-chips-label">سريعة:</span>
-                      {COMMON_PRESETS.map((val) => (
-                        <button
-                          key={val}
-                          type="button"
-                          className={`weekly-chip-btn ${currentVal === val ? 'is-active' : ''}`}
-                          onClick={() => handleWeekdayChange(w.id, val)}
-                        >
-                          {val}
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Tactile Stepper Box */}
-                    <div className="weekly-stepper-wrap">
-                      <button
-                        type="button"
-                        className="weekly-step-btn is-minus"
-                        onClick={() =>
-                          handleWeekdayChange(w.id, currentVal - 1)
-                        }
-                        aria-label={`إنقاص سعة يوم ${w.name}`}
-                        title="إنقاص"
-                      >
-                        <Minus size={16} />
-                      </button>
-
-                      <input
-                        type="number"
-                        min={1}
-                        max={100}
-                        value={currentVal}
-                        onChange={(e) =>
-                          handleWeekdayChange(
-                            w.id,
-                            Number(e.target.value) || 1,
-                          )
-                        }
-                        className="weekly-step-input"
-                        dir="ltr"
-                      />
-
-                      <button
-                        type="button"
-                        className="weekly-step-btn is-plus"
-                        onClick={() =>
-                          handleWeekdayChange(w.id, currentVal + 1)
-                        }
-                        aria-label={`زيادة سعة يوم ${w.name}`}
-                        title="زيادة"
-                      >
-                        <Plus size={16} />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Modal Actions */}
-            <div className="qcm-actions-row">
-              <Button
-                kind="primary"
-                disabled={saving}
-                onClick={handleSaveWeekly}
-                className="qcm-btn-save"
-              >
-                <Check size={18} />
-                <span>
-                  {saving
-                    ? 'جاري اعتماد الخطة...'
-                    : 'اعتماد الخطة الأسبوعية الكاملة'}
-                </span>
-              </Button>
-              <Button kind="outline" disabled={saving} onClick={onClose}>
-                إلغاء
-              </Button>
-            </div>
-          </>
-        ) : (
-          /* Specific Date Override View */
-          <>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            /* Specific Date Override View */
             <div className="specific-date-capacity-box">
               {/* Date Selection Row using Project Luxury Arabic DatePicker */}
               <div className="specific-date-header-card">
@@ -410,7 +414,7 @@ export function AdvancedCapacityModal({
                       onClick={() => setTargetLimit((prev) => Math.max(1, prev - 1))}
                       aria-label="إنقاص"
                     >
-                      <Minus size={20} />
+                      <Minus size={18} />
                     </button>
                     <input
                       type="number"
@@ -431,7 +435,7 @@ export function AdvancedCapacityModal({
                       onClick={() => setTargetLimit((prev) => Math.min(100, prev + 1))}
                       aria-label="زيادة"
                     >
-                      <Plus size={20} />
+                      <Plus size={18} />
                     </button>
                     <span className="specific-stepper-unit">حالة كشف</span>
                   </div>
@@ -453,14 +457,42 @@ export function AdvancedCapacityModal({
                 </div>
               </div>
             </div>
+          )}
+        </div>
 
-            {/* Actions Row */}
-            <div className="qcm-actions-row">
-              <Button
-                kind="primary"
+        {/* Fixed, Opaque, Full-Height Bottom Footer Bar - Perfectly padded, no clipping */}
+        <div className="acm-dialog-footer">
+          {tab === 'weekly' ? (
+            <>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={handleSaveWeekly}
+                className="acm-confirm-btn"
+              >
+                <Check size={18} />
+                <span>
+                  {saving
+                    ? 'جاري اعتماد الخطة...'
+                    : 'اعتماد الخطة الأسبوعية الكاملة'}
+                </span>
+              </button>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={onClose}
+                className="acm-dismiss-btn"
+              >
+                <span>إلغاء</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
                 disabled={saving}
                 onClick={handleSaveSpecificDate}
-                className="qcm-btn-save"
+                className="acm-confirm-btn"
               >
                 <Check size={18} />
                 <span>
@@ -468,26 +500,31 @@ export function AdvancedCapacityModal({
                     ? 'جاري الحفظ...'
                     : `اعتماد سعة تاريخ (${dateLabel(targetDate, { day: 'numeric', month: 'short' })})`}
                 </span>
-              </Button>
+              </button>
 
               {isTargetDateOverridden && (
-                <Button
-                  kind="outline"
+                <button
+                  type="button"
                   disabled={saving}
                   onClick={handleResetSpecificDate}
-                  className="qcm-btn-revert"
+                  className="acm-revert-btn"
                 >
                   <RotateCcw size={16} />
-                  <span>إلغاء التخصيص والعودة للخطة الأسبوعية ({targetBaseLimit} حالة)</span>
-                </Button>
+                  <span>إلغاء التخصيص والعودة للخطة ({targetBaseLimit} حالة)</span>
+                </button>
               )}
 
-              <Button kind="outline" disabled={saving} onClick={onClose}>
-                إلغاء
-              </Button>
-            </div>
-          </>
-        )}
+              <button
+                type="button"
+                disabled={saving}
+                onClick={onClose}
+                className="acm-dismiss-btn"
+              >
+                <span>إلغاء</span>
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </Modal>
   );

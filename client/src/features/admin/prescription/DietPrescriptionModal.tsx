@@ -1278,6 +1278,64 @@ ${origin}/account?tab=prescriptions
             </div>
           </footer>
         </div>
+
+        {/* Bottom Actions Bar for comfortable scrolling & quick submission */}
+        <div className="rx-bottom-actions-bar no-print">
+          <div className="rx-bottom-actions-inner">
+            <button
+              type="button"
+              className={`btn-publish-patient ${saving ? 'is-busy' : ''}`}
+              disabled={saving}
+              onClick={handleSaveToPatient}
+              title="حفظ الروشتة وإرسالها مباشرة لحساب المريض على المنصة"
+            >
+              {saving ? (
+                <>
+                  <span className="rx-spinner" />
+                  <span>جارٍ الحفظ والنشر...</span>
+                </>
+              ) : (
+                <>
+                  <Send size={15} />
+                  <span>حفظ ونشر لحساب المريض</span>
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              className="btn-print-action"
+              onClick={handlePrint}
+              title="طباعة فورية على مقاس A4 أو حفظ كـ PDF"
+            >
+              <Printer size={16} />
+              <span>طباعة الروشتة الرسمية (PDF)</span>
+            </button>
+
+            {form.patientPhone && (
+              <a
+                href={whatsappUrl(form.patientPhone, whatsappText)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-whatsapp-action"
+                title="إرسال نص الروشتة للمريض على واتساب"
+              >
+                <WhatsAppIcon size={16} color="#ffffff" />
+                <span>إرسال واتساب</span>
+              </a>
+            )}
+
+            <button
+              type="button"
+              className="btn-dismiss-sheet"
+              onClick={onClose}
+              aria-label="إغلاق الروشتة"
+            >
+              <X size={16} />
+              <span>إغلاق الروشتة</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

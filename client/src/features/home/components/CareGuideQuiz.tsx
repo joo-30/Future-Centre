@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { gsap, isReducedMotion } from '../../../lib/motion';
 import { Check, Compass, RotateCcw, Award } from 'lucide-react';
 import { ButtonLink } from '../../../components/ui';
 import { whatsappUrl } from '../../../lib/api';
@@ -50,9 +51,21 @@ const questions: Question[] = [
 ];
 
 export function CareGuideQuiz({ whatsappNumber }: { whatsappNumber?: string }) {
+  const quizCardRef = useRef<HTMLDivElement>(null);
+
+
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isCompleted, setIsCompleted] = useState(false);
+
+  useEffect(() => {
+    if (isReducedMotion() || !quizCardRef.current) return;
+    gsap.fromTo(
+      quizCardRef.current,
+      { opacity: 0.7, y: 8 },
+      { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }
+    );
+  }, [step, isCompleted]);
 
   const currentQ = questions[step];
 
@@ -109,7 +122,7 @@ export function CareGuideQuiz({ whatsappNumber }: { whatsappNumber?: string }) {
         </div>
 
         {!isCompleted ? (
-          <div className="quiz-card">
+          <div ref={quizCardRef} className="quiz-card">
             <div className="quiz-progress-bar">
               <div
                 className="quiz-progress-fill"
@@ -157,7 +170,7 @@ export function CareGuideQuiz({ whatsappNumber }: { whatsappNumber?: string }) {
             )}
           </div>
         ) : (
-          <div className="quiz-result-card">
+          <div ref={quizCardRef} className="quiz-result-card">
             <div className="quiz-result-kicker">
               <Award size={16} />
               <span>الرؤية الاسترشادية لحالتك</span>

@@ -2,6 +2,8 @@ import type { PrescriptionPublic } from '@future/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Activity,
+  AlertCircle,
+  Search,
   ArrowLeft,
   ArrowRight,
   Bell,
@@ -65,7 +67,7 @@ const ACCOUNT_TABS = [
     label: 'الروشتات والبرامج الغذائية',
     shortLabel: 'الروشتات والدايت',
     desc: 'أنظمة الدايت وجداول الوجبات المعتمدة من د. رنا',
-    icon: Utensils,
+    icon: FileText,
     badgeKey: 'prescriptions',
   },
   {
@@ -134,6 +136,32 @@ export function Account() {
   const [isEnablingPush, setIsEnablingPush] = useState(false);
   const [isTestingPush, setIsTestingPush] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(() => isNotificationSoundEnabled());
+  const [lookupQuery, setLookupQuery] = useState('');
+  const [lookupBusy, setLookupBusy] = useState(false);
+  const [lookupSuccessMsg, setLookupSuccessMsg] = useState('');
+  const [lookupErrorMsg, setLookupErrorMsg] = useState('');
+
+  const handleQuickLookupOrClaim = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLookupErrorMsg('');
+    setLookupSuccessMsg('');
+    const q = lookupQuery.trim();
+    if (!q) {
+      setLookupErrorMsg('يرجى كتابة رقم كود الحجز (مثال: #7975 أو 7975)');
+      return;
+    }
+    setLookupBusy(true);
+    try {
+      await accountApi.claim(q.includes('#') ? q.split('#').pop()! : q);
+      setLookupSuccessMsg(`تم ربط وتحديث بيانات الحجز #${q.replace(/^#/, '')} بحسابكِ بنجاح! 🌿`);
+      setLookupQuery('');
+      reload();
+    } catch (err) {
+      setLookupErrorMsg((err as Error).message || 'تعذر العثور على الحجز. تأكدي من رقم الكود.');
+    } finally {
+      setLookupBusy(false);
+    }
+  };
 
   useEffect(() => {
     const handlePrefChange = (e: Event) => {
@@ -739,6 +767,64 @@ export function Account() {
     }
     window.print();
   };
+
+  const renderCodeLookupCard = () => (
+    <div className="account-code-lookup-card">
+      <div className="aclc-header">
+        <div className="aclc-icon-wrap">
+          <Search size={18} />
+        </div>
+        <div>
+          <h3 className="aclc-title">استعلام سريع أو ربط حجز برقم الكود</h3>
+          <p className="aclc-desc">
+            حجزتِ كضيف أو عبر الهاتف وتريدين إضافة الموعد لملفكِ الطبي؟ اكتبي كود الحجز هنا:
+          </p>
+        </div>
+      </div>
+
+      <form onSubmit={handleQuickLookupOrClaim} className="aclc-form">
+        <div className="aclc-input-wrap">
+          <Ticket size={17} className="aclc-field-icon" />
+          <input
+            type="text"
+            className="aclc-input"
+            placeholder="اكتبي كود الحجز (مثال: 7975 أو #7975)"
+            value={lookupQuery}
+            onChange={(e) => setLookupQuery(e.target.value)}
+            dir="rtl"
+          />
+        </div>
+        <button
+          type="submit"
+          className="aclc-submit-btn"
+          disabled={lookupBusy}
+        >
+          {lookupBusy ? (
+            <span>جارٍ الربط...</span>
+          ) : (
+            <>
+              <Link2 size={16} />
+              <span>ربط بالحساب الآن</span>
+            </>
+          )}
+        </button>
+      </form>
+
+      {lookupSuccessMsg && (
+        <div className="aclc-feedback is-success" role="status">
+          <CheckCircle2 size={16} />
+          <span>{lookupSuccessMsg}</span>
+        </div>
+      )}
+      {lookupErrorMsg && (
+        <div className="aclc-feedback is-error" role="alert">
+          <AlertCircle size={16} />
+          <span>{lookupErrorMsg}</span>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <main className="member-page">
       {toast && (
@@ -775,32 +861,36 @@ export function Account() {
           <h1>أهلًا {user?.name.split(' ')[0]}، رعايتك مستمرة.</h1>
           <p>مواعيدك، خطتك الغذائية، وقياسات الـ InBody، محدثة مباشرة من العيادة.</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <div className="account-top-cta-row">
           <PwaInstallButton variant="account" />
-          <ButtonLink to="/booking" className="btn-heading-book">
-          <Plus size={18} />
-          <span>احجزي موعدًا جديدًا</span>
-        </ButtonLink>
+          <Link to="/booking" className="btn-heading-book">
+            <Plus size={16} />
+            <span>احجزي موعدًا جديدًا</span>
+          </Link>
         </div>
       </div>
       <div className="member-layout">
         <aside className="member-nav">
           <div className="member-person">
-            <div className="avatar-wrap">
-              <span className="avatar-large">{user?.name ? user.name.trim().slice(0, 1) : 'م'}</span>
-              <span className="avatar-status-dot" title="الحساب متصل ونشط" />
-            </div>
-            <div className="member-person-details">
-              <strong>{user?.name || 'مريضة المركز'}</strong>
-              <div className="member-phone-pill">
-                <bdi dir="ltr">{user?.phone}</bdi>
+            <div className="member-person-top">
+              <div className="avatar-wrap">
+                <span className="avatar-large">{user?.name ? user.name.trim().slice(0, 1) : 'م'}</span>
+                <span className="avatar-status-dot" title="الحساب متصل ونشط" />
               </div>
-              {user?.fileNumber && (
-                <div className="member-file-pill" title="رقم ملفك الطبي الدائم">
-                  <span className="file-lbl">الملف الطبي:</span>
-                  <strong className="file-val" dir="ltr">#{user.fileNumber}</strong>
+              <div className="member-person-details">
+                <strong>{user?.name || 'مريضة المركز'}</strong>
+                <div className="member-person-pills">
+                  <div className="member-phone-pill">
+                    <bdi dir="ltr">{user?.phone}</bdi>
+                  </div>
+                  {user?.fileNumber && (
+                    <div className="member-file-pill" title="رقم ملفك الطبي الدائم">
+                      <span className="file-lbl">الملف الطبي:</span>
+                      <strong className="file-val" dir="ltr">#{user.fileNumber}</strong>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
             <button
               type="button"
@@ -809,7 +899,7 @@ export function Account() {
               aria-label="عرض قائمة الأقسام كاملة"
             >
               <Menu size={16} />
-              <span>الأقسام (6)</span>
+              <span>استعراض أقسام العيادة الـ 6</span>
             </button>
             <div className="member-role-badge">
               <ShieldCheck size={13} />
@@ -971,7 +1061,7 @@ export function Account() {
                 >
                   <div className="kpi-card-top">
                     <span className="kpi-icon-wrap rx">
-                      <Utensils size={18} />
+                      <FileText size={18} />
                     </span>
                     <span className="kpi-badge">الدايت</span>
                   </div>
@@ -1028,6 +1118,8 @@ export function Account() {
                 </div>
               </div>
 
+              {renderCodeLookupCard()}
+
               <div className="member-quick-actions">
                 <ButtonLink to="/booking" className="btn-action-primary">
                   <Plus size={18} />
@@ -1059,6 +1151,7 @@ export function Account() {
                   حجز موعد جديد
                 </ButtonLink>
               </div>
+              {tab === 'appointments' && renderCodeLookupCard()}
               {selected.length === 0 ? (
                 <div className="portal-empty">
                   <CalendarDays />

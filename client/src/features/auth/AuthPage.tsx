@@ -56,10 +56,20 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
   const quick = useQuery({
     queryKey: ['local-quick-login'],
     queryFn: authApi.quickRoles,
-    enabled: import.meta.env.DEV && mode === 'login',
+    enabled: mode === 'login',
     retry: false,
     staleTime: 60000,
   });
+
+  const isLocalHost = typeof window !== 'undefined' && (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    Boolean(import.meta.env.DEV)
+  );
+
+  const availableRoles = quick.data?.roles?.length
+    ? quick.data.roles
+    : (isLocalHost ? (['admin', 'patient'] as const) : []);
 
   async function quickLogin(role: 'admin' | 'patient') {
     setBusy(true);
@@ -68,7 +78,7 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
       const result = await authApi.quickLogin(role);
       await replaceSession(client, result.user, ['local-quick-login']);
       await auth.refresh();
-      navigate(role === 'admin' ? '/admin' : '/account', { replace: true });
+      navigate(destination(role), { replace: true });
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -256,14 +266,14 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                   </p>
                 </div>
 
-                {mode === 'login' && quick.data?.roles.length && (
+                {mode === 'login' && availableRoles.length > 0 && (
                   <div className="quick-login-panel">
                     <div className="quick-login-header">
                       <CheckCircle2 size={14} />
                       <span>دخول سريع · بيئة التطوير المحلية</span>
                     </div>
                     <div className="quick-login-grid">
-                      {quick.data.roles.map((role) => (
+                      {availableRoles.map((role) => (
                         <button
                           key={role}
                           type="button"

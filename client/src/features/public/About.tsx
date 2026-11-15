@@ -1,10 +1,40 @@
 import { Leaf } from 'lucide-react';
+import { useRef } from 'react';
+import { gsap, isReducedMotion, useGSAP } from '../../lib/motion';
 import { PublicIntro } from '../../components/PublicIntro';
 import { ButtonLink } from '../../components/ui';
 
 export function About() {
+  const mainRef = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      if (isReducedMotion() || !mainRef.current) return;
+      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+      tl.fromTo('.public-intro', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.65 })
+        .fromTo('.about-page .prose p', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.08 }, '-=0.35')
+        .fromTo('.about-photo-wrap', { opacity: 0, scale: 0.98, y: 16 }, { opacity: 1, scale: 1, y: 0, duration: 0.75, ease: 'power3.out' }, '-=0.4');
+
+      gsap.fromTo(
+        '.about-doctor-card',
+        { opacity: 0, y: 18 },
+        {
+          scrollTrigger: {
+            trigger: '.about-doctor-card',
+            start: 'top 85%',
+            once: true,
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.75,
+          ease: 'power2.out',
+        }
+      );
+    },
+    { scope: mainRef }
+  );
   return (
-    <main className="public-page">
+    <main ref={mainRef} className="public-page">
       <div className="detail-page-grid about-page">
         <div>
           <PublicIntro kicker="فلسفة الرعاية" title="نبدأ بفهمك، ونكمل معك.">

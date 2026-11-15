@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { RequireAuth } from '../components/Auth';
 import { Layout } from '../components/Layout';
 import { Loading } from '../components/ui';
@@ -60,6 +60,8 @@ export function App() {
             <Route path="schedule" element={<AdminSchedule />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="stories" element={<AdminStories />} />
+            <Route path="dashboard" element={<Navigate to="/admin" replace />} />
+            <Route path="*" element={<Navigate to="/admin" replace />} />
           </Route>
           <Route element={<Layout />}>
             <Route

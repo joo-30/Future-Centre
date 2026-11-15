@@ -9,14 +9,20 @@
 .patient-search-select-wrap {
   position: relative;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   direction: rtl;
+  box-sizing: border-box;
 }
 
 .pss-controls-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .pss-trigger {
@@ -67,18 +73,20 @@
 
 .pss-main-search-input {
   flex: 1;
+  width: 100%;
+  min-width: 0;
   border: none !important;
   background: transparent !important;
   outline: none !important;
   box-shadow: none !important;
   font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #143722;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #11341c !important;
   text-align: right;
-  min-width: 0;
   padding: 8px 0;
   cursor: text;
+  box-sizing: border-box;
 }
 
 .pss-main-search-input::placeholder {
@@ -140,6 +148,14 @@
   min-width: 0;
 }
 
+.pss-meta-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+}
+
 .pss-name {
   font-size: 14px;
   font-weight: 700;
@@ -147,7 +163,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 220px;
+  min-width: 0;
+  max-width: 140px;
 }
 
 .pss-phone-badge {
@@ -578,6 +595,119 @@
   font-size: 11px;
   font-weight: 700;
   color: #5d7c67;
+}
+
+
+/* Reassuring Pending Booking Receipt Hero */
+.bqp-pending-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px 14px 12px;
+  background: linear-gradient(180deg, #fefef9 0%, #faf8ee 100%);
+  border-radius: 14px;
+  border: 1.5px dashed #decfa3;
+  margin: 6px 4px 10px;
+  box-sizing: border-box;
+}
+
+.bqp-pending-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #fef3c7;
+  color: #b45309;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  box-shadow: 0 3px 10px rgba(180, 83, 9, 0.12);
+}
+
+.bqp-pending-heading {
+  font-size: 15px;
+  font-weight: 800;
+  color: #92400e;
+  margin-bottom: 4px;
+}
+
+.bqp-pending-sub {
+  font-size: 12px;
+  color: #78350f;
+  margin: 0 0 10px;
+  line-height: 1.45;
+}
+
+.bqp-pending-code-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.bqp-pending-code-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.bqp-pending-code-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1.5px solid #d97706;
+  border-radius: 999px;
+  padding: 5px 12px 5px 6px;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.1);
+}
+
+.bqp-pending-code-pill .bqp-code-num {
+  font-size: 18px;
+  font-weight: 900;
+  color: #92400e;
+  letter-spacing: 0.5px;
+}
+
+.bqp-copy-code-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bqp-copy-code-btn:hover {
+  background: #fde68a;
+  color: #78350f;
+}
+
+.bqp-pending-activation-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.35;
+  background: #ffffff;
+  padding: 6px 10px;
+  border-radius: 9px;
+  border: 1px solid #e5e7eb;
+}
+
+.bqp-shield-icon {
+  color: #10b981;
+  flex-shrink: 0;
 }
 
 /* Compact QR Hero */
@@ -7407,4 +7537,270 @@ input.search-pill-input:focus,
 .bqp-zoom-action-close:hover {
   background: #e2ede0;
   color: #123720;
+}
+
+@media (max-width: 768px) {
+  .custom-datepicker-popup,
+  .custom-datepicker-popup.align-left,
+  .custom-datepicker-popup.open-upward,
+  .custom-datepicker-popup.open-upward.align-left,
+  .agenda-datepicker-holder .custom-datepicker-popup,
+  .agenda-datepicker-holder .custom-datepicker-popup.open-upward {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(340px, calc(100vw - 20px)) !important;
+    max-width: calc(100vw - 20px) !important;
+    z-index: 999999 !important;
+    margin: 0 !important;
+  }
+}
+
+
+/* ==========================================================================
+   BMI & PatientSearchSelect Mobile Responsiveness & Touch Enhancements
+   ========================================================================== */
+.bmi-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.calc-cta-row.bmi-cta-row {
+  margin-top: 18px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.bmi-create-rx-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  min-height: 52px !important;
+  padding: 12px 18px !important;
+  border-radius: 999px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  white-space: normal !important;
+  line-height: 1.4 !important;
+  box-sizing: border-box !important;
+}
+
+.bmi-create-rx-btn .bmi-btn-label {
+  white-space: normal !important;
+  word-break: break-word !important;
+  line-height: 1.4 !important;
+  text-align: center !important;
+}
+
+.bmi-create-rx-btn .bmi-btn-icon {
+  flex-shrink: 0 !important;
+}
+
+@media (max-width: 640px) {
+  /* Header Buttons: Full width and stacked vertically */
+  .console-title-actions.bmi-header-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+
+  .console-title-actions.bmi-header-actions button,
+  .console-title-actions.bmi-header-actions > * {
+    width: 100% !important;
+    min-height: 44px !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Patient picker container */
+  .bmi-patient-picker-pro {
+    padding: 12px 14px !important;
+    border-radius: 16px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Compact tactile QR Scanner Button */
+  .pss-scan-qr-btn {
+    width: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 0 !important;
+    border-radius: 12px !important;
+    flex-shrink: 0 !important;
+    gap: 0 !important;
+  }
+
+  .pss-scan-qr-btn .pss-scan-text {
+    display: none !important;
+  }
+
+  .pss-trigger {
+    padding: 6px 10px !important;
+    min-width: 0 !important;
+  }
+
+  .pss-avatar-circle {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 12px !important;
+  }
+
+  .pss-name {
+    max-width: 110px !important;
+    font-size: 13px !important;
+  }
+
+  .pss-file-badge {
+    font-size: 10px !important;
+    padding: 1px 5px !important;
+  }
+
+  /* Bottom prescription CTA button */
+  .bmi-create-rx-btn {
+    font-size: 14px !important;
+    padding: 12px 14px !important;
+    border-radius: 14px !important;
+    min-height: 48px !important;
+  }
+}
+
+
+/* Universal Centered Modal DatePicker on Mobile (< 768px or .is-mobile-dialog) */
+.custom-datepicker-popup.is-mobile-dialog,
+@media (max-width: 768px) {
+  .custom-datepicker-popup,
+  .custom-datepicker-popup.align-left,
+  .custom-datepicker-popup.open-upward,
+  .custom-datepicker-popup.open-upward.align-left,
+  .agenda-datepicker-holder .custom-datepicker-popup,
+  .agenda-datepicker-holder .custom-datepicker-popup.open-upward {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(340px, calc(100vw - 20px)) !important;
+    max-width: calc(100vw - 20px) !important;
+    margin: 0 !important;
+    z-index: 999999 !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4) !important;
+    border-radius: 20px !important;
+    box-sizing: border-box !important;
+  }
+}
+
+
+/* BMI Prescription CTA Button - Zero Text Overflow */
+.bmi-create-rx-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 48px !important;
+  padding: 10px 14px !important;
+  border-radius: 999px !important;
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  white-space: normal !important;
+  line-height: 1.35 !important;
+  box-sizing: border-box !important;
+}
+
+.bmi-create-rx-btn .bmi-btn-label {
+  white-space: normal !important;
+  word-break: break-word !important;
+  line-height: 1.35 !important;
+  text-align: center !important;
+  font-size: inherit !important;
+}
+
+/* Patient Search Select - Fully Contained, Number typing visible */
+.pss-controls-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.pss-trigger {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: calc(100% - 52px) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.pss-trigger:not(.has-value) {
+  max-width: calc(100% - 52px) !important;
+}
+
+.pss-main-search-input {
+  text-align: right !important;
+  direction: rtl !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #11341c !important;
+}
+
+.pss-selected-preview {
+  min-width: 0 !important;
+  flex: 1 !important;
+  overflow: hidden !important;
+}
+
+.pss-name {
+  max-width: 120px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.pss-scan-qr-btn {
+  flex-shrink: 0 !important;
+  width: 44px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  height: 46px !important;
+  min-height: 46px !important;
+  padding: 0 !important;
+  border-radius: 12px !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 768px) {
+  .console-title-actions.bmi-header-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+  .console-title-actions.bmi-header-actions > * {
+    width: 100% !important;
+    min-height: 44px !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+  }
 }

@@ -68,6 +68,9 @@ export function Footer() {
               <li>
                 <Link to="/account">بوابة المريض وسجل القياسات</Link>
               </li>
+              <li>
+                <Link to="/admin">لوحة إدارة المركز</Link>
+              </li>
             </ul>
           </div>
 
@@ -153,6 +156,8 @@ export function Footer() {
             <Link to="/privacy">سياسة الخصوصية</Link>
             <span className="legal-dot">·</span>
             <Link to="/appointment-policy">سياسة المواعيد</Link>
+            <span className="legal-dot">·</span>
+            <Link to="/admin">لوحة الإدارة</Link>
             <span className="legal-dot">·</span>
             <Link to="/contact">تواصل معنا</Link>
           </nav>

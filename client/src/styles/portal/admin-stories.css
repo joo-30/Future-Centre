@@ -772,7 +772,7 @@ dialog.modal.story-admin-modal,
 
 @media (max-width: 440px) {
   .stories-admin-stats {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 

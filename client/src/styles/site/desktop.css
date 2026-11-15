@@ -50,7 +50,7 @@
     margin-inline: 0;
   }
   .hero-copy h1 {
-    font-size: 62px;
+    font-size: clamp(34px, 3.4vw, 50px);
   }
   .hero-copy .latin {
     font-size: 9px;

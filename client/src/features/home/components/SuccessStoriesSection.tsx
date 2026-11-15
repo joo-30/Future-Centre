@@ -17,7 +17,8 @@ import {
   X,
   ZoomIn,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { gsap, isReducedMotion, useGSAP } from '../../../lib/motion';
 import { Link } from 'react-router-dom';
 import type { SuccessStory } from '@future/shared';
 import { WhatsAppIcon } from '../../../components/icons/WhatsAppIcon';
@@ -26,11 +27,15 @@ import { whatsappUrl } from '../../../lib/api';
 import { publicApi } from '../../../lib/portal-api';
 
 export function SuccessStoriesSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+
+
   const { data: catalogData } = useCatalog();
   const clinic = catalogData?.clinic;
   const [activeTab, setActiveTab] = useState<'all' | 'transformations' | 'reviews'>('all');
   const [selectedCase, setSelectedCase] = useState<SuccessStory | null>(null);
   const [selectedReview, setSelectedReview] = useState<SuccessStory | null>(null);
+  const [customInquiry, setCustomInquiry] = useState("");
   const [lightboxImage, setLightboxImage] = useState<{ url: string; title: string; subtitle?: string } | null>(null);
 
   const storiesQuery = useQuery({
@@ -40,6 +45,47 @@ export function SuccessStoriesSection() {
   });
 
   const stories = storiesQuery.data?.stories || [];
+
+  useGSAP(
+    () => {
+      if (isReducedMotion() || !sectionRef.current) return;
+
+      gsap.fromTo(
+        '.stories-section-title-wrap, .stories-trust-box',
+        { opacity: 0, y: 16 },
+        {
+          scrollTrigger: {
+            trigger: '.stories-section-head',
+            start: 'top 85%',
+            once: true,
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          stagger: 0.1,
+          ease: 'power2.out',
+        }
+      );
+
+      gsap.fromTo(
+        '.transform-card-compact',
+        { opacity: 0, y: 18 },
+        {
+          scrollTrigger: {
+            trigger: '.transformations-grid',
+            start: 'top 85%',
+            once: true,
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.75,
+          stagger: 0.1,
+          ease: 'power2.out',
+        }
+      );
+    },
+    { scope: sectionRef, dependencies: [stories.length] }
+  );
 
   const transformations = useMemo(
     () => stories.filter((s) => s.storyType === 'transformation'),
@@ -94,7 +140,7 @@ export function SuccessStoriesSection() {
   }
 
   return (
-    <section className="stories-section" id="stories" aria-label="قصص وتجارب النجاح">
+    <section ref={sectionRef} className="stories-section" id="stories" aria-label="قصص وتجارب النجاح">
       {/* 1. Header with Trust Credential */}
       <div className="section-top stories-section-head">
         <div className="stories-section-title-wrap">
@@ -544,158 +590,141 @@ export function SuccessStoriesSection() {
           onClick={() => setSelectedReview(null)}
           role="dialog"
           aria-modal="true"
-          aria-label="تكبير رأي العميل وقراءة الرسالة"
+          aria-label="معاينة تجربة العميل الأصلية"
         >
           <div className="review-modal-dialog" onClick={(e) => e.stopPropagation()}>
-            {/* Modal Header */}
+            {/* Modal Header - Ultra clean & minimal */}
             <div className="rmd-header">
               <div className="rmd-header-info">
-                <div className="rmd-badge-row">
-                  <span className="rmd-badge">
-                    <MessageCircle size={14} />
-                    <span>محادثة موثقة عبر واتساب المركز الرسمي</span>
-                  </span>
-                  <span className="rmd-verified-pill">
-                    <ShieldCheck size={13} />
-                    <span>مثبتة بالعيادة 🔒</span>
-                  </span>
-                </div>
-                <h3 className="rmd-title">{selectedReview.title}</h3>
-                <div className="rmd-meta-row">
-                  <span className="rmd-sender-name">{selectedReview.name || 'عميل ومراجع بالعيادة'}</span>
-                  <span className="rmd-meta-divider">•</span>
-                  <span className="rmd-program-name">{selectedReview.programTitle || 'برنامج المتابعة الإكلينيكية'}</span>
-                  {selectedReview.durationText && (
-                    <>
-                      <span className="rmd-meta-divider">•</span>
-                      <span className="rmd-duration-tag">
-                        <Clock size={12} />
-                        <span>{selectedReview.durationText}</span>
-                      </span>
-                    </>
-                  )}
-                </div>
+                <h3 className="rmd-title">
+                  {selectedReview.name || 'عميل ومراجع بالعيادة'}
+                  {selectedReview.weightLostKg ? ` (نزول ${selectedReview.weightLostKg} كجم)` : ''}
+                </h3>
+                <span className="rmd-subtitle">
+                  {selectedReview.programTitle || 'برنامج المتابعة والتغذية العلاجية'}
+                  {selectedReview.durationText ? ` • ${selectedReview.durationText}` : ''}
+                </span>
               </div>
               <button
                 type="button"
                 className="rmd-close-btn"
                 onClick={() => setSelectedReview(null)}
-                aria-label="إغلاق التكبير"
+                aria-label="إغلاق"
               >
                 <X size={18} />
               </button>
             </div>
 
-            {/* Modal Body */}
-            <div className={`rmd-body ${selectedReview.imageUrl ? 'has-media' : 'no-media'}`}>
-              {/* Media Column (WhatsApp Screenshot) if available */}
-              {selectedReview.imageUrl && (
-                <div className="rmd-media-col">
+            {/* Modal Body - Real authentic screenshot first, then custom composer */}
+            <div className="rmd-body">
+              {/* Real Authentic Screenshot */}
+              {selectedReview.imageUrl ? (
+                <div className="rmd-real-proof-container">
                   <div
-                    className="rmd-screenshot-frame"
+                    className="rmd-real-img-frame"
                     onClick={() =>
                       setLightboxImage({
                         url: selectedReview.imageUrl!,
-                        title: selectedReview.title,
-                        subtitle: 'محادثة موثقة عبر واتساب المركز الرسمي (خصوصية الحالة محفوظة 🔒)',
+                        title: `${selectedReview.name || 'عميل'} - ${selectedReview.title}`,
+                        subtitle: 'لقطة شاشة أصلية وموثقة من محادثة وتجربة الحالة بالعيادة 🔒',
                       })
                     }
-                    title="انقر لتكبير السكرين شوت بشاشة كاملة"
+                    title="انقري لتكبير الصورة بشاشة كاملة"
                   >
                     <img
                       src={selectedReview.imageUrl}
                       alt={selectedReview.title}
-                      className="rmd-screenshot-img"
+                      className="rmd-real-screenshot-img"
                     />
-                    <div className="rmd-screenshot-overlay">
-                      <span className="rmd-zoom-pill">
+                    <div className="rmd-real-img-overlay">
+                      <span className="rmd-real-zoom-tag">
                         <Maximize2 size={13} />
-                        <span>تكبير السكرين شوت كاملة</span>
+                        <span>تكبير الصورة كاملة</span>
                       </span>
                     </div>
                   </div>
-                  <span className="rmd-screenshot-caption">
+                  <span className="rmd-real-proof-caption">
                     <ShieldCheck size={13} />
-                    <span>لقطة شاشة موثقة من المحادثة الأصلية بالعيادة</span>
+                    <span>لقطة شاشة أصلية حقيقية موثقة من تجربة ومحادثة الحالة 🔒</span>
                   </span>
+                </div>
+              ) : (
+                <div className="rmd-quote-fallback">
+                  <p className="rmd-quote-fallback-text">"{selectedReview.quote}"</p>
                 </div>
               )}
 
-              {/* Message Details Column */}
-              <div className="rmd-content-col">
-                {/* Large WhatsApp Styled Chat Bubble for Crystal Clear Reading */}
-                <div className="rmd-chat-container">
-                  <div className="rmd-chat-head">
-                    <div className="rmd-chat-avatar">
-                      <MessageCircle size={18} />
-                    </div>
-                    <div className="rmd-chat-user-info">
-                      <span className="rmd-chat-user-name">
-                        {selectedReview.name || 'عميل ومراجع بالعيادة'}
-                      </span>
-                      <span className="rmd-chat-user-status">
-                        <span className="wa-online-dot"></span>
-                        <span>محادثة واتساب حقيقية موثقة</span>
-                      </span>
-                    </div>
-                    <span className="rmd-chat-privacy-tag">خصوصية الحالة محفوظة 🔒</span>
-                  </div>
-
-                  <div className="rmd-chat-bubble">
-                    <Quote size={22} className="rmd-chat-quote-icon" />
-                    <p className="rmd-chat-text">"{selectedReview.quote}"</p>
-                    <div className="rmd-chat-meta">
-                      <span className="rmd-chat-time">محادثة معتمدة</span>
-                      <span className="rmd-chat-ticks" title="تمت القراءة والتأكيد">✓✓</span>
-                    </div>
+              {/* Interactive Message Composer ("وتحتها بكتب أنت الرسالة بنفسك") */}
+              <div className="rmd-composer-box">
+                <div className="rmd-composer-head">
+                  <MessageCircle size={15} />
+                  <span>اكتبي استفساركِ لدكتورة رنا بنفسك:</span>
+                </div>
+                <div className="rmd-composer-input-wrap">
+                  <textarea
+                    className="rmd-composer-textarea"
+                    rows={2}
+                    value={customInquiry}
+                    onChange={(e) => setCustomInquiry(e.target.value)}
+                    placeholder="اكتبي رسالتكِ أو استفساركِ لدكتورة رنا هنا (مثال: أود معرفة تفاصيل المتابعة لحالتي...)..."
+                  />
+                  <div className="rmd-composer-suggestions">
+                    <button
+                      type="button"
+                      className="rmd-chip-btn"
+                      onClick={() => setCustomInquiry(`مرحباً د. رنا، أرغب في حجز كشف واستشارة بخصوص حالتي وتجربة (${selectedReview.title}).`)}
+                    >
+                      + حجز موعد كشف
+                    </button>
+                    <button
+                      type="button"
+                      className="rmd-chip-btn"
+                      onClick={() => setCustomInquiry(`مرحباً د. رنا، أود الاستفسار عن تفاصيل وأسعار برنامج (${selectedReview.programTitle || 'المتابعة'}).`)}
+                    >
+                      + أسعار البرنامج
+                    </button>
+                    <button
+                      type="button"
+                      className="rmd-chip-btn"
+                      onClick={() => setCustomInquiry('مرحباً د. رنا، هل المتابعة متاحة أونلاين أم حضور بالعيادة فقط؟')}
+                    >
+                      + متابعة أونلاين
+                    </button>
                   </div>
                 </div>
 
-                {/* Metric Summary if weight lost */}
-                {selectedReview.weightLostKg ? (
-                  <div className="rmd-loss-strip">
-                    <div className="rmd-loss-box">
-                      <span className="rmd-lb-label">إجمالي النزول المحقق</span>
-                      <strong className="rmd-lb-val">-{selectedReview.weightLostKg} كجم</strong>
-                    </div>
-                    {selectedReview.durationText && (
-                      <div className="rmd-loss-box is-duration">
-                        <span className="rmd-lb-label">المدة الزمنية</span>
-                        <strong className="rmd-lb-val is-text">{selectedReview.durationText}</strong>
-                      </div>
-                    )}
-                    <div className="rmd-loss-box is-program">
-                      <span className="rmd-lb-label">البرنامج العلاجي</span>
-                      <strong className="rmd-lb-val is-text">{selectedReview.programTitle}</strong>
-                    </div>
-                  </div>
-                ) : null}
-
-                {/* Clinical Notes / Assessment if details exist */}
-                {selectedReview.details && (
-                  <div className="rmd-details-card">
-                    <h5 className="rmd-dc-title">
-                      <Activity size={14} />
-                      <span>تفاصيل النتيجة والمتابعة الطبية</span>
-                    </h5>
-                    <p className="rmd-dc-text">{selectedReview.details}</p>
-                  </div>
-                )}
+                <a
+                  href={whatsappUrl(
+                    clinic?.whatsapp || '201041504201',
+                    customInquiry.trim()
+                      ? `${customInquiry.trim()}\n\n(استفسار بخصوص تجربة: ${selectedReview.name || 'العميل'} - ${selectedReview.title})`
+                      : `مرحباً د. رنا، كنت أقرأ تجربة (${selectedReview.name || 'العميل'} - ${selectedReview.title}) وأود الاستفسار عن المتابعة لحالتي وحجز موعد بالمركز.`
+                  )}
+                  className="rmd-composer-submit-btn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <WhatsAppIcon size={17} color="#ffffff" />
+                  <span>إرسال استفساركِ عبر واتساب الآن</span>
+                  <ArrowLeft size={16} />
+                </a>
               </div>
             </div>
 
             {/* Modal Footer */}
             <div className="rmd-footer">
-              {/* Pagination / Navigation Controls */}
               <div className="rmd-nav-controls">
                 <button
                   type="button"
                   className="rmd-nav-btn"
-                  onClick={handlePrevReview}
-                  title="الرأي السابق (سهم يمين)"
+                  onClick={() => {
+                    setCustomInquiry('');
+                    handlePrevReview();
+                  }}
+                  title="الرأي السابق"
                   aria-label="الرأي السابق"
                 >
-                  <ChevronRight size={16} />
+                  <ChevronRight size={15} />
                   <span>السابق</span>
                 </button>
 
@@ -706,16 +735,18 @@ export function SuccessStoriesSection() {
                 <button
                   type="button"
                   className="rmd-nav-btn"
-                  onClick={handleNextReview}
-                  title="الرأي التالي (سهم يسار)"
+                  onClick={() => {
+                    setCustomInquiry('');
+                    handleNextReview();
+                  }}
+                  title="الرأي التالي"
                   aria-label="الرأي التالي"
                 >
                   <span>التالي</span>
-                  <ChevronLeft size={16} />
+                  <ChevronLeft size={15} />
                 </button>
               </div>
 
-              {/* Action Buttons */}
               <div className="rmd-footer-actions">
                 <button
                   type="button"
@@ -724,25 +755,13 @@ export function SuccessStoriesSection() {
                 >
                   إغلاق
                 </button>
-                <a
-                  href={whatsappUrl(
-                    clinic?.whatsapp || '201041504201',
-                    `مرحباً د. رنا، كنت أقرأ تجربة (${selectedReview.title}) وأود الاستفسار عن المتابعة وحجز موعد بالمركز.`
-                  )}
-                  className="rmd-btn-whatsapp"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <WhatsAppIcon size={16} color="#ffffff" />
-                  <span>استفسار واتساب</span>
-                </a>
                 <Link
                   to="/booking"
                   className="rmd-btn-primary"
                   onClick={() => setSelectedReview(null)}
                 >
                   <span>احجزي استشارتكِ الآن</span>
-                  <ArrowLeft size={15} />
+                  <ArrowLeft size={14} />
                 </Link>
               </div>
             </div>

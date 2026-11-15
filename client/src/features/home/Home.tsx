@@ -18,12 +18,13 @@ import {
   ShieldCheck,
   TrendingUp,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ProgramInterest } from '../../components/ProgramInterest';
 import { ButtonLink, ErrorState, Loading } from '../../components/ui';
 import { useCatalog } from '../../hooks/useCatalog';
 import { formatPrice } from '../../lib/api';
+import { gsap, isReducedMotion, useGSAP } from '../../lib/motion';
 import { CareGuideQuiz } from './components/CareGuideQuiz';
 import { Faq } from './components/Faq';
 import { SuccessStoriesSection } from './components/SuccessStoriesSection';
@@ -32,6 +33,168 @@ export function Home() {
   const { data, isPending, error, refetch } = useCatalog();
   const [interest, setInterest] = useState<Service | null>(null);
   const [showMonthlyDetails, setShowMonthlyDetails] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      if (isPending || !data || !mainRef.current) return;
+      if (isReducedMotion()) return;
+
+      // Hero Entrance Timeline (Calm, Smooth & Elegant)
+      const heroTl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+
+      heroTl
+        .fromTo('.hero-badge-pill', { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.6 })
+        .fromTo('.hero-main-title', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.75 }, '-=0.35')
+        .fromTo('.hero-description', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.6 }, '-=0.45')
+        .fromTo(
+          '.hero-cta-grid .btn-hero-primary, .hero-cta-grid .btn-hero-secondary',
+          { opacity: 0, y: 12 },
+          { opacity: 1, y: 0, duration: 0.55, stagger: 0.1 },
+          '-=0.35'
+        )
+        .fromTo(
+          '.reassurance-badges .reassurance-pill',
+          { opacity: 0, y: 8 },
+          { opacity: 1, y: 0, duration: 0.45, stagger: 0.08 },
+          '-=0.3'
+        )
+        .fromTo(
+          '.hero-doctor-showcase .hds-card',
+          { opacity: 0, y: 16, scale: 0.985 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power3.out' },
+          0.15
+        )
+        .fromTo(
+          '.hero-doctor-showcase .hds-float-badge, .hero-doctor-showcase .hds-badge-pulse',
+          { opacity: 0, scale: 0.92, y: 8 },
+          { opacity: 1, scale: 1, y: 0, duration: 0.5, stagger: 0.1 },
+          '-=0.35'
+        );
+
+      // Specialties Showcase Bar (.hero-bottom-pro)
+      gsap.fromTo(
+        '.hero-bottom-pro .hbp-topic-card',
+        { opacity: 0, y: 18 },
+        {
+          scrollTrigger: {
+            trigger: '.hero-bottom-pro',
+            start: 'top 88%',
+            once: true,
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          stagger: 0.08,
+          ease: 'power2.out',
+        }
+      );
+
+      // About Section
+      const aboutTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '.about-section',
+          start: 'top 85%',
+          once: true,
+        },
+        defaults: { ease: 'power2.out' },
+      });
+
+      aboutTl
+        .fromTo('.about-section .kicker', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5 })
+        .fromTo('.about-section h2', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7 }, '-=0.3')
+        .fromTo('.about-section .about-head-lead', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.6 }, '-=0.4')
+        .fromTo('.care-method-card', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.7, stagger: 0.1 }, '-=0.3');
+
+      // Programs Section
+      const progTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '.programs-section',
+          start: 'top 85%',
+          once: true,
+        },
+        defaults: { ease: 'power2.out' },
+      });
+
+      progTl
+        .fromTo('.programs-section .section-top', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.65 })
+        .fromTo('.program-featured-pro', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.75 }, '-=0.35')
+        .fromTo('.program-mini-card', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.65, stagger: 0.1 }, '-=0.4');
+
+      // Doctor Profile Section
+      const docTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '.doctor-profile-section',
+          start: 'top 85%',
+          once: true,
+        },
+        defaults: { ease: 'power2.out' },
+      });
+
+      docTl
+        .fromTo(
+          '.doctor-profile-section .doctor-image-frame',
+          { opacity: 0, scale: 0.98, y: 16 },
+          { opacity: 1, scale: 1, y: 0, duration: 0.8, ease: 'power3.out' }
+        )
+        .fromTo(
+          '.doctor-profile-section .doctor-profile-content',
+          { opacity: 0, y: 16 },
+          { opacity: 1, y: 0, duration: 0.7 },
+          '-=0.5'
+        )
+        .fromTo(
+          '.doctor-stats-row .doc-stat-card',
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.5, stagger: 0.08 },
+          '-=0.4'
+        )
+        .fromTo(
+          '.doctor-credentials-grid .cred-card',
+          { opacity: 0, y: 12 },
+          { opacity: 1, y: 0, duration: 0.55, stagger: 0.08 },
+          '-=0.3'
+        );
+
+      // Articles Section
+      gsap.fromTo(
+        '.articles-section .journal-feature-card, .articles-section .journal-item-card',
+        { opacity: 0, y: 18 },
+        {
+          scrollTrigger: {
+            trigger: '.articles-section',
+            start: 'top 85%',
+            once: true,
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          stagger: 0.09,
+          ease: 'power2.out',
+        }
+      );
+
+      // Close Section
+      gsap.fromTo(
+        '.close-faq-col, .final-invite-pro',
+        { opacity: 0, y: 20 },
+        {
+          scrollTrigger: {
+            trigger: '.close-section',
+            start: 'top 85%',
+            once: true,
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.75,
+          stagger: 0.12,
+          ease: 'power2.out',
+        }
+      );
+    },
+    { scope: mainRef, dependencies: [isPending, data] }
+  );
+
   if (isPending) return <Loading />;
   if (error || !data)
     return (
@@ -41,61 +204,72 @@ export function Home() {
   const others = data.services.filter((s) => s.id !== monthly?.id);
   const journal = data.articles.find((a) => a.slug === 'meal-planning') || data.articles[0];
   return (
-    <main className="home-body">
+    <main ref={mainRef} className="home-body">
       <section className="hero-section">
         <div className="home-hero">
           <div className="hero-copy">
             <div className="hero-badge-pill">
               <Leaf size={14} className="hero-badge-sparkle" />
-              <span>مركز المستقبل للتغذية العلاجية</span>
+              <span>مركز المستقبل للتغذية العلاجية ونحت القوام</span>
               <span className="hero-badge-dot" />
               <small>إشراف د. رنا الشورى</small>
             </div>
             <h1 className="hero-main-title">
-              صحتكِ تبدأ
+              تغذية علاجية تفهم طبيعة جسمكِ..
               <br />
-              <span className="hero-title-accent">بفهمكِ.</span>
+              <span className="hero-title-accent">ونتائج حقيقية تدوم بلا حرمان.</span>
             </h1>
             <p className="hero-description">
-              خطة غذائية متكاملة مصممة لتناسب تفاصيل يومكِ،
-              ورعاية ومتابعة شخصية مستمرة خطوة بخطوة حتى تحققي أهدافكِ بصحة واستدامة.
+              خطة طبية مخصصة 100% مبنية على قياسات <strong>InBody السريرية</strong>، مع رعاية ومتابعة شخصية مستمرة أسبوعياً حتى تصلي لقوامكِ المثالي وتثبتي وزنكِ بصحة واستدامة.
             </p>
             <div className="hero-cta-grid">
               <ButtonLink to="/booking" className="btn-hero-primary">
-                <span>ابدئي رحلتكِ الآن</span>
+                <span>احجزي كشفكِ واستشارتكِ الآن</span>
               </ButtonLink>
-              <ButtonLink to="/programs" kind="outline" className="btn-hero-secondary">
-                <span>اكتشفي البرامج</span>
+              <ButtonLink to="/programs" className="btn-hero-secondary">
+                <span>استكشفي برامج العيادة</span>
               </ButtonLink>
             </div>
             <div className="reassurance-badges">
               <span className="reassurance-pill">
-                <Check size={14} />
-                حجز فوري دون حساب
+                <ShieldCheck size={14} className="reassurance-icon" />
+                طبيبة معتمدة (EMASO)
               </span>
               <span className="reassurance-pill">
-                <Heart size={14} />
-                متابعة دورية شخصية
+                <Activity size={14} className="reassurance-icon" />
+                فحص سريري شامل InBody
               </span>
               <span className="reassurance-pill">
-                <ShieldCheck size={14} />
-                استشارة طبية معتمدة
+                <Check size={14} className="reassurance-icon" />
+                حجز مباشر دون انتظار
               </span>
             </div>
           </div>
           <div className="hero-doctor-showcase" aria-label="بطاقة إشراف د. رنا ياسر الشورى">
             <div className="hds-glow-layer" />
             <div className="hds-card">
-              {/* Top Verified Badges Bar */}
-              <div className="hds-top-bar">
-                <span className="hds-badge-verified">
-                  <ShieldCheck size={14} />
-                  <span>طبيبة معتمدة · EMASO</span>
-                </span>
-                <span className="hds-badge-pulse">
-                  <span className="hds-pulse-dot" />
-                  <span>العيادة متاحة للمتابعة</span>
-                </span>
+              {/* Top Floating Badge: Medical Accreditation */}
+              <div className="hds-float-badge hds-float-top-right">
+                <span className="hds-float-icon">⭐</span>
+                <div className="hds-float-text">
+                  <strong>طبيبة معتمدة</strong>
+                  <small>عضو جمعية السمنة (EMASO)</small>
+                </div>
+              </div>
+
+              {/* Top Left Floating Badge: Live Clinic Availability */}
+              <div className="hds-badge-pulse hds-float-top-left">
+                <span className="hds-pulse-dot" />
+                <span>العيادة متاحة للمتابعة</span>
+              </div>
+
+              {/* Mid-Right Floating Badge: InBody Body Composition */}
+              <div className="hds-float-badge hds-float-mid-right hds-hide-on-mobile">
+                <span className="hds-float-icon is-amber">📊</span>
+                <div className="hds-float-text">
+                  <strong>فحص سريري InBody</strong>
+                  <small>تنسيق قوام ونحت بلا جراحة</small>
+                </div>
               </div>
 
               <img
@@ -109,14 +283,16 @@ export function Home() {
               <div className="hds-overlay" />
 
               {/* Bottom Information Panel */}
-              <div className="hds-details">
-                <div className="hds-identity">
-                  <h2 className="hds-name">د. رنا ياسر الشورى</h2>
-                  <p className="hds-title">استشاري التغذية العلاجية ونحت القوام</p>
-                  <p className="hds-association">عضو الجمعية المصرية لدراسة السمنة (EMASO)</p>
+              <div className="hds-details" style={{ marginTop: "auto" }}>
+                <div className="hds-identity-row">
+                  <div className="hds-identity">
+                    <h2 className="hds-name">د. رنا ياسر الشورى</h2>
+                    <p className="hds-title">استشاري التغذية العلاجية وتنسيق القوام</p>
+                  </div>
+                  <span className="hds-rating-chip">⭐ 4.9 تقييم</span>
                 </div>
 
-                {/* Built-in Metrics Strip (Zero Collisions) */}
+                {/* Built-in Metrics Strip */}
                 <div className="hds-stats-strip">
                   <div className="hds-stat-box">
                     <span className="hds-stat-val">+5,000</span>
@@ -125,12 +301,12 @@ export function Home() {
                   <div className="hds-stat-divider" />
                   <div className="hds-stat-box">
                     <span className="hds-stat-val">InBody</span>
-                    <span className="hds-stat-txt">فحص سريري</span>
+                    <span className="hds-stat-txt">فحص دوري</span>
                   </div>
                   <div className="hds-stat-divider" />
                   <div className="hds-stat-box">
                     <span className="hds-stat-val">100%</span>
-                    <span className="hds-stat-txt">خطط مخصصة</span>
+                    <span className="hds-stat-txt">أنظمة مخصصة</span>
                   </div>
                 </div>
               </div>

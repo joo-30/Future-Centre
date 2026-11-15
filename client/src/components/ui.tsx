@@ -80,7 +80,7 @@ export function Modal({
   useEffect(() => {
     const el = ref.current;
     if (open && !el?.open) el?.showModal();
-    if (!open && el?.open) el.close();
+    if (!open && el?.open) el?.close();
     if (open) {
       const old = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
@@ -89,6 +89,9 @@ export function Modal({
       };
     }
   }, [open]);
+
+  if (!open) return null;
+
   return (
     <dialog
       ref={ref}

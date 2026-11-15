@@ -1,7 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Activity,
-  ArrowLeft,
   Calendar,
   CalendarCheck,
   CalendarDays,
@@ -202,7 +201,7 @@ export function AdminAppointments() {
         title="المواعيد وطلبات الحجز"
         description="يوم المركز واضح، وكل طلب له خطوة تالية."
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        <div className="console-title-actions admin-header-actions-pro">
           <Button kind="outline" onClick={() => setScannerOpen(true)} icon={false}>
             <QrCode size={18} />
             مسح كود الحجز (QR)
@@ -944,10 +943,12 @@ export function AdminAppointments() {
                             </button>
                             <button
                               type="button"
-                              className={'btn ' + (a.status === 'pending' ? '' : 'light')}
+                              className={`table-details-btn ${a.status === 'pending' ? 'is-pending' : ''} ${selected === a.reference ? 'is-open' : ''}`}
                               onClick={() => setSelected(a.reference)}
+                              title="عرض كافة تفاصيل الموعد"
                             >
-                              {selected === a.reference ? 'مفتوح' : 'التفاصيل'}
+                              <Zap size={14} />
+                              <span>{selected === a.reference ? 'مفتوح' : 'التفاصيل'}</span>
                             </button>
                           </div>
                         </td>
@@ -958,60 +959,98 @@ export function AdminAppointments() {
               </div>
               <div className="mobile-bookings">
                 {appointmentsQuery.data.appointments.map((a) => (
-                  <div className="mobile-booking-card" key={a.reference}>
-                    <div className="between">
-                      <div className="table-person-pro">
-                        <span className="table-avatar-pro">{a.name.slice(0, 1)}</span>
-                        <div>
-                          <strong className="person-name-strong">{a.name}</strong>
-                          {a.fileNumber ? (
-                            <span className="file-tag-pill" dir="rtl" title="رقم الملف الطبي للمريض">
-                              ملف #{a.fileNumber}
-                            </span>
-                          ) : (
-                            <span className="ref-tag-pill" dir="ltr">
-                              #{a.reference}
-                            </span>
-                          )}
-                        </div>
+                  <article className="mobile-booking-card" key={a.reference}>
+                    <div className="mbc-card-topbar">
+                      <div className="status-cell-stack">
+                        <StatusBadge status={a.status} />
+                        {a.reschedule && (
+                          <span className="reschedule-alert-chip">
+                            <RefreshCw size={10} />
+                            طلب تغيير وقت
+                          </span>
+                        )}
                       </div>
-                      <StatusBadge status={a.status} />
+                      <div className="mbc-meta-tags">
+                        <span className={`user-type-tag ${a.userId ? 'is-user' : 'is-guest'}`}>
+                          {a.userId ? 'حساب مريض' : 'حجز ضيف'}
+                        </span>
+                        <span className="ref-tag-pill" dir="ltr" title="كود حجز هذا الموعد">
+                          #{a.reference}
+                        </span>
+                      </div>
                     </div>
-                    <div style={{ margin: '12px 0 8px' }}>
-                      <strong className="service-title-strong" style={{ display: 'block', marginBottom: '4px' }}>
+
+                    <div className="mbc-patient-row">
+                      <span className="table-avatar-pro">{a.name.slice(0, 1)}</span>
+                      <div className="mbc-patient-text">
+                        <strong className="person-name-strong">{a.name}</strong>
+                        {a.fileNumber && (
+                          <span className="file-tag-pill" dir="rtl" title="رقم الملف الطبي للمريض">
+                            ملف #{a.fileNumber}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mbc-service-row">
+                      <strong className="service-title-strong">
                         {a.serviceTitle}
                       </strong>
                       <div className="appointment-timing-pill">
-                        <CalendarDays size={13} />
-                        <span>{dateLabel(a.date, { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                        <span className="timing-part">
+                          <CalendarDays size={13} />
+                          <span>{dateLabel(a.date, { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                        </span>
                         <span className="timing-bullet">·</span>
-                        <Clock size={13} />
-                        <span dir="ltr">{timeLabel(a.time)}</span>
+                        <span className="timing-part">
+                          <Clock size={13} />
+                          <span dir="ltr">{timeLabel(a.time)}</span>
+                        </span>
+                        <span className={`timing-rel-chip ${a.date === todayStr ? 'is-today' : ''}`}>
+                          {relativeDateLabel(a.date)}
+                        </span>
                       </div>
                     </div>
-                    <div className="between" style={{ marginTop: '12px', gap: '8px' }}>
+
+                    <div className="mbc-actions-grid">
                       <a
                         href={whatsappUrl(
                           a.whatsapp || a.phone,
-                          `أهلاً بحضرتك ${a.name}، معك دكتورة د. رنا ياسر الشوري بخصوص موعد ${a.serviceTitle} يوم ${dateLabel(a.date)} الساعة ${timeLabel(a.time)}.`
+                          `أهلاً بحضرتك ${a.name}، معك دكتورة د. رنا ياسر الشوري بخصوص موعد ${a.serviceTitle} يوم ${dateLabel(a.date)} الساعة ${timeLabel(a.time)} في مركز المستقبل للتغذية.`
                         )}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="mobile-whatsapp-btn"
+                        title="مراسلة المريض عبر واتساب مباشرة"
                       >
-                        <WhatsAppIcon size={15} color="#ffffff" />
+                        <WhatsAppIcon size={14} color="#ffffff" />
                         <span>واتساب</span>
                       </a>
                       <button
                         type="button"
-                        className="btn light small"
-                        onClick={() => setSelected(a.reference)}
+                        className="mobile-rx-action-btn"
+                        title="كتابة روشتة وبرنامج غذائي لهذا العميل"
+                        onClick={() =>
+                          setPrescriptionPatient({
+                            name: a.name,
+                            phone: a.whatsapp || a.phone,
+                          })
+                        }
                       >
-                        مراجعة الطلب
-                        <ArrowLeft size={15} />
+                        <Printer size={14} />
+                        <span>روشتة</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`mobile-details-btn ${a.status === 'pending' ? 'is-pending' : ''} ${selected === a.reference ? 'is-open' : ''}`}
+                        onClick={() => setSelected(a.reference)}
+                        title="عرض كافة تفاصيل الموعد"
+                      >
+                        <Zap size={14} />
+                        <span>{selected === a.reference ? 'مفتوح' : 'التفاصيل'}</span>
                       </button>
                     </div>
-                  </div>
+                  </article>
                 ))}
               </div>
             </>

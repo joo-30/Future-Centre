@@ -1,18 +1,33 @@
 import { MapPin } from 'lucide-react';
+import { useRef } from 'react';
+import { gsap, isReducedMotion, useGSAP } from '../../lib/motion';
 import { ContactNumbers } from '../../components/Layout';
 import { PublicIntro } from '../../components/PublicIntro';
 import { ButtonLink, ErrorState, Loading, WhatsAppLink } from '../../components/ui';
 import { useCatalog } from '../../hooks/useCatalog';
 
 export function Contact() {
+  const mainRef = useRef<HTMLElement>(null);
+
+
   const { data, isPending, error, refetch } = useCatalog();
+
+  useGSAP(
+    () => {
+      if (isReducedMotion() || !mainRef.current || !data) return;
+      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+      tl.fromTo('.public-intro', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.65 })
+        .fromTo('.contact-page-grid .panel', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.7, stagger: 0.12 }, '-=0.35');
+    },
+    { scope: mainRef, dependencies: [data] }
+  );
   if (isPending) return <Loading />;
   if (!data)
     return (
       <ErrorState message={error?.message || 'تعذر التحميل.'} onRetry={() => void refetch()} />
     );
   return (
-    <main className="public-page">
+    <main ref={mainRef} className="public-page">
       <PublicIntro kicker="تواصلي مع المركز" title="نساعدك في الخطوة الجاية.">
         اسألي عن البرامج أو احجزي موعدًا، وسيتواصل المركز معك لتأكيد التفاصيل.
       </PublicIntro>

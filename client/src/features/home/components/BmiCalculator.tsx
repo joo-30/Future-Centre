@@ -152,7 +152,7 @@ export function BmiCalculator() {
   }, [gender, height, weight, age, activity]);
 
   return (
-    <section className="calculator-section" aria-labelledby="calc-heading">
+    <section id="bmi-calculator" className="calculator-section" aria-labelledby="calc-heading">
       <div className="section-top">
         <div>
           <div className="kicker">

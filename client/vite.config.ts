@@ -1,8 +1,19 @@
+import path from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@future/shared': path.resolve(import.meta.dirname, '../shared/src/index.ts'),
+    },
+    dedupe: ['react', 'react-dom', 'react-router-dom'],
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', 'lucide-react', '@gsap/react', 'gsap'],
+  },
   server: {
     host: true,
     port: 5176,

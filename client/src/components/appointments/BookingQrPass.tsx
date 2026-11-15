@@ -1,5 +1,7 @@
 import {
   Calendar,
+  Check,
+  Copy,
   CheckCircle2,
   Clock,
   Download,
@@ -44,6 +46,18 @@ export function BookingQrPass({
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyCode = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(`#${reference}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // fallback
+    }
+  };
 
   useEffect(() => {
     if (!isZoomOpen) return;
@@ -535,47 +549,79 @@ export function BookingQrPass({
           <span className="bqp-clinic-name">مركز المستقبل للتغذية</span>
         </div>
 
-        {/* Compact QR Hero */}
-        <div
-          className="bqp-qr-compact bqp-clickable-zoom"
-          onClick={() => setIsZoomOpen(true)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              setIsZoomOpen(true);
-            }
-          }}
-          tabIndex={0}
-          role="button"
-          aria-label="اضغط لتكبير كود الـ QR ورقم الحجز"
-          title="انقر لتكبير كود الـ QR ورقم الحجز"
-        >
-          <div className="bqp-qr-box">
-            {generating ? (
-              <div className="bqp-qr-loading">جارٍ إنشاء الكود...</div>
-            ) : qrUrl ? (
-              <img
-                src={qrUrl}
-                alt={`QR Code #${reference}`}
-                className="bqp-qr-image"
-                width={120}
-                height={120}
-              />
-            ) : (
-              <div className="bqp-qr-fallback">{reference}</div>
-            )}
+        {/* Pending Receipt vs Confirmed QR Hero */}
+        {status === 'pending' ? (
+          <div className="bqp-pending-hero">
+            <div className="bqp-pending-icon-wrap">
+              <Clock size={28} className="bqp-pending-clock-icon" />
+            </div>
+            <div className="bqp-pending-heading">طلب الحجز قيد المراجعة لدى العيادة</div>
+            <p className="bqp-pending-sub">
+              طلبكِ محفوظ وجارٍ تدقيقه من إدارة المركز لتأكيد الموعد النهائي معكِ هاتفياً أو عبر واتساب قبل الحضور.
+            </p>
+            <div className="bqp-pending-code-card">
+              <span className="bqp-pending-code-title">كود الحجز المرجعي للاستفسار:</span>
+              <div className="bqp-pending-code-pill">
+                <Ticket size={16} className="bqp-code-icon" />
+                <strong className="bqp-code-num" dir="ltr">#{reference}</strong>
+                <button
+                  type="button"
+                  className="bqp-copy-code-btn"
+                  onClick={handleCopyCode}
+                  title="نسخ كود الحجز"
+                >
+                  {copied ? <Check size={13} /> : <Copy size={13} />}
+                  <span>{copied ? 'تم النسخ ✓' : 'نسخ الكود'}</span>
+                </button>
+              </div>
+            </div>
+            <div className="bqp-pending-activation-notice">
+              <ShieldCheck size={14} className="bqp-shield-icon" />
+              <span>تفعيل باركود الحضور الذكي (QR Pass) يتم تلقائياً فور اعتماد الموعد من الإدارة</span>
+            </div>
           </div>
-
+        ) : (
           <div
-            className="bqp-code-pill bqp-clickable-code"
+            className="bqp-qr-compact bqp-clickable-zoom"
             onClick={() => setIsZoomOpen(true)}
-            title="انقر لتكبير كود الحجز"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsZoomOpen(true);
+              }
+            }}
+            tabIndex={0}
+            role="button"
+            aria-label="اضغط لتكبير كود الـ QR ورقم الحجز"
+            title="انقر لتكبير كود الـ QR ورقم الحجز"
           >
-            <Ticket size={13} className="bqp-code-icon" />
-            <span className="bqp-code-label">كود الحجز:</span>
-            <span className="bqp-code-num" dir="ltr">#{reference}</span>
+            <div className="bqp-qr-box">
+              {generating ? (
+                <div className="bqp-qr-loading">جارٍ إنشاء الكود...</div>
+              ) : qrUrl ? (
+                <img
+                  src={qrUrl}
+                  alt={`QR Code #${reference}`}
+                  className="bqp-qr-image"
+                  width={120}
+                  height={120}
+                />
+              ) : (
+                <div className="bqp-qr-fallback">{reference}</div>
+              )}
+            </div>
+
+            <div
+              className="bqp-code-pill bqp-clickable-code"
+              onClick={() => setIsZoomOpen(true)}
+              title="انقر لتكبير كود الحجز"
+            >
+              <Ticket size={13} className="bqp-code-icon" />
+              <span className="bqp-code-label">كود الحجز:</span>
+              <span className="bqp-code-num" dir="ltr">#{reference}</span>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Perforation Divider with Perfectly Aligned Notches */}
         <div className="bqp-divider" aria-hidden="true">

@@ -1,6 +1,7 @@
 import type { Service } from '@future/shared';
 import { ArrowLeft, Calendar, Check, MapPin } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { gsap, isReducedMotion, useGSAP } from '../../lib/motion';
 import { ProgramInterest } from '../../components/ProgramInterest';
 import { PublicIntro } from '../../components/PublicIntro';
 import { ErrorState, icons, Loading, TextLink } from '../../components/ui';
@@ -8,8 +9,21 @@ import { useCatalog } from '../../hooks/useCatalog';
 import { formatPrice } from '../../lib/api';
 
 export function Programs() {
+  const mainRef = useRef<HTMLElement>(null);
+
+
   const { data, isPending, error, refetch } = useCatalog();
   const [interest, setInterest] = useState<Service | null>(null);
+
+  useGSAP(
+    () => {
+      if (isReducedMotion() || !mainRef.current || !data) return;
+      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+      tl.fromTo('.public-intro', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.65 })
+        .fromTo('.program-detail-card', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.7, stagger: 0.1 }, '-=0.35');
+    },
+    { scope: mainRef, dependencies: [data] }
+  );
   if (isPending) return <Loading />;
   if (!data)
     return (
@@ -19,7 +33,7 @@ export function Programs() {
       />
     );
   return (
-    <main className="public-page">
+    <main ref={mainRef} className="public-page">
       <PublicIntro kicker="رعاية مصممة حولك" title="اختاري البداية المناسبة لك.">
         كل برنامج يبدأ بفهم احتياجاتك. أرسلي طلبك وسيوضح المركز التفاصيل معك.
       </PublicIntro>

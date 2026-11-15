@@ -47,10 +47,12 @@ export function DatePicker({
   const [open, setOpen] = useState(false);
   const [openUpward, setOpenUpward] = useState(false);
   const [alignLeft, setAlignLeft] = useState(false);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Detect optimal placement (vertical and horizontal)
   const updatePlacement = () => {
+    if (typeof window !== 'undefined') setIsMobile(window.innerWidth <= 768);
     if (containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
       const spaceBelow = window.innerHeight - rect.bottom;
@@ -285,11 +287,8 @@ export function DatePicker({
             aria-hidden="true"
           />
           <div
-            className={`custom-datepicker-popup ${openUpward ? 'open-upward' : ''} ${alignLeft ? 'align-left' : ''}`}
-            style={{
-              ...(alignLeft ? { right: 'auto', left: 0 } : {}),
-              ...(openUpward ? { top: 'auto', bottom: 'calc(100% + 8px)' } : {}),
-            }}
+            className={`custom-datepicker-popup ${isMobile ? 'is-mobile-dialog' : ''} ${openUpward ? 'open-upward' : ''} ${alignLeft ? 'align-left' : ''}`}
+            
             role="dialog"
             aria-modal="true"
             onClick={(e) => e.stopPropagation()}

@@ -14,7 +14,7 @@
   "scripts": {
     "dev": "npm run build -w shared && node scripts/dev.mjs",
     "dev:server": "npm run build -w shared && node scripts/dev.mjs --server",
-    "dev:client": "node scripts/dev.mjs --client",
+    "dev:client": "npm run build -w shared && node scripts/dev.mjs --client",
     "build": "npm run clean && npm run build -w shared && npm run build -w server && npm run build -w client",
     "typecheck": "npm run build -w shared && npm run typecheck -w server && npm run typecheck -w client",
     "test": "npm run build -w shared && vitest run",

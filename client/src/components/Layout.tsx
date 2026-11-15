@@ -1,5 +1,5 @@
 import { normalizePhone } from '@future/shared';
-import { ArrowLeft, CalendarDays, LogIn, Menu, Phone, UserRound, X } from 'lucide-react';
+import { ArrowLeft, CalendarDays, LogIn, Menu, Phone, ShieldCheck, UserRound, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useCatalog } from '../hooks/useCatalog';
@@ -20,7 +20,7 @@ const links = [
 ];
 
 export function Layout() {
-  const { user } = useAuth();
+  const { user, adminUser } = useAuth();
   const [menu, setMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -69,6 +69,12 @@ export function Layout() {
           </nav>
           <div className="head-actions">
             <PwaInstallButton />
+            {adminUser && (
+              <Link to="/admin" className="head-auth-pill is-admin" title="لوحة الإدارة">
+                <ShieldCheck size={16} />
+                <span>لوحة الإدارة</span>
+              </Link>
+            )}
             {user ? (
               <>
                 <NotificationBell className="is-desktop-head" />
@@ -77,17 +83,17 @@ export function Layout() {
                   <span>حسابي</span>
                 </Link>
               </>
-            ) : (
+            ) : !adminUser ? (
               <Link to="/login" className="head-auth-pill is-guest" title="تسجيل الدخول">
                 <LogIn size={16} />
                 <span>تسجيل الدخول</span>
               </Link>
-            )}
+            ) : null}
             <ButtonLink to="/booking" className="head-cta-btn">
               احجزي موعدك
             </ButtonLink>
           </div>
-                              <div className="mobile-header-tools">
+          <div className="mobile-header-tools">
             {user && <NotificationBell className="is-mobile-head" />}
             <button
               type="button"
@@ -138,8 +144,30 @@ export function Layout() {
               )}
             </NavLink>
           ))}
+          {adminUser && (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                `mobile-nav-link ${isActive ? 'active is-active' : ''}`
+              }
+              onClick={() => setMenu(false)}
+            >
+              {({ isActive }) => (
+                <>
+                  <span className="nav-link-label">
+                    <span className="nav-title">لوحة الإدارة</span>
+                    {isActive && <span className="nav-current-pill">الصفحة الحالية</span>}
+                  </span>
+                  <div className="nav-link-meta">
+                    {isActive && <span className="nav-active-dot" aria-hidden="true" />}
+                    <ArrowLeft size={18} />
+                  </div>
+                </>
+              )}
+            </NavLink>
+          )}
           <NavLink
-            to={user ? '/account' : '/login'}
+            to={user ? '/account' : adminUser ? '/admin' : '/login'}
             className={({ isActive }) =>
               `mobile-nav-link ${isActive ? 'active is-active' : ''}`
             }
@@ -149,7 +177,7 @@ export function Layout() {
               <>
                 <span className="nav-link-label">
                   <span className="nav-title">
-                    {user ? 'حسابي' : 'تسجيل الدخول'}
+                    {user ? 'حسابي' : adminUser ? 'لوحة التحكم' : 'تسجيل الدخول'}
                   </span>
                   {isActive && <span className="nav-current-pill">الصفحة الحالية</span>}
                 </span>
@@ -177,7 +205,7 @@ export function Layout() {
         <Outlet />
       </div>
       <Footer />
-      {data?.clinic.whatsapp && !location.pathname.startsWith('/booking') && (
+      {data?.clinic.whatsapp && !location.pathname.startsWith('/booking') && !location.pathname.startsWith('/account') && !location.pathname.startsWith('/admin') && !location.pathname.startsWith('/login') && (
         <a
           className="whatsapp"
           href={whatsappUrl(data.clinic.whatsapp, 'أهلاً، أود الاستفسار عن خدمات مركز المستقبل.')}
@@ -188,7 +216,7 @@ export function Layout() {
           <WhatsAppIcon size={30} color="#ffffff" />
         </a>
       )}
-      {!location.pathname.startsWith('/booking') && scrolled && (
+      {!location.pathname.startsWith('/booking') && !location.pathname.startsWith('/account') && !location.pathname.startsWith('/admin') && !location.pathname.startsWith('/login') && scrolled && (
         <Link
           to="/booking"
           className="floating-book-pill"

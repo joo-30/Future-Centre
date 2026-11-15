@@ -4,7 +4,7 @@ import { getUserNotifications, markNotificationAsRead, markAllNotificationsAsRea
 
 import { z } from 'zod';
 
-import { rescheduleSchema } from '@future/shared';
+import { arabicDigits, rescheduleSchema } from '@future/shared';
 
 import { Appointment } from '../models/appointment.model.js';
 import { InBody } from '../models/inbody.model.js';
@@ -66,12 +66,54 @@ accountRouter.get('/appointments/:reference/availability', async (req, res) => {
   );
 });
 
+function cleanReferenceCandidates(input: string): string[] {
+  const ascii = arabicDigits(input.trim());
+  const noSymbols = ascii.replace(/^[#№#\s]+/, '').trim().toUpperCase();
+  const compact = noSymbols.replace(/\s+/g, '');
+
+  const set = new Set<string>();
+  if (input.trim()) set.add(input.trim());
+  if (ascii) set.add(ascii);
+  if (noSymbols) set.add(noSymbols);
+  if (compact) {
+    set.add(compact);
+    const withoutFc = compact.replace(/^FC-?/, '');
+    if (withoutFc) {
+      set.add(withoutFc);
+      set.add('FC-' + withoutFc);
+    }
+    if (!compact.startsWith('FC-')) {
+      set.add('FC-' + compact);
+    }
+  }
+  return Array.from(set);
+}
+
 accountRouter.post('/claim', async (req, res) => {
   const { token } = z
-    .object({ token: z.string().length(43) })
+    .object({ token: z.string().trim().min(2).max(100) })
     .strict()
     .parse(req.body);
-  const a = await findByToken(token);
+
+  let a: any = null;
+  const cleanInput = token.replace(/^[#№#\s]+/, '').trim();
+  if (cleanInput.length === 43) {
+    try {
+      a = await findByToken(cleanInput);
+    } catch {
+      // fallback to reference search
+    }
+  }
+  if (!a) {
+    const candidates = cleanReferenceCandidates(cleanInput);
+    a = await Appointment.findOne({ reference: { $in: candidates } })
+      .select('+phone +idempotencyHash')
+      .lean();
+  }
+  if (!a) {
+    throw new ApiError(404, 'NOT_FOUND', 'لم نتمكن من العثور على أي حجز بهذا الكود أو الرابط.');
+  }
+
   const result = await Appointment.findOneAndUpdate(
     { _id: a._id, $or: [{ userId: null }, { userId: req.authUser!._id }] },
     { $set: { userId: req.authUser!._id } },
@@ -79,8 +121,9 @@ accountRouter.post('/claim', async (req, res) => {
   )
     .select('+phone')
     .lean();
-  if (!result)
-    throw new ApiError(409, 'ALREADY_LINKED', 'هذا الطلب مرتبط بحساب آخر. تواصلي مع المركز.');
+  if (!result) {
+    throw new ApiError(409, 'ALREADY_LINKED', 'هذا الموعد مرتبط بحساب مريض آخر. تواصلي مع إدارة المركز.');
+  }
   res.json(publicAppointment(result));
 });
 

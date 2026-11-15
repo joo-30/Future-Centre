@@ -94,8 +94,8 @@ export function PatientSearchSelect({
                 {selectedPatient.name.slice(0, 1)}
               </span>
               <div className="pss-meta">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                  <strong className="pss-name">{selectedPatient.name}</strong>
+                <div className="pss-meta-top">
+                  <strong className="pss-name" title={selectedPatient.name}>{selectedPatient.name}</strong>
                   {selectedPatient.fileNumber && (
                     <span className="pss-file-badge">ملف #{selectedPatient.fileNumber}</span>
                   )}
@@ -165,6 +165,10 @@ export function PatientSearchSelect({
                 placeholder={placeholder}
                 value={query}
                 disabled={disabled}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
+                dir="rtl"
                 onChange={(e) => {
                   setQuery(e.target.value);
                   if (!open) setOpen(true);
@@ -233,7 +237,7 @@ export function PatientSearchSelect({
             aria-label="مسح كود QR للمريض"
           >
             <Camera size={16} />
-            <span>مسح QR</span>
+            <span className="pss-scan-text">مسح QR</span>
           </button>
         )}
       </div>
