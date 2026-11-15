@@ -1,6 +1,7 @@
 import { Minus, Plus } from 'lucide-react';
 
 export function Faq() {
+  //try
   return (
     <div className="faqs">
       {[
