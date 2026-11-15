@@ -10469,3 +10469,70 @@ dialog.advanced-capacity-modal-dialog {
   color: #fff;
   background: #173c31;
 }
+
+
+/* ==========================================================================
+   Admin Page Local Error Boundary Fallback (Enterprise SaaS)
+   ========================================================================== */
+.admin-page-error-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  padding: 32px 20px;
+}
+.admin-page-error-fallback .admin-error-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  padding: 40px 32px;
+  max-width: 540px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.admin-page-error-fallback .admin-error-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: #fef2f2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.admin-page-error-fallback h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 10px 0;
+}
+.admin-page-error-fallback p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #64748b;
+  margin: 0 0 18px 0;
+}
+.admin-page-error-fallback .admin-error-message {
+  width: 100%;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  color: #b91c1c;
+  font-size: 12px;
+  font-family: monospace;
+  direction: ltr;
+  text-align: left;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin-bottom: 24px;
+}
+.admin-page-error-fallback .admin-error-btns {
+  display: flex;
+  gap: 12px;
+}

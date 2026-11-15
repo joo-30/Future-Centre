@@ -69,9 +69,7 @@ export function Footer() {
               <li>
                 <Link to="/account">بوابة المريض وسجل القياسات</Link>
               </li>
-              <li>
-                <Link to="/admin">لوحة إدارة المركز</Link>
-              </li>
+             
             </ul>
           </div>
 
@@ -125,7 +123,7 @@ export function Footer() {
             </div>
 
             {/* Direct Connect Buttons */}
-            <div className="footer-social-row">
+            <div className="footer-social-row p-2 pb-5">
               <a
                 href={whatsappUrl(whatsappNumber, 'أهلاً دكتورة رنا، أود الاستفسار عن كشوفات ومواعيد مركز المستقبل.')}
                 target="_blank"

@@ -21,8 +21,8 @@ export function ArticleDetail() {
       </PublicIntro>
       <img className="reading-image" src={resolveArticleImage(a.image)} alt="صورة تعبيرية" />
       <article className="prose">
-        {a.body.map((p, i) => (
-          <section key={p}>
+        {(Array.isArray(a.body) ? a.body : []).map((p, i) => (
+          <section key={p || i}>
             <h2>{['بداية هادئة', 'خطوة تناسب يومك', 'ناقشي التفاصيل مع المختصة'][i]}</h2>
             <p>{p}</p>
           </section>

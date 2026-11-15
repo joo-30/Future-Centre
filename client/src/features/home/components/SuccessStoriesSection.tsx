@@ -1,23 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   ArrowLeft,
-  CheckCircle2,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock,
   Flame,
-  HeartHandshake,
-  Maximize2,
+  Minimize2,
   MessageCircle,
-  Quote,
   ShieldCheck,
-  Activity,
   Layers,
   Trophy,
   X,
   ZoomIn,
 } from 'lucide-react';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { gsap, isReducedMotion, useGSAP } from '../../../lib/motion';
 import { Link } from 'react-router-dom';
 import type { SuccessStory } from '@future/shared';
@@ -25,6 +22,13 @@ import { WhatsAppIcon } from '../../../components/icons/WhatsAppIcon';
 import { useCatalog } from '../../../hooks/useCatalog';
 import { whatsappUrl } from '../../../lib/api';
 import { publicApi } from '../../../lib/portal-api';
+
+// These reports embed annotations, so display the original photo crops instead.
+const casePhotoSets = new Map([
+  ['/stories/transformation_107kg.jpg', 'nada'],
+  ['/stories/transformation_sameh.jpg', 'sameh'],
+  ['/stories/transformation_safia.jpg', 'safia'],
+]);
 
 function StoryDialog({
   label,
@@ -67,17 +71,95 @@ function StoryDialog({
   );
 }
 
+function ReviewMessage({ review, whatsapp }: { review: SuccessStory; whatsapp: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const [imageState, setImageState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [inquiry, setInquiry] = useState('');
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const context = review.name || 'أحد عملاء المركز';
+  const inquiryText = inquiry.trim()
+    ? inquiry.trim() + '\n\nاستفسار بخصوص تجربة ' + context
+    : 'مرحباً د. رنا، قرأت تجربة ' + context + ' وأود الاستفسار عن المتابعة وحجز موعد بالمركز.';
+
+  return (
+    <div className="rmd-body">
+      {review.imageUrl && imageState !== 'error' ? (
+        <>
+          <div className="rmd-view-toolbar">
+            <button
+              type="button"
+              className="rmd-control"
+              aria-controls="review-message-image"
+              aria-pressed={expanded}
+              disabled={imageState !== 'ready'}
+              onClick={() => {
+                setExpanded((current) => !current);
+                mediaRef.current?.scrollTo({ top: 0, left: 0 });
+              }}
+            >
+              {expanded ? <Minimize2 size={17} aria-hidden="true" /> : <ZoomIn size={17} aria-hidden="true" />}
+              {expanded ? 'عرض الصورة كاملة' : 'تكبير الرسالة'}
+            </button>
+          </div>
+          <div
+            ref={mediaRef}
+            id="review-message-image"
+            className={'rmd-media' + (expanded ? ' is-expanded' : '')}
+            role="region"
+            aria-label="صورة الرسالة"
+            aria-busy={imageState === 'loading'}
+            tabIndex={expanded ? 0 : undefined}
+          >
+            {imageState === 'loading' && <span className="rmd-loading" role="status">جارٍ تحميل الرسالة…</span>}
+            <img
+              src={review.imageUrl}
+              alt="صورة الرسالة الأصلية"
+              className="rmd-real-screenshot-img"
+              onLoad={() => setImageState('ready')}
+              onError={() => setImageState('error')}
+            />
+          </div>
+          {review.quote && <p className="sr-only">مقتطف من الرسالة. {review.quote}</p>}
+        </>
+      ) : (
+        <div className="rmd-text-review">
+          {imageState === 'error' && <p className="rmd-status">تعذّر تحميل صورة الرسالة.</p>}
+          {review.quote && <blockquote>{review.quote}</blockquote>}
+        </div>
+      )}
+
+      <details className="rmd-inquiry">
+        <summary>استفسري عن التجربة <ChevronDown size={17} aria-hidden="true" /></summary>
+        <div className="rmd-inquiry-content">
+          <label htmlFor="story-review-inquiry">رسالتكِ لد. رنا</label>
+          <textarea
+            id="story-review-inquiry"
+            rows={3}
+            value={inquiry}
+            onChange={(event) => setInquiry(event.target.value)}
+            placeholder="اكتبي استفساركِ هنا"
+          />
+          <div className="rmd-inquiry-actions">
+            <a href={whatsappUrl(whatsapp, inquiryText)} target="_blank" rel="noopener noreferrer">
+              <WhatsAppIcon size={16} color="currentColor" /> إرسال عبر واتساب
+            </a>
+            <Link to="/booking">حجز كشف</Link>
+          </div>
+        </div>
+      </details>
+    </div>
+  );
+}
+
 export function SuccessStoriesSection() {
   const sectionRef = useRef<HTMLElement>(null);
 
 
   const { data: catalogData } = useCatalog();
-  const clinic = catalogData?.clinic;
+  const whatsapp = catalogData?.clinic.whatsapp || '201041504201';
   const [activeTab, setActiveTab] = useState<'all' | 'transformations' | 'reviews'>('all');
   const [selectedCase, setSelectedCase] = useState<SuccessStory | null>(null);
   const [selectedReview, setSelectedReview] = useState<SuccessStory | null>(null);
-  const [customInquiry, setCustomInquiry] = useState("");
-  const [lightboxImage, setLightboxImage] = useState<{ url: string; title: string; subtitle?: string } | null>(null);
 
   const storiesQuery = useQuery({
     queryKey: ['public', 'stories'],
@@ -86,6 +168,10 @@ export function SuccessStoriesSection() {
   });
 
   const stories = storiesQuery.data?.stories || [];
+  const selectedComparison = casePhotoSets.get(selectedCase?.detailsImageUrl ?? '');
+  const selectedCaseName = selectedCase?.age != null
+    ? selectedCase.name.replace(/\s*(?:\(\s*[0-9٠-٩۰-۹]+\s+سنة\s*\)|[0-9٠-٩۰-۹]+\s+سنة)\s*$/u, '').trim()
+    : selectedCase?.name;
 
   useGSAP(
     () => {
@@ -138,42 +224,13 @@ export function SuccessStoriesSection() {
     [stories]
   );
 
-  const selectedReviewIndex = useMemo(() => {
-    if (!selectedReview) return -1;
-    return reviews.findIndex((rev) => rev.id === selectedReview.id);
-  }, [selectedReview, reviews]);
+  const selectedReviewIndex = reviews.findIndex((review) => review.id === selectedReview?.id);
 
-  const handlePrevReview = useCallback(() => {
-    if (!reviews.length) return;
-    if (selectedReviewIndex > 0) {
-      setSelectedReview(reviews[selectedReviewIndex - 1]);
-    } else {
-      setSelectedReview(reviews[reviews.length - 1]);
-    }
-  }, [reviews, selectedReviewIndex]);
-
-  const handleNextReview = useCallback(() => {
-    if (!reviews.length) return;
-    if (selectedReviewIndex >= 0 && selectedReviewIndex < reviews.length - 1) {
-      setSelectedReview(reviews[selectedReviewIndex + 1]);
-    } else {
-      setSelectedReview(reviews[0]);
-    }
-  }, [reviews, selectedReviewIndex]);
-
-  useEffect(() => {
-    if (!selectedReview || lightboxImage) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLElement && e.target.closest('input, textarea, select, [contenteditable]')) return;
-      if (e.key === 'ArrowLeft') {
-        handleNextReview();
-      } else if (e.key === 'ArrowRight') {
-        handlePrevReview();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedReview, lightboxImage, handleNextReview, handlePrevReview]);
+  function moveReview(direction: number) {
+    if (reviews.length <= 1) return;
+    const nextIndex = (selectedReviewIndex + direction + reviews.length) % reviews.length;
+    setSelectedReview(reviews[nextIndex]);
+  }
 
   if (!stories.length && !storiesQuery.isPending) {
     return null;
@@ -279,15 +336,17 @@ export function SuccessStoriesSection() {
                 {/* Visual Cover in Unified Brand Identity */}
                 <div className="tc-cover-wrap">
                   <img
-                    src={c.imageUrl || '/stories/case_cover_nada.png'}
-                    alt={c.title}
+                    src="/stories/results-cover.webp"
+                    alt=""
                     className="tc-cover-img"
+                    width="1440"
+                    height="758"
                     loading="lazy"
                   />
                   <div className="tc-cover-hover-overlay">
                     <span className="tc-hover-badge">
                       <ZoomIn size={15} />
-                      <span>معاينة الصور والنتيجة</span>
+                      <span>عرض صور قبل وبعد</span>
                     </span>
                   </div>
                 </div>
@@ -333,510 +392,154 @@ export function SuccessStoriesSection() {
         </div>
       )}
 
-      {/* 5. Section B: WhatsApp & Patient Feedback Wall (Compact, High-Density, Verified) */}
       {(activeTab === 'all' || activeTab === 'reviews') && reviews.length > 0 && (
-        <div className="feedback-block">
-          <div className="block-head">
-            <div className="block-title-row">
-              <div className="block-icon-badge is-whatsapp">
-                <MessageCircle size={18} />
-              </div>
-              <div>
-                <h3 className="block-title">آراء بعض عملائنا</h3>
-                <p className="block-sub">
-                  رسائل وتجارب حقيقية موثقة من عملاء ومراجعي المركز وفرحتهم بالنتيجة مع دكتورة رنا.
-                </p>
-              </div>
-            </div>
-          </div>
+        <section className="feedback-block" aria-labelledby="feedback-title">
+          <header className="feedback-heading">
+            <h3 id="feedback-title">رسائل من عملائنا</h3>
+            <p>تجارب شاركها عملاء المركز خلال رحلتهم مع د. رنا.</p>
+          </header>
 
           <div className="feedback-micro-grid">
-            {reviews.map((r) => {
-              const handleOpen = () => {
-                setSelectedReview(r);
-              };
-              return (
-                <div
-                  key={r.id}
-                  className="feedback-micro-card is-clickable"
-                  onClick={handleOpen}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      handleOpen();
-                    }
-                  }}
-                  title="انقر لتكبير الرأي وقراءة الرسالة بوضوح"
+            {reviews.map((review) => (
+              <article className="feedback-micro-card" key={review.id}>
+                <p className="fmc-source">
+                  <MessageCircle size={17} aria-hidden="true" />
+                  {review.verified ? 'تجربة موثّقة' : 'تجربة عميل'}
+                </p>
+                <h4 className="fmc-headline" id={'review-title-' + review.id}>{review.title}</h4>
+                {review.quote && <blockquote className="fmc-quote-text">{review.quote}</blockquote>}
+                <button
+                  type="button"
+                  className="fmc-view-screenshot-btn"
+                  aria-describedby={'review-title-' + review.id}
+                  aria-haspopup="dialog"
+                  onClick={() => setSelectedReview(review)}
                 >
-                  {/* Top Row: Verified Chat Badge & Loss Tag */}
-                  <div className="fmc-top">
-                    <div className="fmc-sender-wrap">
-                      <div className="fmc-avatar is-wa" aria-hidden="true">
-                        <MessageCircle size={18} />
-                      </div>
-                      <div>
-                        <div className="fmc-sender-name-row">
-                          <span className="fmc-badge-title">رأي موثّق لعميل</span>
-                          <span className="fmc-wa-pill">
-                            <span className="wa-dot"></span>
-                            <span>واتساب موثق</span>
-                          </span>
-                        </div>
-                        <span className="fmc-program-sub">{r.programTitle || 'برنامج المتابعة الإكلينيكية'}</span>
-                      </div>
-                    </div>
-
-                    {r.weightLostKg ? (
-                      <span className="fmc-loss-tag">-{r.weightLostKg} كجم</span>
-                    ) : r.durationText ? (
-                      <span className="fmc-loss-tag is-neutral">{r.durationText}</span>
-                    ) : null}
-                  </div>
-
-                  {/* Headline & Quote Body */}
-                  <div className="fmc-quote-wrap">
-                    <h4 className="fmc-headline">{r.title}</h4>
-                    <p className="fmc-quote-text">"{r.quote}"</p>
-                  </div>
-
-                  {/* Footer with Enlarge Action */}
-                  <div className="fmc-footer">
-                    <div className="fmc-verified-tag">
-                      <ShieldCheck size={13} />
-                      <span>مراجعة مثبتة بالعيادة</span>
-                    </div>
-
-                    <span
-                      className="fmc-view-screenshot-btn"
-                      title="انقر لتكبير وقراءة الرسالة بوضوح"
-                    >
-                      <ZoomIn size={13} />
-                      <span>تكبير وقراءة الرسالة</span>
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
+                  {review.imageUrl ? 'افتحي الرسالة' : 'اقرئي التجربة'} <ArrowLeft size={17} aria-hidden="true" />
+                </button>
+              </article>
+            ))}
           </div>
-        </div>
+        </section>
       )}
 
-      {/* 6. Bottom Conversion Consultation Card */}
-      <div className="stories-cta-banner">
+      <section className="stories-cta-banner" aria-labelledby="stories-cta-title">
         <div className="scb-content">
-          <div className="scb-badge">
-            <CheckCircle2 size={14} />
-            <span>قصة نجاحكِ تبدأ اليوم</span>
-          </div>
-          <h3 className="scb-title">جاهزة تبدأي رحلتك وتكوني قصة النجاح الجاية؟</h3>
+          <h3 className="scb-title" id="stories-cta-title">جاهزة تبدأي رحلتكِ؟</h3>
           <p className="scb-desc">
-            خطوة واحدة تبدأ بزيارة واستشارة في العيادة وفحص InBody دقيق وخطة تغذية تناسب جسمك مع د. رنا.
+            ابدئي بكشف في العيادة مع د. رنا. في الزيارة الأولى بتتعرّف على احتياجكِ وبتحدّد معكِ الخطوة المناسبة.
           </p>
-          <div className="scb-trust-row">
-            <span className="scb-trust-item">
-              <CheckCircle2 size={14} className="scb-check-icon" />
-              <span>فحص InBody سريري معتمد</span>
-            </span>
-            <span className="scb-trust-item">
-              <CheckCircle2 size={14} className="scb-check-icon" />
-              <span>خطة مخصصة بدون حرمان</span>
-            </span>
-            <span className="scb-trust-item">
-              <CheckCircle2 size={14} className="scb-check-icon" />
-              <span>متابعة إكلينيكية مباشرة</span>
-            </span>
-          </div>
         </div>
         <div className="scb-actions">
           <Link to="/booking" className="scb-cta-btn">
-            <span>احجزي كشف واستشارة بالعيادة</span>
-            <ArrowLeft size={17} />
+            احجزي كشفكِ <ArrowLeft size={18} aria-hidden="true" />
           </Link>
           <a
-            href={whatsappUrl(clinic?.whatsapp || '201041504201', 'مرحباً د. رنا، أود الاستفسار عن كشف واستشارة التغذية والتخسيس بالمركز.')}
+            href={whatsappUrl(whatsapp, 'مرحباً د. رنا، أود الاستفسار عن كشف واستشارة التغذية والتخسيس بالمركز.')}
             className="scb-whatsapp-btn"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <WhatsAppIcon size={16} color="#064e3b" />
-            <span>استفسار واتساب سريع</span>
+            <WhatsAppIcon size={17} color="currentColor" />
+            استفسري على واتساب
           </a>
         </div>
-      </div>
+      </section>
 
-      {/* 7. Clinical Case Deep-Dive Modal (When clicking any Transformation Card) */}
       {selectedCase && (
-        <StoryDialog className="case-modal-backdrop" label="تفاصيل تجربة العميل" onClose={() => setSelectedCase(null)}>
-          <div className="case-modal-dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="cmd-header">
-              <div className="cmd-header-info">
-                <div className="cmd-badge">
-                  <ShieldCheck size={14} />
-                  <span>قصة نجاح موثقة بالمركز</span>
-                </div>
-                <h3 className="cmd-patient-title">{selectedCase.name}</h3>
-                <p className="cmd-patient-sub">{selectedCase.title}</p>
+        <StoryDialog
+          className="case-modal-backdrop"
+          label="صور قبل وبعد"
+          onClose={() => setSelectedCase(null)}
+        >
+          <div className="case-modal-dialog">
+            <header className="cmd-header">
+              <div>
+                <h3 className="cmd-patient-title">{selectedCaseName}</h3>
+                {selectedCase.age != null && (
+                  <p className="cmd-patient-age">{selectedCase.age} سنة</p>
+                )}
               </div>
               <button
                 type="button"
                 className="cmd-close-btn"
-                onClick={() => setSelectedCase(null)}
+                onClick={(event) => event.currentTarget.closest('dialog')?.close()}
                 aria-label="إغلاق"
               >
-                <X size={18} />
+                <X size={20} aria-hidden="true" />
               </button>
-            </div>
-
+            </header>
             <div className="cmd-body">
-              {/* Media Preview (Authentic Clinical Photo) */}
-              <div className="cmd-media-col">
-                <div
-                  className="cmd-image-frame"
-                  onClick={() =>
-                    setLightboxImage({
-                      url: selectedCase.detailsImageUrl || selectedCase.imageUrl || '',
-                      title: selectedCase.name,
-                      subtitle: selectedCase.title,
-                    })
-                  }
-                  title="انقر للتكبير بشاشة كاملة"
-                >
-                  <img
-                    src={selectedCase.detailsImageUrl || selectedCase.imageUrl}
-                    alt={selectedCase.title}
-                    className="cmd-image"
-                  />
-                  <div className="cmd-img-overlay">
-                    <span className="cmd-zoom-pill">
-                      <Maximize2 size={13} />
-                      <span>تكبير الصورة</span>
-                    </span>
-                  </div>
+              {selectedComparison ? (
+                <div className="cmd-comparison">
+                  <figure>
+                    <figcaption>قبل</figcaption>
+                    <img src={`/stories/compare-${selectedComparison}-before.webp`} alt={'قبل — ' + selectedCaseName} />
+                  </figure>
+                  <figure>
+                    <figcaption>بعد</figcaption>
+                    <img src={`/stories/compare-${selectedComparison}-after.webp`} alt={'بعد — ' + selectedCaseName} />
+                  </figure>
                 </div>
-                <span className="cmd-img-note">
-                  صورة حقيقية موثقة من داخل العيادة بموافقة الحالة
-                </span>
-
-                {/* Additional Clinical Gallery (InBody, Labs, Progress Angles) */}
-                {selectedCase.additionalImages && selectedCase.additionalImages.length > 0 && (
-                  <div className="cmd-gallery-strip">
-                    <span className="cmd-gallery-title">صور وفحوصات إضافية ({selectedCase.additionalImages.length}):</span>
-                    <div className="cmd-gallery-thumbs">
-                      {selectedCase.additionalImages.map((imgUrl, i) => (
-                        <div
-                          key={i}
-                          className="cmd-gallery-thumb"
-                          onClick={() =>
-                            setLightboxImage({
-                              url: imgUrl,
-                              title: `${selectedCase.name} — فحص / صورة ${i + 1}`,
-                              subtitle: selectedCase.title,
-                            })
-                          }
-                          title="تكبير الفحص أو الصورة"
-                        >
-                          <img src={imgUrl} alt={`صورة إضافية ${i + 1}`} />
-                          <div className="cmd-gallery-thumb-overlay">
-                            <ZoomIn size={12} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Clinical Details */}
-              <div className="cmd-details-col">
-                {/* Metric Summary Strip */}
-                <div className="cmd-stats-box">
-                  <div className="cmd-stat-item">
-                    <span className="csi-label">إجمالي النزول</span>
-                    <strong className="csi-val is-loss">-{selectedCase.weightLostKg} كجم</strong>
-                  </div>
-                  <div className="cmd-stat-item">
-                    <span className="csi-label">الوزن السابق</span>
-                    <strong className="csi-val">{selectedCase.beforeWeight} كجم</strong>
-                  </div>
-                  <div className="cmd-stat-item">
-                    <span className="csi-label">الوزن الحالي</span>
-                    <strong className="csi-val is-target">{selectedCase.afterWeight} كجم</strong>
-                  </div>
-                  <div className="cmd-stat-item">
-                    <span className="csi-label">مدة البرنامج</span>
-                    <strong className="csi-val">{selectedCase.durationText}</strong>
-                  </div>
-                </div>
-
-                {/* Doctor's Assessment & Clinical Plan */}
-                <div className="cmd-section">
-                  <h4 className="cmd-section-title">
-                    <Activity size={14} />
-                    <span>البرنامج وخطة التغذية</span>
-                  </h4>
-                  <p className="cmd-section-text">{selectedCase.programTitle}</p>
-                </div>
-
-                {selectedCase.details && (
-                  <div className="cmd-section">
-                    <h4 className="cmd-section-title">
-                      <HeartHandshake size={14} />
-                      <span>تفاصيل المتابعة والحالة الصحية</span>
-                    </h4>
-                    <p className="cmd-section-text">{selectedCase.details}</p>
-                  </div>
-                )}
-
-                {/* Patient Quote */}
-                <div className="cmd-quote-box">
-                  <Quote size={16} className="cmd-quote-icon" />
-                  <p className="cmd-quote-text">"{selectedCase.quote}"</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="cmd-footer">
-              <span className="cmd-footer-stamp">
-                مركز المستقبل للتغذية العلاجية • د. رنا ياسر الشوري
-              </span>
-              <div className="cmd-footer-actions">
-                <button
-                  type="button"
-                  className="cmd-btn-secondary"
-                  onClick={() => setSelectedCase(null)}
-                >
-                  إغلاق التقرير
-                </button>
-                <Link
-                  to="/booking"
-                  className="cmd-btn-primary"
-                  onClick={() => setSelectedCase(null)}
-                >
-                  <span>احجزي استشارتكِ لحالة مماثلة</span>
-                  <ArrowLeft size={15} />
-                </Link>
-              </div>
+              ) : selectedCase.detailsImageUrl ? (
+                <img
+                  className="cmd-comparison-image"
+                  src={selectedCase.detailsImageUrl}
+                  alt={'صورة المقارنة — ' + selectedCaseName}
+                />
+              ) : (
+                <p className="cmd-empty">صور قبل وبعد غير متاحة حاليًا.</p>
+              )}
             </div>
           </div>
         </StoryDialog>
       )}
 
-      {/* 8. Customer Review Deep-Dive & Enlarged Message Modal */}
       {selectedReview && (
-        <StoryDialog className="review-modal-backdrop" label="معاينة تجربة العميل الأصلية" onClose={() => setSelectedReview(null)}>
-          <div className="review-modal-dialog" onClick={(e) => e.stopPropagation()}>
-            {/* Modal Header - Ultra clean & minimal */}
-            <div className="rmd-header">
-              <div className="rmd-header-info">
-                <h3 className="rmd-title">
-                  {selectedReview.name || 'عميل ومراجع بالعيادة'}
-                  {selectedReview.weightLostKg ? ` (نزول ${selectedReview.weightLostKg} كجم)` : ''}
-                </h3>
-                <span className="rmd-subtitle">
-                  {selectedReview.programTitle || 'برنامج المتابعة والتغذية العلاجية'}
-                  {selectedReview.durationText ? ` • ${selectedReview.durationText}` : ''}
-                </span>
-              </div>
+        <StoryDialog
+          className="review-modal-backdrop"
+          label="معاينة تجربة العميل الأصلية"
+          onClose={() => setSelectedReview(null)}
+        >
+          <div
+            className="review-modal-dialog"
+            onKeyDown={(event) => {
+              if (
+                reviews.length < 2 ||
+                (event.target instanceof HTMLElement &&
+                  event.target.closest('input, textarea, select, [contenteditable], .rmd-media.is-expanded'))
+              ) return;
+              if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                event.preventDefault();
+                moveReview(event.key === 'ArrowLeft' ? 1 : -1);
+              }
+            }}
+          >
+            <header className="rmd-header">
+              <h3 className="rmd-title">{selectedReview.title}</h3>
               <button
                 type="button"
                 className="rmd-close-btn"
-                onClick={() => setSelectedReview(null)}
                 aria-label="إغلاق"
+                onClick={(event) => event.currentTarget.closest('dialog')?.close()}
               >
-                <X size={18} />
+                <X size={21} aria-hidden="true" />
               </button>
-            </div>
+            </header>
 
-            {/* Modal Body - Real authentic screenshot first, then custom composer */}
-            <div className="rmd-body">
-              {/* Real Authentic Screenshot */}
-              {selectedReview.imageUrl ? (
-                <div className="rmd-real-proof-container">
-                  <div
-                    className="rmd-real-img-frame"
-                    onClick={() =>
-                      setLightboxImage({
-                        url: selectedReview.imageUrl!,
-                        title: `${selectedReview.name || 'عميل'} - ${selectedReview.title}`,
-                        subtitle: 'لقطة شاشة أصلية وموثقة من محادثة وتجربة الحالة بالعيادة 🔒',
-                      })
-                    }
-                    title="انقري لتكبير الصورة بشاشة كاملة"
-                  >
-                    <img
-                      src={selectedReview.imageUrl}
-                      alt={selectedReview.title}
-                      className="rmd-real-screenshot-img"
-                    />
-                    <div className="rmd-real-img-overlay">
-                      <span className="rmd-real-zoom-tag">
-                        <Maximize2 size={13} />
-                        <span>تكبير الصورة كاملة</span>
-                      </span>
-                    </div>
-                  </div>
-                  <span className="rmd-real-proof-caption">
-                    <ShieldCheck size={13} />
-                    <span>لقطة شاشة أصلية حقيقية موثقة من تجربة ومحادثة الحالة 🔒</span>
-                  </span>
-                </div>
-              ) : (
-                <div className="rmd-quote-fallback">
-                  <p className="rmd-quote-fallback-text">"{selectedReview.quote}"</p>
-                </div>
-              )}
+            <ReviewMessage key={selectedReview.id} review={selectedReview} whatsapp={whatsapp} />
 
-              {/* Interactive Message Composer ("وتحتها بكتب أنت الرسالة بنفسك") */}
-              <div className="rmd-composer-box">
-                <div className="rmd-composer-head">
-                  <MessageCircle size={15} />
-                  <span>اكتبي استفساركِ لدكتورة رنا بنفسك:</span>
-                </div>
-                <div className="rmd-composer-input-wrap">
-                  <textarea
-                    className="rmd-composer-textarea"
-                    rows={2}
-                    value={customInquiry}
-                    onChange={(e) => setCustomInquiry(e.target.value)}
-                    placeholder="اكتبي رسالتكِ أو استفساركِ لدكتورة رنا هنا (مثال: أود معرفة تفاصيل المتابعة لحالتي...)..."
-                  />
-                  <div className="rmd-composer-suggestions">
-                    <button
-                      type="button"
-                      className="rmd-chip-btn"
-                      onClick={() => setCustomInquiry(`مرحباً د. رنا، أرغب في حجز كشف واستشارة بخصوص حالتي وتجربة (${selectedReview.title}).`)}
-                    >
-                      + حجز موعد كشف
-                    </button>
-                    <button
-                      type="button"
-                      className="rmd-chip-btn"
-                      onClick={() => setCustomInquiry(`مرحباً د. رنا، أود الاستفسار عن تفاصيل وأسعار برنامج (${selectedReview.programTitle || 'المتابعة'}).`)}
-                    >
-                      + أسعار البرنامج
-                    </button>
-                    <button
-                      type="button"
-                      className="rmd-chip-btn"
-                      onClick={() => setCustomInquiry('مرحباً د. رنا، هل المتابعة متاحة أونلاين أم حضور بالعيادة فقط؟')}
-                    >
-                      + متابعة أونلاين
-                    </button>
-                  </div>
-                </div>
-
-                <a
-                  href={whatsappUrl(
-                    clinic?.whatsapp || '201041504201',
-                    customInquiry.trim()
-                      ? `${customInquiry.trim()}\n\n(استفسار بخصوص تجربة: ${selectedReview.name || 'العميل'} - ${selectedReview.title})`
-                      : `مرحباً د. رنا، كنت أقرأ تجربة (${selectedReview.name || 'العميل'} - ${selectedReview.title}) وأود الاستفسار عن المتابعة لحالتي وحجز موعد بالمركز.`
-                  )}
-                  className="rmd-composer-submit-btn"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <WhatsAppIcon size={17} color="#ffffff" />
-                  <span>إرسال استفساركِ عبر واتساب الآن</span>
-                  <ArrowLeft size={16} />
-                </a>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="rmd-footer">
-              <div className="rmd-nav-controls">
-                <button
-                  type="button"
-                  className="rmd-nav-btn"
-                  onClick={() => {
-                    setCustomInquiry('');
-                    handlePrevReview();
-                  }}
-                  title="الرأي السابق"
-                  aria-label="الرأي السابق"
-                >
-                  <ChevronRight size={15} />
-                  <span>السابق</span>
+            {reviews.length > 1 && (
+              <footer className="rmd-footer" aria-label="التنقل بين الرسائل">
+                <button type="button" className="rmd-control" onClick={() => moveReview(-1)}>
+                  <ChevronRight size={18} aria-hidden="true" /> السابقة
                 </button>
-
-                <span className="rmd-nav-counter">
-                  {selectedReviewIndex >= 0 ? `${selectedReviewIndex + 1} من ${reviews.length}` : ''}
-                </span>
-
-                <button
-                  type="button"
-                  className="rmd-nav-btn"
-                  onClick={() => {
-                    setCustomInquiry('');
-                    handleNextReview();
-                  }}
-                  title="الرأي التالي"
-                  aria-label="الرأي التالي"
-                >
-                  <span>التالي</span>
-                  <ChevronLeft size={15} />
+                <span className="rmd-nav-counter" aria-live="polite">{selectedReviewIndex + 1} من {reviews.length}</span>
+                <button type="button" className="rmd-control" onClick={() => moveReview(1)}>
+                  التالية <ChevronLeft size={18} aria-hidden="true" />
                 </button>
-              </div>
-
-              <div className="rmd-footer-actions">
-                <button
-                  type="button"
-                  className="rmd-btn-secondary"
-                  onClick={() => setSelectedReview(null)}
-                >
-                  إغلاق
-                </button>
-                <Link
-                  to="/booking"
-                  className="rmd-btn-primary"
-                  onClick={() => setSelectedReview(null)}
-                >
-                  <span>احجزي استشارتكِ الآن</span>
-                  <ArrowLeft size={14} />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </StoryDialog>
-      )}
-
-      {/* 9. Lightbox Image Viewer Modal */}
-      {lightboxImage && (
-        <StoryDialog className="story-lightbox-backdrop" label="معاينة الصورة" onClose={() => setLightboxImage(null)}>
-          <div className="story-lightbox-dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="story-lightbox-header">
-              <div>
-                <h4 className="story-lightbox-title">{lightboxImage.title}</h4>
-                {lightboxImage.subtitle && (
-                  <p className="story-lightbox-sub">{lightboxImage.subtitle}</p>
-                )}
-              </div>
-              <button
-                type="button"
-                className="story-lightbox-close"
-                onClick={() => setLightboxImage(null)}
-                aria-label="إغلاق المعاينة"
-              >
-                <X size={18} />
-              </button>
-            </div>
-            <div className="story-lightbox-body">
-              <img
-                src={lightboxImage.url}
-                alt={lightboxImage.title}
-                className="story-lightbox-img"
-              />
-            </div>
-            <div className="story-lightbox-footer">
-              <span className="slf-note">مركز المستقبل للتغذية العلاجية • د. رنا ياسر الشوري</span>
-              <Link to="/booking" className="slf-cta" onClick={() => setLightboxImage(null)}>
-                <span>ابدأي رحلتكِ الآن</span>
-                <ArrowLeft size={14} />
-              </Link>
-            </div>
+              </footer>
+            )}
           </div>
         </StoryDialog>
       )}

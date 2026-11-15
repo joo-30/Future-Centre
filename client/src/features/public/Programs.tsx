@@ -42,7 +42,8 @@ export function Programs() {
       )}
       <div className="program-list-grid">
         {data.services.map((s) => {
-          const Icon = icons[s.icon];
+          const Icon = (s.icon && icons[s.icon]) ? icons[s.icon] : icons.leaf;
+          const includes = Array.isArray(s.includes) ? s.includes : [];
           return (
             <article className={'program-detail-card ' + (s.featured ? 'featured' : '')} key={s.id}>
               <span className="service-symbol">
@@ -55,8 +56,8 @@ export function Programs() {
               <h2>{s.title}</h2>
               <p>{s.description}</p>
               <ul>
-                {s.includes.map((x) => (
-                  <li key={x}>
+                {includes.map((x, idx) => (
+                  <li key={x || idx}>
                     <Check size={18} />
                     {x}
                   </li>

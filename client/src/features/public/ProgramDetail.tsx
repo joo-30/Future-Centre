@@ -31,13 +31,13 @@ export function ProgramDetail() {
             {s.description}
           </PublicIntro>
           <div className="prose">
-            {s.body.map((p) => (
-              <p key={p}>{p}</p>
+            {(Array.isArray(s.body) ? s.body : []).map((p, idx) => (
+              <p key={p || idx}>{p}</p>
             ))}
             <h2>ماذا يتضمن البرنامج؟</h2>
             <ul>
-              {s.includes.map((x) => (
-                <li key={x}>{x}</li>
+              {(Array.isArray(s.includes) ? s.includes : []).map((x, idx) => (
+                <li key={x || idx}>{x}</li>
               ))}
             </ul>
           </div>

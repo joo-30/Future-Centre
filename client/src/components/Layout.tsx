@@ -58,7 +58,7 @@ export function Layout() {
       <a className="skip-link" href="#main-content">
         انتقلي إلى المحتوى
       </a>
-      <header className="site-head">
+      <header className={location.pathname === '/' ? 'site-head site-head-home' : 'site-head'}>
         <div className="site-head-container">
           <Brand />
           <nav className="nav-capsule" aria-label="التنقل الرئيسي">

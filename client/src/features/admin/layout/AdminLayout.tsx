@@ -26,6 +26,7 @@ import {
   AdminQrScannerModal,
   type QrScanResult,
 } from '../components/AdminQrScannerModal';
+import { AdminPageErrorBoundary } from '../components/AdminPageErrorBoundary';
 
 const navSections = [
   {
@@ -279,7 +280,9 @@ export function AdminLayout() {
           </div>
         </header>
         <main id="admin-main" className="console-content">
-          <Outlet />
+          <AdminPageErrorBoundary>
+            <Outlet />
+          </AdminPageErrorBoundary>
         </main>
       </div>
 

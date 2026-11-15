@@ -217,7 +217,7 @@ export function ProgramInterest({
                   </span>
                 </div>
 
-                {program.includes && program.includes.length > 0 && (
+                {Array.isArray(program.includes) && program.includes.length > 0 && (
                   <ul className="interest-hero-highlights">
                     {program.includes.slice(0, 2).map((inc, idx) => (
                       <li key={idx}>

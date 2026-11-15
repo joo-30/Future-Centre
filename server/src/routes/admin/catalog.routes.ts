@@ -7,9 +7,26 @@ import { ServiceModel } from '../../models/service.model.js';
 import { audit } from '../../services/audit.service.js';
 export const router = Router();
 
-router.get('/services', async (_req, res) =>
-  res.json({ services: await ServiceModel.find({}).select('-_id -createdAt -updatedAt').lean() }),
-);
+router.get('/services', async (_req, res) => {
+  const rawServices = await ServiceModel.find({}).select('-_id -createdAt -updatedAt').lean();
+  const services = rawServices.map((s) => ({
+    ...s,
+    id: s.id || s.slug || 'service',
+    slug: s.slug || s.id || 'service',
+    title: s.title || 'برنامج علاجي',
+    description: s.description || '',
+    price: typeof s.price === 'number' ? s.price : (s.price === null ? null : 0),
+    duration: typeof s.duration === 'number' ? s.duration : 30,
+    sessions: typeof s.sessions === 'number' ? s.sessions : 1,
+    period: s.period || 'جلسة فردية بالعيادة',
+    icon: s.icon || 'leaf',
+    featured: Boolean(s.featured),
+    active: s.active !== false,
+    includes: Array.isArray(s.includes) ? s.includes : [],
+    body: Array.isArray(s.body) ? s.body : [],
+  }));
+  res.json({ services });
+});
 
 router.put('/services/:id', async (req, res) => {
   const data = serviceSchema.parse(req.body);

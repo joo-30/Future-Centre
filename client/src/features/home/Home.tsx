@@ -1,14 +1,12 @@
 import { resolveArticleImage, type Service } from '@future/shared';
 import {
-  Activity,
   ArrowLeft,
-  Award,
   BookOpen,
+  CalendarDays,
   Check,
+  ClipboardList,
   Clock,
-  Compass,
-  Heart,
-  HeartHandshake,
+  HeartPulse,
   HelpCircle,
   Leaf,
   MapPin,
@@ -20,9 +18,16 @@ import { ButtonLink, ErrorState, Loading } from '../../components/ui';
 import { useCatalog } from '../../hooks/useCatalog';
 import { formatPrice } from '../../lib/api';
 import { gsap, isReducedMotion, useGSAP } from '../../lib/motion';
+import { BmiCalculator } from './components/BmiCalculator';
 import { CareGuideQuiz } from './components/CareGuideQuiz';
 import { Faq } from './components/Faq';
 import { SuccessStoriesSection } from './components/SuccessStoriesSection';
+
+const serviceCardTitles = new Map([
+  ['برنامج متابعة شهرية بالعيادة', 'برنامج المتابعة الشهرية'],
+  ['كشف واستشارة بالعيادة (حضور شخصي)', 'كشف واستشارة بالعيادة'],
+  ['تغذية المرأة ورعاية الحمل بالعيادة', 'تغذية المرأة ورعاية الحمل'],
+]);
 
 export function Home() {
   const { data, isPending, error, refetch } = useCatalog();
@@ -85,7 +90,7 @@ export function Home() {
   const journal = data.articles.find((a) => a.slug === 'meal-planning') || data.articles[0];
   return (
     <main ref={mainRef} className="home-body">
-      <section className="clinic-intro" aria-labelledby="clinic-intro-title">
+      <section className="clinic-intro" aria-labelledby="clinic-intro-title bg">
         <div className="clinic-intro-grid">
           <div className="clinic-intro-copy">
             <p className="clinic-intro-location">
@@ -106,29 +111,20 @@ export function Home() {
                 استكشفي البرامج
               </Link>
             </div>
-            <p className="clinic-intro-confirm">الموعد يتأكد بعد مراجعة المركز.</p>
+            <div className="clinic-intro-meta">
+              <p>الموعد يتأكد بعد مراجعة المركز.</p>
+              <a href="#doctor-profile">تعرّفي على د. رنا</a>
+            </div>
           </div>
 
-          <figure className="clinic-intro-portrait">
-            <div className="clinic-intro-image">
-              <img
-                src="/assets/dr-rana.jpg"
-                alt="د. رنا ياسر الشورى"
-                width="1200"
-                height="1500"
-                fetchPriority="high"
-              />
-            </div>
-            <figcaption>
-              <div>
-                <strong>د. رنا ياسر الشورى</strong>
-                <span>أخصائية التغذية العلاجية وتنسيق القوام</span>
-              </div>
-              <a href="#doctor-profile" aria-label="تعرّفي على د. رنا">
-                <ArrowLeft size={19} aria-hidden="true" />
-              </a>
-            </figcaption>
-          </figure>
+          <img
+            className="clinic-intro-art"
+            src="/assets/hero-brand-sculpture-cutout.webp"
+            alt=""
+            width="1402"
+            height="1122"
+            fetchPriority="high"
+          />
         </div>
       </section>
 
@@ -143,37 +139,65 @@ export function Home() {
           </Link>
         </header>
         {services.length ? (
-          <ul className="clinic-service-list">
-            {services.map((service) => (
-              <li key={service.id} className="clinic-service">
-                <div className="clinic-service-main">
-                  <h3>{service.title}</h3>
-                  <p>{service.description}</p>
-                </div>
-                <div className="clinic-service-meta">
-                  <span>{service.period} · {service.duration} دقيقة للجلسة</span>
-                  <strong>
-                    <bdi>{formatPrice(service.price)}</bdi>
-                    {service.price !== null && ' ج.م'}
-                  </strong>
-                  {service.price !== null && data.clinic.demoPrices && <span>سعر توضيحي</span>}
-                </div>
-                <div className="clinic-service-actions">
-                  {service === featuredService ? (
-                    <button type="button" className="clinic-service-action" onClick={() => setInterest(service)}>
-                      طلب البرنامج
-                    </button>
-                  ) : (
-                    <Link className="clinic-service-action" to={'/booking?service=' + service.id}>
-                      طلب موعد
-                    </Link>
+          <ul className="clinic-service-list" role="list">
+            {services.map((service) => {
+              const isFeatured = service === featuredService;
+              const isSpecialty = service.id === 'women';
+              const showSculpture = isFeatured && service.id === 'monthly' && service.sessions === 4;
+              const Icon = isFeatured ? CalendarDays : isSpecialty ? HeartPulse : ClipboardList;
+              return (
+                <li
+                  key={service.id}
+                  className={`clinic-service${isFeatured ? ' is-featured' : ''}${isSpecialty ? ' is-specialty' : ''}`}
+                >
+                  {showSculpture && (
+                    <img
+                      className="clinic-service-art"
+                      src="/assets/monthly-follow-up-sculpture.webp"
+                      alt=""
+                      width="1448"
+                      height="1086"
+                      loading="lazy"
+                    />
                   )}
-                  <Link className="clinic-section-link" to={'/programs/' + service.slug}>
-                    تفاصيل الخدمة <ArrowLeft size={15} aria-hidden="true" />
-                  </Link>
-                </div>
-              </li>
-            ))}
+                  <div className="clinic-service-body">
+                    <p className="clinic-service-period">
+                      <span><Icon size={22} aria-hidden="true" /></span>
+                      {service.period}
+                    </p>
+                    <h3>{serviceCardTitles.get(service.title) ?? service.title}</h3>
+                    <p className="clinic-service-description">{service.description}</p>
+                    <p className="clinic-service-duration">
+                      <Clock size={16} aria-hidden="true" />
+                      {service.duration} دقيقة للجلسة
+                    </p>
+                    <div className="clinic-service-footer">
+                      <div>
+                        <p className={`clinic-service-price${service.price === null ? ' is-unpriced' : ''}`}>
+                          <bdi>{formatPrice(service.price)}</bdi>
+                          {service.price !== null && <span>ج.م</span>}
+                        </p>
+                        {service.price !== null && data.clinic.demoPrices && <p className="clinic-service-demo">سعر توضيحي</p>}
+                      </div>
+                      <div className="clinic-service-actions">
+                        {isFeatured ? (
+                          <button type="button" className="clinic-service-action" onClick={() => setInterest(service)}>
+                            طلب البرنامج <ArrowLeft size={18} aria-hidden="true" />
+                          </button>
+                        ) : (
+                          <Link className="clinic-service-action" to={'/booking?service=' + service.id}>
+                            طلب موعد <ArrowLeft size={18} aria-hidden="true" />
+                          </Link>
+                        )}
+                        <Link className="clinic-service-details" to={'/programs/' + service.slug}>
+                          تفاصيل الخدمة
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         ) : (
           <p>تواصلي معنا للتعرّف على <Link className="clinic-section-link" to="/contact">الخدمات المتاحة</Link>.</p>
@@ -190,39 +214,109 @@ export function Home() {
             عن المركز <ArrowLeft size={17} aria-hidden="true" />
           </Link>
         </header>
-        <ol>
-          <li>
-            <HeartHandshake size={24} aria-hidden="true" />
-            <h3>نفهم حالتكِ</h3>
-            <p>نسمع أهدافكِ وعاداتكِ ونقيّم احتياجكِ في الزيارة الأولى.</p>
-          </li>
-          <li>
-            <Compass size={24} aria-hidden="true" />
-            <h3>نتفق على خطة</h3>
-            <p>نختار معكِ خطوات تناسب يومكِ والأكل المتاح لكِ.</p>
-          </li>
-          <li>
-            <Activity size={24} aria-hidden="true" />
-            <h3>نتابع التقدّم</h3>
-            <p>نراجع القياسات ونعدّل الخطة حسب استجابتكِ.</p>
-          </li>
-        </ol>
+        <div className="clinic-visit-map">
+          <img
+            className="clinic-visit-ribbon"
+            src="/assets/clinic-visit-ribbon.webp"
+            alt=""
+            width="2172"
+            height="724"
+            loading="lazy"
+          />
+          <ol className="clinic-visit-steps" role="list">
+            <li>
+              <span className="clinic-visit-number" aria-hidden="true">١</span>
+              <div>
+                <h3>نفهم حالتكِ</h3>
+                <p>نسمع أهدافكِ وعاداتكِ ونقيّم احتياجكِ في الزيارة الأولى.</p>
+              </div>
+            </li>
+            <li>
+              <span className="clinic-visit-number" aria-hidden="true">٢</span>
+              <div>
+                <h3>نتفق على خطة</h3>
+                <p>نختار معكِ خطوات تناسب يومكِ والأكل المتاح لكِ.</p>
+              </div>
+            </li>
+            <li>
+              <span className="clinic-visit-number" aria-hidden="true">٣</span>
+              <div>
+                <h3>نتابع التقدّم</h3>
+                <p>نراجع القياسات ونعدّل الخطة حسب استجابتكِ.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
       </section>
 
       <section id="doctor-profile" className="clinic-doctor-profile" aria-labelledby="doctor-profile-title">
-        <div>
-          <h2 id="doctor-profile-title">د. رنا ياسر الشورى</h2>
-          <p>أخصائية التغذية العلاجية والسمنة وتنسيق القوام، وعضو الجمعية المصرية لدراسة السمنة <bdi>(EMASO)</bdi>.</p>
+        <div className="clinic-doctor-layout">
+          <div className="clinic-doctor-copy">
+            <header className="clinic-doctor-identity">
+              <h2 id="doctor-profile-title">د. رنا ياسر الشورى</h2>
+              <p>أخصائية التغذية العلاجية والسمنة وتنسيق القوام</p>
+            </header>
+            <div className="clinic-doctor-details">
+              <div className="clinic-doctor-approach">
+                <h3>أسلوبها في المتابعة</h3>
+                <p>
+                  في مركز المستقبل، بتقيّم د. رنا عادات أكلكِ وقياسات جسمكِ، وبتبني معكِ خطة تناسب
+                  روتينكِ. ومع المتابعة، بتراجع القياسات وتعدّل الخطة حسب استجابتكِ.
+                </p>
+              </div>
+              <dl className="clinic-doctor-credentials">
+                <div>
+                  <dt>التأهيل العلمي</dt>
+                  <dd>ماجستير ودبلومة في التغذية الإكلينيكية</dd>
+                </div>
+                <div>
+                  <dt>العضوية المهنية</dt>
+                  <dd>
+                    الجمعية المصرية لدراسة السمنة <bdi dir="ltr">(EMASO)</bdi>
+                  </dd>
+                </div>
+              </dl>
+              <ul className="clinic-doctor-fields" aria-label="مجالات العمل" role="list">
+                <li>إدارة الوزن</li>
+                <li>تغذية المرأة</li>
+                <li>متابعة تكوين الجسم</li>
+              </ul>
+            </div>
+          </div>
+          <figure className="clinic-doctor-visual">
+            <img
+              className="clinic-doctor-porcelain"
+              src="/assets/doctor-profile-porcelain.webp"
+              alt=""
+              width="1254"
+              height="1254"
+              loading="lazy"
+            />
+            <img
+              className="clinic-doctor-portrait"
+              src="/assets/doctor-profile-portrait.webp"
+              alt="د. رنا ياسر الشورى"
+              width="1122"
+              height="1402"
+              loading="lazy"
+            />
+            <img
+              className="clinic-doctor-porcelain is-foreground"
+              src="/assets/doctor-profile-porcelain.webp"
+              alt=""
+              width="1254"
+              height="1254"
+              loading="lazy"
+            />
+          </figure>
         </div>
-        <ul>
-          <li><Award size={20} aria-hidden="true" /> ماجستير ودبلومة التغذية الإكلينيكية</li>
-          <li><Activity size={20} aria-hidden="true" /> متابعة تكوين الجسم بقياسات <bdi>InBody</bdi></li>
-          <li><Heart size={20} aria-hidden="true" /> برامج للوزن والتغذية العلاجية وصحة المرأة</li>
-        </ul>
       </section>
 
       {/* قصص وتجارب النجاح والتحولات */}
       <SuccessStoriesSection />
+
+      {/* حاسبة مؤشرات الجسم ومؤشر كتلة الجسم InBody */}
+      <BmiCalculator />
 
       {/* مرشد البداية التفاعلي مع د. رنا */}
       <CareGuideQuiz whatsappNumber={data.clinic.whatsapp} />

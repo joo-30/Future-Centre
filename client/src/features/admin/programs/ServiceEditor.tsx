@@ -52,8 +52,8 @@ export function ServiceEditor({ service: s, onSaved }: { service: Service; onSav
   const [price, setPrice] = useState<string>(s.price !== null && s.price !== undefined ? String(s.price) : '500');
 
   // Pre-fill includes and body if adding new program
-  const initialIncludes = s.includes && s.includes.length > 0 ? s.includes : DEFAULT_INCLUDES;
-  const initialBody = s.body && s.body.length > 0 ? s.body : DEFAULT_BODY;
+  const initialIncludes = Array.isArray(s.includes) && s.includes.length > 0 ? s.includes : DEFAULT_INCLUDES;
+  const initialBody = Array.isArray(s.body) && s.body.length > 0 ? s.body : DEFAULT_BODY;
 
   function onTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const val = e.target.value;

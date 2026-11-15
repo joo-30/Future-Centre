@@ -18,7 +18,7 @@ router.get('/health', (_req, res) =>
 );
 
 router.get('/catalog', async (_req, res) => {
-  const [clinic, services, articles] = await Promise.all([
+  const [clinic, rawServices, rawArticles] = await Promise.all([
     Clinic.findOne({ key: 'main' }).lean(),
     ServiceModel.find({ active: { $ne: false } })
       .select('-_id -createdAt -updatedAt')
@@ -30,6 +30,33 @@ router.get('/catalog', async (_req, res) => {
   ]);
   if (!clinic) throw new ApiError(503, 'UNAVAILABLE', 'المركز غير متاح الآن.');
   const { key, blocks, revision, ...publicClinic } = clinic;
+  const services = rawServices.map((s) => ({
+    ...s,
+    id: s.id || s.slug || 'service',
+    slug: s.slug || s.id || 'service',
+    title: s.title || 'برنامج علاجي',
+    description: s.description || '',
+    price: typeof s.price === 'number' ? s.price : (s.price === null ? null : 0),
+    duration: typeof s.duration === 'number' ? s.duration : 30,
+    sessions: typeof s.sessions === 'number' ? s.sessions : 1,
+    period: s.period || 'جلسة فردية بالعيادة',
+    icon: s.icon || 'leaf',
+    featured: Boolean(s.featured),
+    active: s.active !== false,
+    includes: Array.isArray(s.includes) ? s.includes : [],
+    body: Array.isArray(s.body) ? s.body : [],
+  }));
+  const articles = rawArticles.map((a) => ({
+    ...a,
+    slug: a.slug || 'article',
+    title: a.title || 'مقال طبي',
+    category: a.category || 'تغذية',
+    minutes: typeof a.minutes === 'number' ? a.minutes : 3,
+    image: a.image || 'cover',
+    intro: a.intro || '',
+    body: Array.isArray(a.body) ? a.body : [],
+    published: a.published !== false,
+  }));
   res.json({
     clinic: { ...publicClinic, pendingHoldHours: config.PENDING_HOLD_HOURS },
     services,

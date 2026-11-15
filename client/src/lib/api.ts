@@ -95,8 +95,12 @@ export const api = {
       body: JSON.stringify(body),
     }),
 };
-export const formatPrice = (n: number | null) =>
-  n === null ? 'يحدد بعد الاستشارة' : new Intl.NumberFormat('en-US').format(n);
+export const formatPrice = (n: number | string | null | undefined) => {
+  if (n === null || n === undefined || n === '') return 'يحدد بعد الاستشارة';
+  const num = typeof n === 'number' ? n : Number(n);
+  if (isNaN(num)) return 'يحدد بعد الاستشارة';
+  return new Intl.NumberFormat('en-US').format(num);
+};
 export function addDays(date: string, count: number) {
   const d = new Date(date + 'T12:00:00Z');
   d.setUTCDate(d.getUTCDate() + count);

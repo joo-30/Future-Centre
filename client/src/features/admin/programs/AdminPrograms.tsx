@@ -162,20 +162,29 @@ export function AdminPrograms() {
         </div>
       ) : (
         <div className="prog-cards-grid">
-          {services.map((s) => {
-            const IconComp = ICON_MAP[s.icon] || Leaf;
+          {services.map((s, idx) => {
+            const includes = Array.isArray(s.includes) ? s.includes : [];
+            const serviceId = s.id || s.slug || `prog-${idx}`;
+            const iconKey = (s.icon && s.icon in ICON_MAP) ? (s.icon as keyof typeof ICON_MAP) : 'leaf';
+            const IconComp = ICON_MAP[iconKey] || Leaf;
             const isActive = s.active !== false;
+            const title = s.title || 'برنامج علاجي بدون عنوان';
+            const description = s.description || '';
+            const duration = typeof s.duration === 'number' ? s.duration : 30;
+            const sessions = typeof s.sessions === 'number' ? s.sessions : 1;
+            const period = s.period || 'جلسة فردية بالعيادة';
+            const hasPrice = s.price !== null && s.price !== undefined && !Number.isNaN(s.price);
 
             return (
               <article
-                key={s.id}
+                key={serviceId}
                 className={`prog-luxury-card ${s.featured ? 'is-featured' : ''} ${
                   isActive ? 'is-active' : 'is-inactive'
                 }`}
               >
                 {/* Top Badge & Icon Bar */}
                 <div className="prog-card-top-bar">
-                  <div className={`prog-icon-badge ${s.icon}`}>
+                  <div className={`prog-icon-badge ${iconKey}`}>
                     <IconComp size={22} />
                   </div>
 
@@ -204,24 +213,24 @@ export function AdminPrograms() {
 
                 {/* Title & Description */}
                 <div className="prog-card-info">
-                  <h2>{s.title}</h2>
-                  <p>{s.description}</p>
+                  <h2>{title}</h2>
+                  <p>{description}</p>
                 </div>
 
                 {/* Specs Pill Strip */}
                 <div className="prog-specs-strip">
                   <span className="spec-item">
                     <Clock size={13} />
-                    {s.duration} دقيقة / جلسة
+                    {duration} دقيقة / جلسة
                   </span>
                   <span className="spec-item">
-                    {s.sessions} جلسات · {s.period}
+                    {sessions} جلسات · {period}
                   </span>
                 </div>
 
                 {/* Price Display */}
                 <div className="prog-price-display">
-                  {s.price !== null ? (
+                  {hasPrice ? (
                     <>
                       <span className="price-num">{formatPrice(s.price)}</span>
                       <span className="price-curr">ج.م</span>
@@ -233,8 +242,8 @@ export function AdminPrograms() {
 
                 {/* Features List */}
                 <ul className="prog-features-list">
-                  {s.includes.map((feat) => (
-                    <li key={feat}>
+                  {includes.map((feat, featIdx) => (
+                    <li key={feat || featIdx}>
                       <span className="check-bullet">
                         <Check size={13} />
                       </span>
