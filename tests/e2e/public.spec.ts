@@ -65,8 +65,8 @@ test('guest booking on mobile persists and supports safe tracking and cancellati
     }
   }
   expect(chosen).toBe(true);
-  await page.getByRole('button', { name: 'متابعة لبياناتك' }).click();
-  await expect(page.getByRole('heading', { name: 'أضيفي بيانات التواصل.' })).toBeVisible();
+  await page.getByRole('button', { name: 'متابعة لبيانات التواصل' }).click();
+  await expect(page.getByRole('heading', { name: 'بيانات التواصل', exact: true })).toBeVisible();
   await page.getByRole('textbox', { name: 'الاسم بالكامل' }).fill('حجز اختبار المتصفح');
   await page.getByRole('textbox', { name: 'رقم الهاتف', exact: true }).fill('01000000003');
   await page.getByRole('checkbox').check();

@@ -4,6 +4,7 @@ import type {
   AppointmentPublic,
   Article,
   Availability,
+  ClinicAnalytics,
   InBodyRecordPublic,
   InterestPublic,
   PatientClinicalNote,
@@ -127,6 +128,9 @@ export interface CapacityResponse {
 }
 
 export const adminApi = {
+  analytics: (date: string) => request<ClinicAnalytics>(
+    '/admin/analytics' + (date ? '?' + new URLSearchParams({ date }) : ''),
+  ),
   availability: (reference: string, date: string) =>
     request<Availability>(
       `/admin/appointments/${reference}/availability?` + new URLSearchParams({ date }),

@@ -18,6 +18,10 @@ export const AdminAppointments = lazy(() =>
   })),
 );
 
+export const AdminAnalytics = lazy(() =>
+  import('../features/admin/analytics/AdminAnalytics').then((m) => ({ default: m.AdminAnalytics })),
+);
+
 export const AdminPrograms = lazy(() =>
   import('../features/admin/programs/AdminPrograms').then((m) => ({ default: m.AdminPrograms })),
 );

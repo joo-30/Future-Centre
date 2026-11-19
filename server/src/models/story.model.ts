@@ -17,6 +17,8 @@ export interface StoryDocument {
   details?: string;
   imageUrl?: string;
   detailsImageUrl?: string;
+  beforeImageUrl?: string;
+  afterImageUrl?: string;
   additionalImages?: string[];
   storyType?: 'transformation' | 'review';
   verified?: boolean;
@@ -43,6 +45,8 @@ const storySchema = new Schema<StoryDocument>(
     details: { type: String, trim: true },
     imageUrl: { type: String, trim: true },
     detailsImageUrl: { type: String, trim: true },
+    beforeImageUrl: { type: String, trim: true },
+    afterImageUrl: { type: String, trim: true },
     additionalImages: { type: [String], default: [] },
     storyType: { type: String, enum: ['transformation', 'review'], default: 'transformation' },
     verified: { type: Boolean, default: true },
@@ -224,17 +228,3 @@ export const DEFAULT_STORIES = [
     order: 9,
   },
 ];
-
-export async function ensureDefaultStories(): Promise<void> {
-  const count = await StoryModel.countDocuments();
-  if (count === 0) {
-    await StoryModel.insertMany(DEFAULT_STORIES);
-  } else {
-    // If stories exist but don't have the new brand covers or have old duplicates, re-seed
-    const first = await StoryModel.findOne();
-    if (first && (!first.imageUrl || !first.imageUrl.includes('case_cover_') || count < 9)) {
-      await StoryModel.deleteMany({});
-      await StoryModel.insertMany(DEFAULT_STORIES);
-    }
-  }
-}

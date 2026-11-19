@@ -1,4 +1,6 @@
 import { resolveArticleImage, type Article } from '@future/shared';
+import { ArticleArtwork } from '../../home/components/ArticlesSection';
+import { ContentPreview } from '../components/ContentPreview';
 import {
   Check,
   CheckCircle2,
@@ -110,6 +112,11 @@ export function ArticleEditor({ article: a, onSaved }: { article: Article; onSav
 
   return (
     <form className="art-editor-form" onSubmit={(e) => void save(e)}>
+      <ContentPreview
+        title={title || 'عنوان المقال'}
+        artwork={<ArticleArtwork article={{ ...a, slug, image: currentImage }} featured />}
+        dark
+      />
       <fieldset disabled={busy}>
         {/* Publication Status Selector */}
         <div className="art-form-field">

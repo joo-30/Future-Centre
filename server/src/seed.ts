@@ -1,7 +1,8 @@
-import { Appointment } from './models/appointment.model.js';
+import mongoose from 'mongoose';
 import { ArticleModel } from './models/article.model.js';
 import { Clinic } from './models/clinic.model.js';
 import { ServiceModel } from './models/service.model.js';
+import { DEFAULT_STORIES, StoryModel } from './models/story.model.js';
 export async function seed() {
   const isTest = process.env.NODE_ENV === 'test';
   const defaultHours = isTest
@@ -21,53 +22,6 @@ export async function seed() {
         { weekday: 6, open: false, start: '13:00', end: '20:00', breaks: [] },
         { weekday: 7, open: false, start: '13:00', end: '20:00', breaks: [] },
       ];
-  if (isTest) {
-    await Clinic.updateOne(
-      { key: 'main' },
-      {
-        $setOnInsert: {
-          key: 'main',
-          name: 'مركز المستقبل',
-          subtitle: 'للتغذية والتخسيس',
-          phones: ['01041504201', '01041507409'],
-          whatsapp: '201041504201',
-          address: 'كفر الزيات، شارع الجيش عند توكيل أورنج',
-          city: 'كفر الزيات',
-          timezone: 'Africa/Cairo',
-          demoSchedule: true,
-          demoPrices: true,
-          revision: 0,
-          blocks: [],
-          hours: defaultHours,
-        },
-      },
-      { upsert: true },
-    );
-  } else {
-    await Clinic.updateOne(
-      { key: 'main' },
-      {
-        $setOnInsert: {
-          key: 'main',
-          name: 'مركز المستقبل',
-          subtitle: 'للتغذية والتخسيس',
-          phones: ['01041504201', '01041507409'],
-          whatsapp: '201041504201',
-          address: 'كفر الزيات، شارع الجيش عند توكيل أورنج',
-          city: 'كفر الزيات',
-          timezone: 'Africa/Cairo',
-          demoPrices: true,
-          revision: 0,
-          blocks: [],
-        },
-        $set: {
-          hours: defaultHours,
-          demoSchedule: false,
-        },
-      },
-      { upsert: true },
-    );
-  }
   const services = [
     {
       id: 'nutrition',
@@ -133,21 +87,6 @@ export async function seed() {
       ],
     },
   ];
-  for (const s of services)
-    await ServiceModel.updateOne({ id: s.id }, { $set: s }, { upsert: true });
-
-  await Appointment.updateMany(
-    { serviceTitle: 'استشارة تغذية' },
-    { $set: { serviceTitle: 'كشف واستشارة بالعيادة (حضور شخصي)' } },
-  );
-  await Appointment.updateMany(
-    { serviceTitle: 'برنامج متابعة شهرية' },
-    { $set: { serviceTitle: 'برنامج متابعة شهرية بالعيادة' } },
-  );
-  await Appointment.updateMany(
-    { serviceTitle: 'تغذية المرأة' },
-    { $set: { serviceTitle: 'تغذية المرأة ورعاية الحمل بالعيادة' } },
-  );
   const articles = [
     {
       slug: 'first-consultation',
@@ -189,6 +128,41 @@ export async function seed() {
       ],
     },
   ];
-  for (const a of articles)
-    await ArticleModel.updateOne({ slug: a.slug }, { $setOnInsert: a }, { upsert: true });
+  // Initialize an empty installation atomically. Existing clinics own their catalog and schedule.
+  const session = await mongoose.startSession();
+  try {
+    await session.withTransaction(async () => {
+      const clinic = await Clinic.updateOne(
+        { key: 'main' },
+        {
+          $setOnInsert: {
+            key: 'main',
+            name: 'مركز المستقبل',
+            subtitle: 'للتغذية والتخسيس',
+            phones: ['01041504201', '01041507409'],
+            whatsapp: '201041504201',
+            address: 'كفر الزيات، شارع الجيش عند توكيل أورنج',
+            city: 'كفر الزيات',
+            timezone: 'Africa/Cairo',
+            demoSchedule: isTest,
+            demoPrices: true,
+            revision: 0,
+            blocks: [],
+            hours: defaultHours,
+          },
+        },
+        { upsert: true, timestamps: false, session },
+      );
+      if (!clinic.upsertedCount) return;
+      for (const service of services)
+        await ServiceModel.updateOne({ id: service.id }, { $setOnInsert: service }, { upsert: true, session });
+      for (const article of articles)
+        await ArticleModel.updateOne({ slug: article.slug }, { $setOnInsert: article }, { upsert: true, session });
+      if (!(await StoryModel.exists({}).session(session))) {
+        await StoryModel.insertMany(DEFAULT_STORIES, { session });
+      }
+    });
+  } finally {
+    await session.endSession();
+  }
 }

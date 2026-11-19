@@ -15,6 +15,7 @@ import { Programs } from '../features/public/Programs';
 import { PageMeta } from './PageMeta';
 import {
   Account,
+  AdminAnalytics,
   AdminAppointments,
   AdminArticles,
   AdminBmi,
@@ -60,7 +61,7 @@ export function App() {
             <Route path="schedule" element={<AdminSchedule />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="stories" element={<AdminStories />} />
-            <Route path="dashboard" element={<Navigate to="/admin" replace />} />
+            <Route path="dashboard" element={<AdminAnalytics />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Route>
           <Route element={<Layout />}>

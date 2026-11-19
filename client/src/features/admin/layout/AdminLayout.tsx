@@ -2,6 +2,7 @@ import {
   Trophy,
   ArrowLeft,
   Bell,
+  ChartNoAxesCombined,
   Calculator,
   CalendarDays,
   CalendarClock,
@@ -30,13 +31,16 @@ import { AdminPageErrorBoundary } from '../components/AdminPageErrorBoundary';
 
 const navSections = [
   {
-    title: 'العمليات والتشغيل',
+    title: 'نظرة عامة',
+    items: [{ path: '/admin/dashboard', label: 'تحليلات العيادة', icon: ChartNoAxesCombined }],
+  },
+  {
+    title: 'إدارة العيادة',
     items: [
       { path: '/admin', label: 'المواعيد والحجوزات', icon: CalendarDays },
       { path: '/admin/patients', label: 'العملاء والاشتراكات', icon: Users },
       { path: '/admin/schedule', label: 'أوقات العمل', icon: CalendarClock },
       { path: '/admin/capacity', label: 'سعة العيادة', icon: Gauge },
-      { path: '/admin/bmi', label: 'حاسبة الـ BMI والمؤشرات', icon: Calculator },
     ],
   },
   {
@@ -45,6 +49,12 @@ const navSections = [
       { path: '/admin/programs', label: 'البرامج والأسعار', icon: Leaf },
       { path: '/admin/articles', label: 'المقالات الطبية', icon: FileText },
       { path: '/admin/stories', label: 'قصص وتجارب النجاح', icon: Trophy },
+    ],
+  },
+  {
+    title: 'الأدوات والإعدادات',
+    items: [
+      { path: '/admin/bmi', label: 'حاسبة BMI والمؤشرات', icon: Calculator },
       { path: '/admin/settings', label: 'إعدادات المركز', icon: Settings },
     ],
   },

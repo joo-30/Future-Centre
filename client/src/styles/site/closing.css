@@ -1,0 +1,413 @@
+.closing-section {
+  --closing-forest: #153e2c;
+  --closing-olive: #617b39;
+  --closing-line: #dfe4d4;
+  padding: clamp(38px, 4.4vw, 70px) max(24px, calc((100% - 1320px) / 2)) clamp(40px, 5vw, 80px);
+  background: #fff;
+  color: var(--closing-forest);
+  direction: rtl;
+  scroll-margin-block-start: 100px;
+  font-family: Plex, sans-serif;
+}
+
+.closing-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  align-items: start;
+  gap: clamp(32px, 4.5vw, 70px);
+}
+
+.closing-heading {
+  min-width: 0;
+}
+
+.closing-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  margin: 0 0 22px;
+  color: var(--closing-olive);
+  font:
+    650 clamp(16px, 1.4vw, 20px) / 1.6 Alex,
+    'Alexandria',
+    sans-serif;
+}
+
+.closing-eyebrow::before {
+  content: '';
+  width: 36px;
+  height: 2px;
+  background: #a88c4b;
+}
+
+.closing-heading h2 {
+  margin: 0;
+  color: var(--closing-forest);
+  font:
+    735 clamp(34px, 3.7vw, 56px) / 1.45 Alex,
+    'Alexandria',
+    sans-serif;
+  letter-spacing: -0.8px;
+}
+
+.closing-heading h2 > span,
+.closing-booking-copy h3 > span {
+  display: block;
+}
+
+.closing-heading h2 > span:last-child {
+  color: var(--closing-olive);
+}
+
+.closing-description {
+  margin: 22px 0 0;
+  color: #4f654b;
+  font:
+    400 clamp(18px, 1.55vw, 22px) / 1.8 Plex,
+    sans-serif;
+}
+
+.closing-ribbon {
+  height: clamp(130px, 13.3vw, 190px);
+  margin-block-start: 12px;
+  overflow: hidden;
+}
+
+.closing-ribbon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+}
+
+.closing-faqs {
+  min-width: 0;
+  padding-block-start: 16px;
+}
+
+.closing-faq {
+  margin: 0;
+  border-block-end: 1px solid var(--closing-line);
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.closing-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 84px;
+  padding: 23px 22px;
+  border-radius: 14px;
+  color: var(--closing-forest);
+  font:
+    650 clamp(18px, 1.5vw, 22px) / 1.65 Alex,
+    'Alexandria',
+    sans-serif;
+  list-style: none;
+  overflow-wrap: anywhere;
+}
+
+.closing-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.closing-faq-minus {
+  display: none;
+}
+
+.closing-faq[open] {
+  margin-block-end: 12px;
+  border-color: transparent;
+  border-radius: 17px;
+  background: #f3f5e9;
+}
+
+.closing-faq[open] .closing-faq-plus {
+  display: none;
+}
+
+.closing-faq[open] .closing-faq-minus {
+  display: block;
+}
+
+.closing-faq p {
+  margin: 0;
+  padding: 0 24px 24px;
+  color: #4a5f49;
+  font:
+    400 clamp(17px, 1.4vw, 20px) / 1.9 Plex,
+    sans-serif;
+  text-wrap: pretty;
+  animation: closing-answer-enter 180ms ease-out;
+}
+
+.closing-booking {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 0.75fr);
+  align-items: center;
+  gap: clamp(22px, 2.3vw, 34px);
+  min-height: 280px;
+  margin-block-start: clamp(34px, 4.1vw, 62px);
+  padding: clamp(28px, 3vw, 44px);
+  border-radius: 27px;
+  background: var(--closing-forest);
+  color: #faf4e3;
+}
+
+.closing-booking-copy {
+  min-width: 0;
+  padding-inline-end: clamp(22px, 2.3vw, 34px);
+  border-inline-end: 1px solid #839e64;
+}
+
+.closing-booking-copy h3 {
+  margin: 0;
+  color: #faf4e3;
+  font:
+    710 clamp(30px, 3.2vw, 47px) / 1.45 Alex,
+    'Alexandria',
+    sans-serif;
+  letter-spacing: -0.7px;
+}
+
+.closing-booking-copy > p {
+  margin: 22px 0 0;
+  color: #f0f0d9;
+  font:
+    400 clamp(17px, 1.35vw, 20px) / 1.85 Plex,
+    sans-serif;
+}
+
+.closing-booking-actions {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.closing-booking-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(22px, 2.3vw, 34px);
+  width: 100%;
+  min-height: 60px;
+  padding: 14px 22px;
+  border: 1px solid #e1ecb8;
+  border-radius: 999px;
+  background: #e1ecb8;
+  color: var(--closing-forest);
+  font:
+    650 clamp(17px, 1.5vw, 22px) / 1.6 Alex,
+    'Alexandria',
+    sans-serif;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.closing-booking-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 46px;
+  padding-block: 4px;
+  color: #faf4e3;
+  font:
+    600 clamp(16px, 1.3vw, 19px) / 1.7 Alex,
+    'Alexandria',
+    sans-serif;
+  text-align: center;
+  text-decoration: none;
+}
+
+.closing-booking-note {
+  margin: 0;
+  color: #d8e1c2;
+  font:
+    400 clamp(15px, 1.2vw, 17px) / 1.75 Plex,
+    sans-serif;
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.closing-booking-art {
+  min-width: 0;
+}
+
+.closing-booking-art img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  mask-image:
+    linear-gradient(to right, transparent, #000 8%, #000 92%, transparent),
+    linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
+  mask-composite: intersect;
+}
+
+.closing-booking a:focus-visible {
+  outline-color: #eff5d5;
+}
+
+@media (min-width: 1051px) {
+  .closing-ribbon {
+    margin-inline-start: -24px;
+  }
+
+  .closing-booking-art img {
+    transform: scale(1.24);
+  }
+}
+
+@media (hover: hover) {
+  .closing-faq:not([open]) summary:hover {
+    background: #f8f9f3;
+  }
+
+  .closing-booking-primary:hover {
+    border-color: #f1f7d9;
+    background: #f1f7d9;
+    color: var(--closing-forest);
+  }
+
+  .closing-booking-whatsapp:hover {
+    color: #e1ecb8;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1050px) {
+  .closing-overview {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 26px;
+  }
+
+  .closing-heading h2 {
+    font-size: clamp(32px, 4vw, 42px);
+  }
+
+  .closing-faq summary {
+    padding-inline: 17px;
+  }
+
+  .closing-booking {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .closing-booking-art {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .closing-section {
+    padding-inline: 20px;
+  }
+
+  .closing-overview {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .closing-eyebrow {
+    margin-block-end: 18px;
+  }
+
+  .closing-heading h2 {
+    font-size: clamp(32px, 8.3vw, 45px);
+  }
+
+  .closing-description {
+    margin-block-start: 18px;
+    font-size: 18px;
+  }
+
+  .closing-ribbon {
+    display: none;
+  }
+
+  .closing-faqs {
+    padding-block-start: 0;
+  }
+
+  .closing-faq summary {
+    min-height: 76px;
+    padding: 19px 16px;
+    gap: 16px;
+    font-size: 18px;
+  }
+
+  .closing-faq p {
+    padding: 0 17px 21px;
+    font-size: 17px;
+  }
+
+  .closing-booking {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+    min-height: 0;
+    margin-block-start: 32px;
+    padding: 28px 24px 20px;
+    border-radius: 22px;
+  }
+
+  .closing-booking-copy {
+    padding-inline-end: 0;
+    padding-block-end: 24px;
+    border-inline-end: 0;
+    border-block-end: 1px solid #7a965f;
+  }
+
+  .closing-booking-copy h3 {
+    font-size: clamp(30px, 7.6vw, 40px);
+  }
+
+  .closing-booking-copy > p {
+    margin-block-start: 17px;
+    font-size: 18px;
+  }
+
+  .closing-booking-primary {
+    min-height: 58px;
+  }
+
+  .closing-booking-art {
+    display: block;
+    width: min(100%, 245px);
+    margin-inline: auto;
+    margin-block-start: -6px;
+  }
+}
+
+@keyframes closing-answer-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .closing-faq,
+  .closing-booking-primary {
+    transition: none;
+  }
+
+  .closing-faq p {
+    animation: none;
+  }
+}

@@ -1,232 +1,298 @@
 import { useEffect, useRef, useState } from 'react';
-import { gsap, isReducedMotion } from '../../../lib/motion';
-import { Check, Compass, RotateCcw, Award } from 'lucide-react';
-import { ButtonLink } from '../../../components/ui';
-import { whatsappUrl } from '../../../lib/api';
+import { Link } from 'react-router-dom';
+import {
+  ArrowLeft,
+  ArrowRight,
+  CalendarDays,
+  Check,
+  ClipboardList,
+  Gauge,
+  HeartPulse,
+  RotateCcw,
+  Scale,
+  Sparkles,
+  Sprout,
+  TrendingUp,
+  Utensils,
+  type LucideIcon,
+} from 'lucide-react';
 import { WhatsAppIcon } from '../../../components/icons/WhatsAppIcon';
+import { whatsappUrl } from '../../../lib/api';
+import { isReducedMotion } from '../../../lib/motion';
 
 interface Question {
   id: string;
+  label: string;
   title: string;
   subtitle: string;
-  options: {
-    label: string;
-    desc: string;
-    value: string;
-  }[];
+  options: { label: string; value: string; icon: LucideIcon }[];
 }
 
 const questions: Question[] = [
   {
     id: 'goal',
-    title: 'ما هو هدفك الصحي الأساسي؟',
-    subtitle: 'اختاري الهدف الذي تودين التركيز عليه أولاً',
+    label: 'هدفكِ',
+    title: 'إيه هدفكِ الأساسي؟',
+    subtitle: 'اختاري إجابة واحدة',
     options: [
-      { label: 'نزول وزن ونحت القوام', desc: 'خسارة دهون صحية مع الحفاظ على الكتلة العضلية', value: 'weight_loss' },
-      { label: 'مقاومة الإنسولين وتكيس المبايض', desc: 'تحسين كفاءة الحرق وضبط الهرمونات بدون أدوية عشوائية', value: 'pcos_insulin' },
-      { label: 'زيادة وزن وعلاج النحافة', desc: 'بناء كتلة عضلية وتغذية متوازنة تفتح الشهية صحياً', value: 'weight_gain' },
-      { label: 'تغذية صحية وأسلوب حياة', desc: 'اكتساب عادات مستدامة تناسب روتين يومك المزدحم', value: 'healthy_lifestyle' },
+      { label: 'نزول الوزن', value: 'weight_loss', icon: Scale },
+      { label: 'زيادة الوزن', value: 'weight_gain', icon: TrendingUp },
+      { label: 'مقاومة الإنسولين وتكيس المبايض', value: 'pcos_insulin', icon: HeartPulse },
+      { label: 'تغذية صحية', value: 'healthy_lifestyle', icon: Sprout },
     ],
   },
   {
     id: 'challenge',
-    title: 'ما هو أكبر تحدٍ واجهك في تجاربك السابقة؟',
-    subtitle: 'فهم العائق يساعدنا في توجيهك للمسار الذي يدوم معك',
+    label: 'تجربتكِ',
+    title: 'إيه أكتر تحدّي واجهكِ؟',
+    subtitle: 'اختاري الأقرب لتجربتكِ',
     options: [
-      { label: 'ثبات الوزن بعد دايت قاسي', desc: 'نزول مؤقت ثم عودة الوزن سريعاً بمجرد التوقف', value: 'plateau' },
-      { label: 'صعوبة التحكم بالشهية والجوع', desc: 'حرمان قاسي يؤدي إلى نوبات شراهة وإحباط', value: 'cravings' },
-      { label: 'خمول وضعف معدل الحرق', desc: 'التزام كامل دون نتائج ملحوظة على الميزان', value: 'low_metabolism' },
-      { label: 'أول مرة أبدأ خطة متابعة', desc: 'أريد بداية صحيحة ومدروسة تحت إشراف طبي متخصص', value: 'first_time' },
+      { label: 'ثبات الوزن بعد دايت قاسي', value: 'plateau', icon: Scale },
+      { label: 'صعوبة التحكم في الشهية', value: 'cravings', icon: Utensils },
+      { label: 'خمول وقلة الطاقة', value: 'low_metabolism', icon: Gauge },
+      { label: 'دي أول مرة أبدأ متابعة', value: 'first_time', icon: Sparkles },
     ],
   },
   {
     id: 'preference',
-    title: 'كيف تفضلين بداية خطتك مع المركز؟',
-    subtitle: 'كل خطة في مركز المستقبل تُبنى على فحص سريري دقيق',
+    label: 'بدايتكِ',
+    title: 'تحبّي نبدأ إزاي؟',
+    subtitle: 'اختاري البداية اللي تفضّليها',
     options: [
-      { label: 'متابعة شهرية مكثفة بالعيادة', desc: 'زيارات أسبوعية، فحص InBody دوري، وتعديل مستمر للخطة', value: 'monthly_sub' },
-      { label: 'كشف واستشارة عيادة شاملة', desc: 'جلسة استماع تفصيلية، فحص كتلة الدهون، ووضع الخطة الأولى', value: 'exam_first' },
+      { label: 'متابعة شهرية بالعيادة', value: 'monthly_sub', icon: CalendarDays },
+      { label: 'كشف واستشارة أولًا', value: 'exam_first', icon: ClipboardList },
     ],
   },
 ];
 
+const arabicNumbers = ['١', '٢', '٣'];
+
 export function CareGuideQuiz({ whatsappNumber }: { whatsappNumber?: string }) {
-  const quizCardRef = useRef<HTMLDivElement>(null);
-
-
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isCompleted, setIsCompleted] = useState(false);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const hasNavigated = useRef(false);
+  const question = questions[step];
+  const selected = answers[question.id];
+  const summary = questions.map((item) => ({
+    label: item.label,
+    answer: item.options.find((option) => option.value === answers[item.id])?.label ?? '',
+  }));
+  const waMessage = [
+    'أهلاً د. رنا، أجبت عن أسئلة مرشد البداية على الموقع.',
+    ...summary.map((item) => `${item.label} ${item.answer}`),
+    'وأود الاستفسار عن البداية المناسبة وحجز موعد بالعيادة.',
+  ].join('\n');
 
   useEffect(() => {
-    if (isReducedMotion() || !quizCardRef.current) return;
-    gsap.fromTo(
-      quizCardRef.current,
-      { opacity: 0.7, y: 8 },
-      { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }
-    );
+    if (!hasNavigated.current) return;
+    const frame = requestAnimationFrame(() => {
+      const heading = headingRef.current;
+      if (!heading) return;
+      heading.focus({ preventScroll: true });
+      const { top, bottom } = heading.getBoundingClientRect();
+      if (top < 115 || bottom > window.innerHeight - 90) {
+        heading.scrollIntoView({
+          block: 'start',
+          behavior: isReducedMotion() ? 'instant' : 'smooth',
+        });
+      }
+    });
+    return () => cancelAnimationFrame(frame);
   }, [step, isCompleted]);
 
-  const currentQ = questions[step];
+  function goNext() {
+    if (!selected) return;
+    hasNavigated.current = true;
+    if (step < questions.length - 1) setStep((current) => current + 1);
+    else setIsCompleted(true);
+  }
 
-  const handleSelect = (val: string) => {
-    const updated = { ...answers, [currentQ.id]: val };
-    setAnswers(updated);
+  function goBack() {
+    hasNavigated.current = true;
+    setStep((current) => Math.max(0, current - 1));
+  }
 
-    if (step < questions.length - 1) {
-      setStep(step + 1);
-    } else {
-      setIsCompleted(true);
-    }
-  };
-
-  const handleReset = () => {
-    setStep(0);
+  function restart() {
+    hasNavigated.current = true;
     setAnswers({});
+    setStep(0);
     setIsCompleted(false);
-  };
-
-  // Determine Personalized Recommendation
-  const goal = answers.goal || 'weight_loss';
-  const isPcos = goal === 'pcos_insulin';
-  const isGain = goal === 'weight_gain';
-
-  const recommendedProgram = isPcos
-    ? 'برنامج التغذية العلاجية ومقاومة الإنسولين'
-    : isGain
-    ? 'برنامج علاج النحافة وتنسيق الوزن'
-    : 'برنامج المتابعة الشهرية بالعيادة';
-
-  const clinicalInsight = isPcos
-    ? 'حالتك تتطلب بروتوكولاً غذائياً يركز على مؤشر الجلوكوز، استجابة الإنسولين، والتوازن الهرموني، وتجنب برامج الحرمان العشوائية التي تبطئ الحرق.'
-    : isGain
-    ? 'حالتك تحتاج خطة كثيفة السعرات الصحية مع فحص دقيق لمؤشرات الامتصاص وتوزيع العضلات بجهاز InBody لتجنب زيادة الدهون غير المرغوبة.'
-    : 'حالتك تحتاج فحص InBody دوري لمراقبة كتلة الدهون الحشوية والماء العضلي، مع خطة متدرجة تمنع ثبات الوزن وتضمن استدامة النتائج مدى الحياة.';
-
-  const waMessage = `أهلاً دكتورة رنا، قمت بعمل استبيان الموقع الاسترشادي وهدفي (${
-    goal === 'weight_loss' ? 'نزول وزن' : goal === 'pcos_insulin' ? 'مقاومة إنسولين' : 'تغذية صحية'
-  })، وأود حجز كشف بالعيادة لمناقشة الخطة المناسبة.`;
+  }
 
   return (
-    <section className="care-guide-section" id="care-guide">
-      <div className="care-guide-container">
-        <div className="care-guide-header">
-          <div className="care-guide-badge">
-            <Compass size={15} />
-            <span>مرشد البداية الاستشاري</span>
+    <section className="care-path-section" id="care-guide" aria-labelledby="care-path-title">
+      <div className="care-path-container">
+        <div className="care-path-intro">
+          <header className="care-path-copy">
+            <p className="care-path-eyebrow">نختار البداية سوا</p>
+            <h2 id="care-path-title">
+              <span>مش متأكدة</span>
+              <span>تبدأي منين؟</span>
+            </h2>
+            <p className="care-path-description">
+              ٣ أسئلة بسيطة تساعدنا نفهم هدفكِ ونختار معكِ البداية المناسبة.
+            </p>
+          </header>
+          <div className="care-path-art" aria-hidden="true">
+            <img
+              src="/assets/care-guide-compass.webp"
+              alt=""
+              width="1000"
+              height="750"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
-          <h2>مش متأكدة من أين تبدئين؟</h2>
-          <p>
-            أجيبي عن 3 أسئلة سريعة (في 30 ثانية) لمساعدتنا في توجيهك للمسار الأنسب مع د. رنا قبل حضورك للعيادة.
-          </p>
         </div>
 
-        {!isCompleted ? (
-          <div ref={quizCardRef} className="quiz-card">
-            <div className="quiz-progress-bar">
-              <div
-                className="quiz-progress-fill"
-                style={{ width: `${((step + 1) / questions.length) * 100}%` }}
-              />
-            </div>
-
-            <div className="quiz-card-head">
-              <span className="quiz-step-counter">
-                الخطوة {step + 1} من {questions.length}
-              </span>
-              <h3 className="quiz-question-title">{currentQ.title}</h3>
-              <p className="quiz-question-sub">{currentQ.subtitle}</p>
-            </div>
-
-            <div className="quiz-options-grid">
-              {currentQ.options.map((opt) => (
-                <button
-                  type="button"
-                  key={opt.value}
-                  className={`quiz-option-btn ${answers[currentQ.id] === opt.value ? 'selected' : ''}`}
-                  onClick={() => handleSelect(opt.value)}
-                >
-                  <div className="quiz-option-radio">
-                    {answers[currentQ.id] === opt.value && <Check size={14} />}
-                  </div>
-                  <div className="quiz-option-texts">
-                    <strong>{opt.label}</strong>
-                    <small>{opt.desc}</small>
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            {step > 0 && (
-              <div className="quiz-footer-actions">
-                <button
-                  type="button"
-                  className="btn-quiz-back"
-                  onClick={() => setStep(step - 1)}
-                >
-                  السابق
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div ref={quizCardRef} className="quiz-result-card">
-            <div className="quiz-result-kicker">
-              <Award size={16} />
-              <span>الرؤية الاسترشادية لحالتك</span>
-            </div>
-
-            <h3 className="quiz-result-title">
-              الخطة المناسبة لحالتك تبدأ بكشف سريري وفحص InBody دقيق
-            </h3>
-
-            <div className="quiz-insight-box">
-              <p className="quiz-insight-text">
-                💡 <strong>التشخيص المبدئي:</strong> {clinicalInsight}
-              </p>
-            </div>
-
-            <div className="quiz-recommended-banner">
-              <div>
-                <small>المسار المقترح من برامج المركز:</small>
-                <h4>{recommendedProgram}</h4>
-              </div>
-              <span className="quiz-doctor-tag">إشراف د. رنا الشوري</span>
-            </div>
-
-            <p className="quiz-disclaimer">
-              * هذا التقييم استرشادي لمساعدتك في اختيار الخدمة، والقرار النهائي للخطة يتم تحديده في جلسة الكشف والفحص الطبي الشامل داخل المركز.
-            </p>
-
-            <div className="quiz-result-actions">
-              <ButtonLink to="/booking" className="btn-quiz-book">
-                احجزي كشف استشاري مع د. رنا
-              </ButtonLink>
-
-              {whatsappNumber && (
-                <a
-                  href={whatsappUrl(whatsappNumber, waMessage)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-wa-quiz"
-                >
-                  <WhatsAppIcon size={18} />
-                  <span>تواصلي واتساب مع العيادة</span>
-                </a>
-              )}
-
-              <button
-                type="button"
-                className="btn-quiz-restart"
-                onClick={handleReset}
-                title="إعادة التقييم"
+        <div className="care-path-workspace">
+          <ol className="care-path-steps" aria-label="خطوات مرشد البداية">
+            {questions.map((item, index) => (
+              <li
+                key={item.id}
+                className={
+                  isCompleted || index < step ? 'is-done' : index === step ? 'is-current' : ''
+                }
+                aria-current={!isCompleted && index === step ? 'step' : undefined}
               >
-                <RotateCcw size={14} />
-                <span>إعادة الاستبيان</span>
-              </button>
+                <span className="care-path-step-dot" aria-hidden="true">
+                  {isCompleted || index < step ? (
+                    <Check size={19} />
+                  ) : index === step ? (
+                    arabicNumbers[index]
+                  ) : null}
+                </span>
+                <span>{item.label}</span>
+                {(isCompleted || index < step) && <span className="sr-only">مكتملة</span>}
+              </li>
+            ))}
+          </ol>
+
+          {!isCompleted ? (
+            <form
+              key={question.id}
+              className="care-path-panel"
+              onSubmit={(event) => {
+                event.preventDefault();
+                goNext();
+              }}
+            >
+              <div className="care-path-question-head">
+                <h3 ref={headingRef} tabIndex={-1} id="care-path-question">
+                  {question.title}
+                </h3>
+                <p id="care-path-hint">{question.subtitle}</p>
+              </div>
+              <fieldset
+                className="care-path-options"
+                aria-labelledby="care-path-question"
+                aria-describedby="care-path-hint"
+              >
+                {question.options.map((option) => {
+                  const Icon = option.icon;
+                  return (
+                    <label className="care-path-option" key={option.value}>
+                      <input
+                        type="radio"
+                        name={question.id}
+                        value={option.value}
+                        checked={selected === option.value}
+                        onChange={() =>
+                          setAnswers((current) => ({ ...current, [question.id]: option.value }))
+                        }
+                        required
+                      />
+                      <span>{option.label}</span>
+                      <Icon
+                        className="care-path-option-icon"
+                        size={29}
+                        strokeWidth={1.6}
+                        aria-hidden="true"
+                      />
+                    </label>
+                  );
+                })}
+              </fieldset>
+              <div className="care-path-controls">
+                <div className="care-path-position">
+                  <span
+                    className="care-path-counter"
+                    role="status"
+                    aria-live="polite"
+                    aria-atomic="true"
+                  >
+                    <span className="sr-only">السؤال </span>
+                    {arabicNumbers[step]} من ٣
+                  </span>
+                  {step > 0 && (
+                    <button type="button" className="care-path-back" onClick={goBack}>
+                      <ArrowRight size={17} aria-hidden="true" /> السابق
+                    </button>
+                  )}
+                </div>
+                <button type="submit" className="care-path-primary" disabled={!selected}>
+                  {step === questions.length - 1 ? 'شوفي البداية' : 'التالي'}
+                  <ArrowLeft size={23} aria-hidden="true" />
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="care-path-panel care-path-result">
+              <div className="care-path-question-head">
+                <p className="care-path-result-kicker">
+                  <Check size={18} aria-hidden="true" /> اختياراتكِ جاهزة
+                </p>
+                <h3 ref={headingRef} tabIndex={-1}>
+                  نبدأ من هنا
+                </h3>
+                <p>
+                  دي نقطة بداية للنقاش مع د. رنا، والخطة المناسبة ليكِ بتتحدد بعد الكشف في العيادة.
+                </p>
+              </div>
+              <dl className="care-path-summary">
+                {summary.map((item) => (
+                  <div key={item.label}>
+                    <dt>{item.label}</dt>
+                    <dd>{item.answer}</dd>
+                  </div>
+                ))}
+              </dl>
+              <div className="care-path-result-actions">
+                <Link to="/booking" className="care-path-primary">
+                  احجزي كشفكِ <ArrowLeft size={23} aria-hidden="true" />
+                </Link>
+                {whatsappNumber && (
+                  <a
+                    className="care-path-whatsapp"
+                    href={whatsappUrl(whatsappNumber, waMessage)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <WhatsAppIcon size={23} /> اسألي د. رنا على واتساب
+                  </a>
+                )}
+              </div>
+              <div className="care-path-result-footer">
+                <button
+                  type="button"
+                  className="care-path-back"
+                  onClick={() => {
+                    hasNavigated.current = true;
+                    setStep(0);
+                    setIsCompleted(false);
+                  }}
+                >
+                  تعديل الإجابات
+                </button>
+                <button type="button" className="care-path-back" onClick={restart}>
+                  <RotateCcw size={16} aria-hidden="true" /> ابدئي من جديد
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </section>
   );

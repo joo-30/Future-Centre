@@ -12,14 +12,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  Home,
   Info,
   Leaf,
   LockKeyhole,
   MapPin,
   Phone,
   RotateCcw,
-  Search,
   ShieldCheck,
   UserRound,
   X,
@@ -42,6 +40,7 @@ import {
   whatsappUrl,
 } from '../../lib/api';
 import { accountApi } from '../../lib/portal-api';
+import { clinicServiceArtwork, clinicServiceTitle, clinicServiceRank } from '../../lib/clinic-presentation';
 
 export function Booking() {
   const { user } = useAuth();
@@ -58,12 +57,13 @@ export function Booking() {
   const [slotError, setSlotError] = useState('');
   const [mobile, setMobile] = useState(() => window.matchMedia('(max-width:760px)').matches);
   const submission = useRef<{ payload: string; key: string } | null>(null);
-  const formTop = useRef<HTMLDivElement>(null);
+  const formTop = useRef<HTMLElement>(null);
   const calendar = useRef<HTMLDivElement>(null);
   const {
     register,
     handleSubmit,
     setValue,
+    getValues,
     watch,
     formState: { errors, isSubmitting },
   } = useForm<BookingInput, unknown, BookingData>({
@@ -74,11 +74,10 @@ export function Booking() {
   const watchPhone = watch('phone') || '';
   const watchWhatsapp = watch('whatsapp') || '';
   useEffect(() => {
-    if (user) {
-      setValue('name', user.name);
-      setValue('phone', user.phone);
-    }
-  }, [user?.id, setValue]);
+    if (user?.role !== 'patient') return;
+    if (!getValues('name')) setValue('name', user.name);
+    if (!getValues('phone')) setValue('phone', user.phone);
+  }, [user?.id, user?.name, user?.phone, user?.role, getValues, setValue]);
 
   // Check if logged-in patient already has an active booking on selected date
   const userAccount = useQuery({
@@ -276,9 +275,10 @@ export function Booking() {
     }
     setMobileStep(2);
     formTop.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    formTop.current?.focus({ preventScroll: true });
   };
   return (
-    <main className={'app-wrap live-booking step-' + mobileStep}>
+    <main className={'app-wrap live-booking booking-ticket step-' + mobileStep}>
       {formAlert && (
         <div className={`app-floating-toast ${formAlert.type}`} role="alert" aria-live="assertive">
           <div className="app-toast-left-wrap">
@@ -307,79 +307,35 @@ export function Booking() {
           </button>
         </div>
       )}
-      <div className="page-title">
-        <nav className="booking-breadcrumbs" aria-label="مسار التنقل">
-          <Link to="/" className="booking-crumb-link">
-            <Home size={13} />
-            <span>الرئيسية</span>
-          </Link>
-          <ChevronLeft size={13} className="booking-crumb-sep" aria-hidden="true" />
-          <span className="booking-crumb-current">
-            <Calendar size={13} />
-            <span>حجز موعد</span>
-          </span>
-        </nav>
-        <span className="mobile-step-count">
-          {mobileStep} من ٢ · {mobileStep === 1 ? 'اختيار الموعد' : 'بيانات التواصل'}
-          <span>
-            <i className="on" />
-            <i className={mobileStep === 2 ? 'on' : ''} />
-          </span>
-        </span>
-        <h1>{mobileStep === 1 ? 'موعدك، بخطوات بسيطة.' : 'أضيفي بيانات التواصل.'}</h1>
-        <p>
-          {mobileStep === 1
-            ? 'اختاري الوقت وأضيفي بيانات التواصل، وسيؤكد المركز طلبك. نرحب بالسيدات، والرجال، والأطفال بخطط رعاية مخصصة.'
-            : 'موعدك المختار محفوظ في النموذج، والطلب ينتظر تأكيد المركز بعد الإرسال.'}
-        </p>
-        <div className="booking-lookup-banner">
-          <Link to="/booking/track" className="booking-lookup-banner-link">
-            <span className="banner-icon-circle">
-              <Search size={18} />
-            </span>
-            <div className="banner-text">
-              <strong>لديكِ طلب موعد بالفعل؟</strong>
-              <span>اضغطي هنا لمتابعة حالة الحجز وعرض التذكرة الرقمية</span>
-            </div>
-            <ArrowLeft size={16} className="banner-arrow-icon" />
-          </Link>
-        </div>
-      </div>
-      <div ref={formTop} />
-      {(data.clinic.demoSchedule || data.clinic.demoPrices) && (
-        <div className="demo-notice" role="note">
-          {data.clinic.demoSchedule ? 'ساعات العمل الحالية تجريبية لحين اعتماد المركز. ' : ''}
-          {data.clinic.demoPrices ? 'الأسعار توضيحية لحين اعتمادها.' : ''}
-        </div>
-      )}
       <form onSubmit={submit} noValidate>
         <fieldset disabled={isSubmitting} className="booking-fieldset">
           <div className="book-layout">
             <section className="book-main">
-              <div className="guest-strip">
-                <span className="row">
-                  <span className="pill">
-                    <UserRound size={16} />
-                    {user?.role === 'patient' ? 'الحجز بحسابك' : 'الحجز كضيف'}
-                  </span>
-                  <span>
-                    {user?.role === 'patient'
-                      ? 'سيظهر الموعد في حسابك بعد الإرسال.'
-                      : 'لا تحتاجين إلى إنشاء حساب · متاح للسيدات، والرجال، والأطفال'}
-                  </span>
-                </span>
-                <Link to="/contact" className="link">
-                  تحتاجين مساعدة؟
-                </Link>
-              </div>
+              <header className="booking-ticket-heading" ref={formTop} tabIndex={-1}>
+                <div className="booking-ticket-topline">
+                  <span className="booking-ticket-step">{mobileStep === 1 ? '١' : '٢'} من ٢</span>
+                  <Link to="/booking/track">متابعة حجز <ArrowLeft size={17} aria-hidden="true" /></Link>
+                </div>
+                <h1>{mobileStep === 1 ? 'احجزي موعدكِ' : 'بيانات التواصل'}</h1>
+                <p>{mobileStep === 1
+                  ? 'اختاري الخدمة واليوم والوقت المناسب.'
+                  : 'راجعي موعدكِ وأضيفي بيانات التواصل لإرسال الطلب.'}</p>
+              </header>
+              {(data.clinic.demoSchedule || data.clinic.demoPrices) && (
+                <p className="booking-ticket-demo" role="note">
+                  {data.clinic.demoSchedule && 'ساعات العمل الحالية تجريبية. '}
+                  {data.clinic.demoPrices && 'الأسعار توضيحية.'}
+                </p>
+              )}
               <div className="booking-step-one">
                 <div className="form-chapter">
                   <span className="chapter-num">01</span>اختيار الخدمة الطبية
                 </div>
                 <div className="service-cards-grid" role="radiogroup" aria-label="اختيار الخدمة الطبية">
-                  {data.services.map((s) => {
+                  {[...data.services].sort((a, b) => clinicServiceRank(a.id) - clinicServiceRank(b.id)).map((s) => {
                     const SIcon = icons[s.icon] || Leaf;
                     const isSelected = serviceId === s.id;
+                    const artwork = clinicServiceArtwork.get(s.id);
                     return (
                       <label
                         key={s.id}
@@ -392,6 +348,7 @@ export function Booking() {
                           onChange={() => setServiceId(s.id)}
                         />
                         <span className="card-top-row" aria-hidden="true">
+                          {artwork && <img className="ticket-service-art" src={artwork} alt="" loading="lazy" />}
                           <span className="card-icon-pill">
                             <SIcon size={20} />
                           </span>
@@ -399,7 +356,7 @@ export function Booking() {
                             {isSelected && <Check size={13} strokeWidth={3} />}
                           </span>
                         </span>
-                        <span className="card-service-title">{s.title}</span>
+                        <span className="card-service-title">{clinicServiceTitle(s.title)}</span>
                         <span className="card-service-meta">
                           <span className="card-meta-pill">
                             <Clock size={13} />
@@ -538,7 +495,13 @@ export function Booking() {
                   </div>
                 </div>
                 <div className="slot-area" aria-busy={slots.isFetching}>
-                  <h2 className="sr-only">المواعيد في {dateLabel(date)}</h2>
+                  <div className="booking-ticket-time-heading">
+                    <h2>اختاري الوقت</h2>
+                    <span>{dateLabel(date)}</span>
+                    {slots.data?.dailyCapacity?.showToPatients && (
+                      <span>{slots.data.dailyCapacity.remaining} أماكن متاحة اليوم</span>
+                    )}
+                  </div>
                   {existingApptOnDate && (
                     <div className="patient-day-booked-warning">
                       <div className="pdb-top">
@@ -583,32 +546,6 @@ export function Booking() {
                     </div>
                   ) : (
                     <>
-                      {slots.data.dailyCapacity?.showToPatients && (
-                        <div className="booking-capacity-banner">
-                          <div className="bcb-content">
-                            <div className="bcb-icon-wrap">
-                              <CheckCircle2 size={16} />
-                            </div>
-                            <div className="bcb-text">
-                              <strong>سعة كشف مخصصة وجودة رعاية فائقة:</strong>
-                              <span>
-                                حرصاً على منح كل مريض وقتاً كافياً، تستقبل د. رنا بحد أقصى ({slots.data.dailyCapacity.limit} حالة) لهذا اليوم
-                              </span>
-                            </div>
-                          </div>
-                          <div className="bcb-badge">
-                            {slots.data.dailyCapacity.remaining <= 3 ? (
-                              <span className="bcb-urgent">
-                                ⏳ المقاعد الأخيرة تنفد (باقي {slots.data.dailyCapacity.remaining} فقط)
-                              </span>
-                            ) : (
-                              <span className="bcb-available">
-                                ✨ {slots.data.dailyCapacity.remaining} مقعد متاح للحجز
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
                       <div className="times">
                         {slots.data.slots.map((slot) => (
                           <button
@@ -617,6 +554,7 @@ export function Booking() {
                             className={
                               'time ' +
                               (!slot.available ? 'busy ' : '') +
+                              (slot.reason === 'booked' ? 'is-booked ' : '') +
                               (time === slot.time ? 'chosen' : '')
                             }
                             disabled={!slot.available}
@@ -665,28 +603,25 @@ export function Booking() {
                     {slotError}
                   </p>
                 )}
-                <div className="mobile-next">
-                  <div className="selected-summary">
-                    <strong>
-                      {time
-                        ? `${dateLabel(date)} · ${timeLabel(time)}`
-                        : 'اختاري الخدمة واليوم والوقت.'}
-                    </strong>
+                <div className="mobile-next booking-ticket-next">
+                  <div className="booking-ticket-recap">
+                    <div><span>قيمة الخدمة</span><strong>{formatPrice(service.price)}{service.price !== null && ' ج.م'}</strong></div>
+                    <div><span>مدة الموعد</span><strong>{service.duration} دقيقة</strong></div>
+                    <div><span>الموعد المختار</span><strong>{time ? dateLabel(date) + ' · ' + timeLabel(time) : 'اختاري الوقت'}</strong></div>
                   </div>
-                  <div className="row">
-                    <Button type="button" onClick={nextStep}>
-                      {time ? 'متابعة لبياناتك' : 'اختاري وقت الموعد'}
-                    </Button>
+                  <Button type="button" onClick={nextStep}>
+                    {time ? 'متابعة لبيانات التواصل' : 'اختاري وقت الموعد'}
+                  </Button>
+                  <p>
+                    يؤكد المركز الموعد بعد مراجعة الطلب. الدفع في العيادة.
                     <a
-                      className="mobile-wa"
                       href={whatsappUrl(data.clinic.whatsapp, 'أحتاج مساعدة في طلب موعد.')}
-                      aria-label="مساعدة عبر واتساب"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <WhatsAppIcon size={24} color="#ffffff" />
+                      <WhatsAppIcon size={16} aria-hidden="true" /> مساعدة عبر واتساب
                     </a>
-                  </div>
+                  </p>
                 </div>
               </div>
               <div className="booking-step-two">
@@ -700,7 +635,10 @@ export function Booking() {
                     <br />
                     {dateLabel(date)} · {time ? timeLabel(time) : 'لم يحدد الوقت'}
                   </span>
-                  <button type="button" className="link" onClick={() => setMobileStep(1)}>
+                  <button type="button" className="link" onClick={() => {
+                      setMobileStep(1);
+                      formTop.current?.scrollIntoView({ block: 'start' });
+                    }}>
                     تغيير الموعد
                   </button>
                 </div>
@@ -730,7 +668,7 @@ export function Booking() {
                       type="tel"
                       inputMode="tel"
                       dir="ltr"
-                      autoComplete="off"
+                      autoComplete="tel"
                       placeholder=""
                       aria-invalid={!!errors.phone}
                       aria-describedby="phone-error"
@@ -908,83 +846,9 @@ export function Booking() {
                 </div>
               </div>
             </section>
-            <aside className="booking-summary">
-              <section className="receipt">
-                <div className="receipt-art">
-                  <img src="/assets/hero-sculpture.png" alt="" />
-                </div>
-                <div className="receipt-content">
-                  <span className="latin" lang="en">
-                    YOUR FIRST STEP
-                  </span>
-                  <h2>ملخص موعدك</h2>
-                  <div className="facts">
-                    {watchName.trim() && (
-                      <div className="fact">
-                        <span className="fact-label">اسم المريض</span>
-                        <strong className="fact-value">{watchName.trim()}</strong>
-                      </div>
-                    )}
-                    {watchPhone.trim() && (
-                      <div className="fact">
-                        <span className="fact-label">الهاتف للتأكيد</span>
-                        <strong className="fact-value" dir="ltr">{watchPhone.trim()}</strong>
-                      </div>
-                    )}
-                    <div className="fact fact-stacked">
-                      <span className="fact-label">الخدمة الطبية</span>
-                      <strong className="fact-value">{service.title}</strong>
-                    </div>
-                    <div className="fact">
-                      <span className="fact-label">نوع الحضور</span>
-                      <span className="venue-fact-badge">
-                        <MapPin size={13} /> كشف بمقر العيادة
-                      </span>
-                    </div>
-                    <div className="fact fact-stacked">
-                      <span className="fact-label">مقر الكشف</span>
-                      <span className="fact-value">{data.clinic.address || 'كفر الزيات، شارع الجيش عند توكيل أورنج'}</span>
-                    </div>
-                    <div className="fact">
-                      <span className="fact-label">اليوم</span>
-                      <span className="fact-value">{dateLabel(date)}</span>
-                    </div>
-                    <div className="fact">
-                      <span className="fact-label">الوقت</span>
-                      <span className="fact-value">{time ? timeLabel(time) : 'لم يُحدد بعد'}</span>
-                    </div>
-                    <div className="fact">
-                      <span className="fact-label">المدة</span>
-                      <span className="fact-value">{service.duration} دقيقة</span>
-                    </div>
-                  </div>
-                  <div className="rule" />
-                  <div className="receipt-price-box-v2">
-                    <span className="receipt-price-lbl">
-                      {data.clinic.demoPrices && service.price !== null ? 'سعر توضيحي:' : 'قيمة الخدمة:'}
-                    </span>
-                    <span className="receipt-price-amt">
-                      <strong>{formatPrice(service.price)}</strong>
-                      {service.price !== null && <small className="receipt-price-curr">ج.م</small>}
-                    </span>
-                  </div>
-                  <p className="foot">
-                    لا توجد خطوة دفع إلكتروني.
-                    <br />
-                    يؤكد المركز تفاصيل الطلب بعد مراجعته.
-                  </p>
-                </div>
-              </section>
-              <Link className="help-card" to="/contact">
-                <span className="circle-btn">
-                  <WhatsAppIcon size={20} color="#25D366" />
-                </span>
-                <div>
-                  <h3>نساعدك في الخطوة الجاية.</h3>
-                  <p>تواصلي معنا.</p>
-                </div>
-              </Link>
-            </aside>
+            <figure className="booking-ticket-art" aria-hidden="true">
+              <img src="/assets/booking-ticket-sculpture.webp" alt="" width="840" height="1050" />
+            </figure>
           </div>
         </fieldset>
       </form>

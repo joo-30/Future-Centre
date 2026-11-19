@@ -1,13 +1,12 @@
 import { Minus, Plus } from 'lucide-react';
 
 export function Faq() {
-  //try
   return (
-    <div className="faqs">
+    <div className="closing-faqs">
       {[
         [
           'هل أحتاج حسابًا لحجز موعد؟',
-          'لا، احجزي باسمك ورقم هاتفك. يتواصل المركز معك لتأكيد الموعد.',
+          'لا، احجزي باسمكِ ورقم هاتفكِ. المركز هيتواصل معكِ لتأكيد الموعد.',
         ],
         [
           'هل طلب الموعد يعني تأكيده؟',
@@ -18,11 +17,16 @@ export function Faq() {
           'بعد إرسال الطلب يصلك رابط خاص لمتابعته. يمكنك منه طلب تغيير الوقت أو إلغاء الطلب، أو التواصل مع المركز على واتساب.',
         ],
       ].map((x, i) => (
-        <details className="faq" key={x[0]} open={i === 0 || undefined}>
+        <details
+          className="closing-faq"
+          name="clinic-booking-questions"
+          key={x[0]}
+          open={i === 0 || undefined}
+        >
           <summary>
-            <strong>{x[0]}</strong>
-            <Plus className="faq-plus" size={19} />
-            <Minus className="faq-minus" size={19} />
+            <span>{x[0]}</span>
+            <Plus className="closing-faq-plus" size={23} aria-hidden="true" />
+            <Minus className="closing-faq-minus" size={23} aria-hidden="true" />
           </summary>
           <p>{x[1]}</p>
         </details>

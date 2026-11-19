@@ -1,0 +1,211 @@
+.admin-analytics {
+  --report-ink: #173b2c;
+  --report-muted: #536856;
+  --report-line: #dce5d6;
+  display: grid;
+  gap: 20px;
+  color: var(--report-ink);
+  font-family: Plex, sans-serif;
+}
+
+.analytics-heading,
+.analytics-filter {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.analytics-heading {
+  padding-block-end: 18px;
+  border-block-end: 1px solid var(--report-line);
+}
+
+.analytics-heading h1 {
+  margin: 0;
+  font:
+    740 clamp(27px, 3.3vw, 46px) / 1.4 Alex,
+    sans-serif;
+}
+
+.analytics-heading p,
+.analytics-panel p {
+  margin: 4px 0 0;
+  color: var(--report-muted);
+}
+
+.analytics-filter label {
+  display: grid;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.analytics-filter :is(input, button) {
+  min-block-size: 44px;
+  padding: 6px 12px;
+  border: 1px solid #aebfa8;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--report-ink);
+}
+
+.analytics-period {
+  margin: 0;
+  font-size: 20px;
+}
+
+.analytics-metrics,
+.analytics-columns {
+  display: grid;
+  gap: clamp(10px, 1.5vw, 20px);
+}
+
+.analytics-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.analytics-columns {
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr);
+  grid-template-areas: 'services week' 'subscriptions week';
+  grid-template-rows: auto 1fr;
+  align-items: start;
+}
+
+.analytics-panel,
+.analytics-metric {
+  min-inline-size: 0;
+  padding: clamp(14px, 2vw, 26px);
+  border: 1px solid var(--report-line);
+  border-radius: 16px;
+  background: #fffefa;
+}
+
+.analytics-metric {
+  display: grid;
+  gap: 7px;
+}
+.analytics-metric:first-child {
+  background: #164030;
+  color: #fff8e7;
+  border-color: #164030;
+}
+.analytics-metric svg {
+  color: #577644;
+}
+.analytics-metric:first-child svg {
+  color: #dce992;
+}
+.analytics-metric strong {
+  font:
+    700 clamp(25px, 3vw, 40px) / 1.2 Alex,
+    sans-serif;
+}
+.analytics-metric span {
+  font-size: clamp(14px, 1.18vw, 17px);
+}
+.analytics-panel header {
+  margin-block-end: 16px;
+}
+.analytics-panel h2 {
+  margin: 0;
+  font:
+    680 clamp(19px, 2vw, 26px) / 1.45 Alex,
+    sans-serif;
+}
+.analytics-panel table {
+  inline-size: 100%;
+  border-collapse: collapse;
+}
+.analytics-panel :is(th, td) {
+  padding: 9px 4px;
+  border-block-end: 1px solid var(--report-line);
+  text-align: start;
+}
+.analytics-panel td {
+  font-variant-numeric: tabular-nums;
+}
+.analytics-panel a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  color: var(--report-ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.analytics-panel .analytics-detail {
+  margin-block-start: 12px;
+  font-size: 14px;
+}
+.analytics-week-totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 158px), 1fr));
+  gap: 8px;
+  margin: 0 0 15px;
+}
+.analytics-week-totals > div {
+  padding: 9px 11px;
+  background: #eff3e8;
+  border-radius: 8px;
+}
+.analytics-week-totals dt {
+  color: var(--report-muted);
+}
+.analytics-week-totals dd {
+  margin: 3px 0 0;
+  font-weight: 700;
+}
+.analytics-chart {
+  display: grid;
+  gap: 9px;
+}
+.analytics-chart-day {
+  display: grid;
+  grid-template-columns: 95px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.analytics-bars {
+  display: grid;
+  gap: 3px;
+}
+.analytics-bars i {
+  display: block;
+  height: 5px;
+  border-radius: 5px;
+  background: #a8b997;
+}
+.analytics-bars i + i {
+  background: #245840;
+}
+.analytics-services {
+  grid-area: services;
+}
+.analytics-workweek {
+  grid-area: week;
+}
+.analytics-subscriptions {
+  grid-area: subscriptions;
+}
+
+@media (max-width: 1120px) {
+  .analytics-columns {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'services' 'week' 'subscriptions';
+    grid-template-rows: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .analytics-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .analytics-chart-day {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .analytics-bars {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}

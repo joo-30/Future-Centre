@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { router as analytics } from './analytics.routes.js';
 import { router as appointments } from './appointments.routes.js';
 import { router as capacity } from './capacity.routes.js';
 import { router as catalog } from './catalog.routes.js';
@@ -7,4 +8,4 @@ import { router as schedule } from './schedule.routes.js';
 import { router as settings } from './settings.routes.js';
 import { router as stories } from './stories.routes.js';
 export const adminRouter = Router();
-adminRouter.use(appointments, capacity, schedule, patients, catalog, settings, stories);
+adminRouter.use(analytics, appointments, capacity, schedule, patients, catalog, settings, stories);

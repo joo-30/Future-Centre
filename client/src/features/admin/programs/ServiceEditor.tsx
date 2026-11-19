@@ -14,6 +14,9 @@ import {
 import { useState } from 'react';
 import { Button } from '../../../components/ui';
 import { adminApi } from '../../../lib/portal-api';
+import { clinicServiceArtwork, clinicServiceTitle } from '../../../lib/clinic-presentation';
+import { formatPrice } from '../../../lib/api';
+import { ContentPreview } from '../components/ContentPreview';
 import { Notice } from '../components/Notice';
 import { readFormLines, readFormText } from '../lib/form-data';
 
@@ -50,6 +53,7 @@ export function ServiceEditor({ service: s, onSaved }: { service: Service; onSav
   const [period, setPeriod] = useState(s.period || 'جلسة فردية بالعيادة');
   const [priceType, setPriceType] = useState<'fixed' | 'consultation'>(s.price === null ? 'consultation' : 'fixed');
   const [price, setPrice] = useState<string>(s.price !== null && s.price !== undefined ? String(s.price) : '500');
+  const artwork = clinicServiceArtwork.get(s.id);
 
   // Pre-fill includes and body if adding new program
   const initialIncludes = Array.isArray(s.includes) && s.includes.length > 0 ? s.includes : DEFAULT_INCLUDES;
@@ -128,6 +132,14 @@ export function ServiceEditor({ service: s, onSaved }: { service: Service; onSav
 
   return (
     <form className="service-editor-form" onSubmit={(e) => void save(e)}>
+      <ContentPreview
+        title={clinicServiceTitle(title) || 'اسم الخدمة'}
+        dark={s.id === 'monthly'}
+        artwork={artwork && <img src={artwork} alt="" />}
+      >
+        <p>{sessions > 1 ? sessions + ' جلسات · ' : ''}{duration} دقيقة للجلسة</p>
+        <strong>{priceType === 'fixed' ? formatPrice(price) + ' ج.م' : formatPrice(null)}</strong>
+      </ContentPreview>
       <fieldset disabled={busy} className="service-editor-fieldset">
         {/* Status & Featured Options Group (Like Articles!) */}
         <div className="svc-options-grid">

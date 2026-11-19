@@ -1,24 +1,10 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  Activity,
-  ArrowLeft,
-  Award,
-  CalendarCheck,
-  Check,
-  CheckCircle2,
-  Copy,
-  KeyRound,
-  Lock,
-  Phone,
-  ShieldCheck,
-  Star,
-  User,
-} from 'lucide-react';
+import { ArrowLeft, Check, ChevronLeft, Copy, KeyRound, Lock, Phone, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../components/Auth';
 import { PasswordField } from '../../components/forms/PasswordField';
-import { Brand, Button, ButtonLink } from '../../components/ui';
+import { Brand, Button } from '../../components/ui';
 import { useCatalog } from '../../hooks/useCatalog';
 import { whatsappUrl } from '../../lib/api';
 import { authApi } from '../../lib/portal-api';
@@ -32,6 +18,7 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
   const [params] = useSearchParams();
   const { data: catalog } = useCatalog();
   const [error, setError] = useState('');
+  const [quickError, setQuickError] = useState('');
   const [busy, setBusy] = useState(false);
   const [code, setCode] = useState('');
   const [copied, setCopied] = useState(false);
@@ -50,6 +37,7 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
     setName('');
     setRecoveryCode('');
     setError('');
+    setQuickError('');
   }, [mode]);
   const registering = mode === 'register';
   const recovering = mode === 'recover';
@@ -61,26 +49,28 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
     staleTime: 60000,
   });
 
-  const isLocalHost = typeof window !== 'undefined' && (
-    window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1' ||
-    Boolean(import.meta.env.DEV)
-  );
+  const isLocalHost =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      Boolean(import.meta.env.DEV));
 
   const availableRoles = quick.data?.roles?.length
     ? quick.data.roles
-    : (isLocalHost ? (['admin', 'patient'] as const) : []);
+    : isLocalHost
+      ? (['admin', 'patient'] as const)
+      : [];
 
   async function quickLogin(role: 'admin' | 'patient') {
     setBusy(true);
-    setError('');
+    setQuickError('');
     try {
       const result = await authApi.quickLogin(role);
       await replaceSession(client, result.user, ['local-quick-login']);
       await auth.refresh();
       navigate(destination(role), { replace: true });
     } catch (e) {
-      setError((e as Error).message);
+      setQuickError((e as Error).message);
     } finally {
       setBusy(false);
     }
@@ -133,79 +123,26 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
 
   return (
     <main className="access-page">
-      <section className="access-form-area">
-        <header className="access-top">
-          <Brand />
-          <div className="access-top-actions">
-            <PwaInstallButton variant="auth" />
-            <Link className="access-back-pill" to="/" title="العودة للصفحة الرئيسية">
-              <span>العودة للرئيسية</span>
-              <ArrowLeft size={16} />
-            </Link>
-          </div>
-        </header>
+      <header className="access-top">
+        <Brand />
+        <Link className="access-back-link" to="/">
+          العودة للرئيسية <ChevronLeft size={19} aria-hidden="true" />
+        </Link>
+        <PwaInstallButton className="access-install-button" variant="auth" />
+      </header>
 
-        {/* Dedicated Mobile & Tablet Doctor Hero Card */}
-        <div className="mobile-doctor-hero" aria-label="بيانات الطبيبة والعيادة">
-          <div className="mob-hero-top">
-            <div className="mob-doctor-photo-wrap">
-              <img
-                src="/assets/dr-rana.jpg"
-                alt="د. رنا ياسر الشورى - استشاري التغذية العلاجية"
-                className="mob-doctor-photo"
-              />
-              <span className="mob-online-badge" title="العيادة متاحة للمتابعة" />
-            </div>
-            <div className="mob-doctor-info">
-              <div className="mob-doctor-name-row">
-                <h3>د. رنا ياسر الشورى</h3>
-                <span className="mob-verified-badge">
-                  <Check size={11} />
-                  <span>معتمدة</span>
-                </span>
-              </div>
-              <p className="mob-doctor-specialty">استشاري التغذية العلاجية ونحت القوام · EMASO</p>
-              <div className="mob-rating-pill">
-                <div className="stars-mini">
-                  <Star size={11} className="star-filled" />
-                  <Star size={11} className="star-filled" />
-                  <Star size={11} className="star-filled" />
-                  <Star size={11} className="star-filled" />
-                  <Star size={11} className="star-filled" />
-                </div>
-                <strong>4.9</strong>
-                <span>(+5,000 حالة ناجحة)</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mob-hero-perks">
-            <div className="mob-perk-item">
-              <CheckCircle2 size={12} className="mob-perk-icon" />
-              <span>خطط مخصصة 100%</span>
-            </div>
-            <div className="mob-perk-item">
-              <Activity size={12} className="mob-perk-icon" />
-              <span>متابعة InBody</span>
-            </div>
-            <div className="mob-perk-item">
-              <ShieldCheck size={12} className="mob-perk-icon" />
-              <span>خصوصية طبية</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="auth-card-elevated">
+      <div className="access-shell">
+        <section className="access-form-area" aria-labelledby="access-title">
           <div className="access-form">
             {code ? (
               <div className="recovery-flow">
                 <span className="access-symbol">
                   <KeyRound size={26} />
                 </span>
-                <span className="auth-badge-chip">KEEP IT SAFE · مفتاح الأمان</span>
-                <h1>مفتاح رجوعكِ لحسابكِ</h1>
+                <h1 id="access-title">مفتاح رجوعكِ لحسابكِ</h1>
                 <p>
-                  احفظي رمز الاستعادة في مكان خاص. يمكنكِ استخدامه مرة واحدة فقط إذا نسيتِ كلمة المرور.
+                  احفظي رمز الاستعادة في مكان خاص. يمكنكِ استخدامه مرة واحدة فقط إذا نسيتِ كلمة
+                  المرور.
                 </p>
                 <div className="recovery-code">
                   <bdi dir="ltr">{code}</bdi>
@@ -245,54 +182,22 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
               </div>
             ) : (
               <>
-                <div className="auth-header">
-                  <span className="auth-badge-chip">
-                    <ShieldCheck size={14} />
-                    <span>بوابة مركز المستقبل · وصول آمن</span>
-                  </span>
-                  <h1>
+                <header className="auth-header">
+                  <h1 id="access-title">
                     {registering
                       ? 'إنشاء حساب جديد'
                       : recovering
                         ? 'استعادة حسابكِ'
-                        : 'أهلًا بعودتكِ'}
+                        : 'تسجيل الدخول'}
                   </h1>
                   <p>
                     {registering
-                      ? 'انضمي لمركز المستقبل وابدئي رحلتكِ الصحية بإشراف طبي متكامل.'
+                      ? 'أنشئي حسابكِ لمتابعة خطتكِ ومواعيدكِ.'
                       : recovering
-                        ? 'أدخلي رقم هاتفكِ ورمز الاستعادة الشخصي لتعيين كلمة مرور جديدة.'
-                        : 'سجّلي دخولكِ للوصول إلى خطتكِ الغذائية، مواعيدكِ، ونتائج قياساتكِ.'}
+                        ? 'أدخلي رقم هاتفكِ ورمز الاستعادة لتعيين كلمة مرور جديدة.'
+                        : 'تابعي خطتكِ ومواعيدكِ من حسابكِ.'}
                   </p>
-                </div>
-
-                {mode === 'login' && availableRoles.length > 0 && (
-                  <div className="quick-login-panel">
-                    <div className="quick-login-header">
-                      <CheckCircle2 size={14} />
-                      <span>دخول سريع · بيئة التطوير المحلية</span>
-                    </div>
-                    <div className="quick-login-grid">
-                      {availableRoles.map((role) => (
-                        <button
-                          key={role}
-                          type="button"
-                          className={`quick-login-btn role-${role}`}
-                          disabled={busy}
-                          onClick={() => void quickLogin(role)}
-                        >
-                          <div className="quick-btn-info">
-                            <span className="quick-role-badge">
-                              {role === 'admin' ? 'إدارة المركز' : 'حساب المريض'}
-                            </span>
-                            <bdi dir="ltr">{role === 'admin' ? 'Admin Portal' : 'Patient Account'}</bdi>
-                          </div>
-                          <ArrowLeft size={16} className="quick-arrow" />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                </header>
 
                 <form onSubmit={submit} className="auth-actual-form">
                   <fieldset disabled={busy}>
@@ -316,7 +221,7 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                     )}
 
                     <label className="field">
-                      <span className="field-label-text">رقم الهاتف المسجل</span>
+                      <span className="field-label-text">رقم الهاتف المسجّل</span>
                       <div className="input-with-icon">
                         <Phone size={18} className="input-field-icon" />
                         <input
@@ -359,7 +264,9 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                       <PasswordField
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        autoComplete={registering || recovering ? 'new-password' : 'current-password'}
+                        autoComplete={
+                          registering || recovering ? 'new-password' : 'current-password'
+                        }
                         current={!registering && !recovering}
                         placeholder=""
                         label={recovering ? 'كلمة المرور الجديدة' : 'كلمة المرور'}
@@ -370,14 +277,15 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                       <label className="consent">
                         <input name="consent" type="checkbox" required />
                         <span>
-                          أوافق على <Link to="/privacy">سياسة الخصوصية</Link> واستخدام بياناتي لخدمة حسابي الطبي.
+                          أوافق على <Link to="/privacy">سياسة الخصوصية</Link> واستخدام بياناتي لخدمة
+                          حسابي الطبي.
                         </span>
                       </label>
                     ) : !recovering ? (
                       <div className="access-options">
                         <label className="consent">
                           <input name="remember" type="checkbox" />
-                          <span>تذكّر تسجيل الدخول على هذا الجهاز</span>
+                          <span>تذكّرني</span>
                         </label>
                         <Link className="forgot-link" to="/recover">
                           نسيتِ كلمة المرور؟
@@ -400,15 +308,14 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                             ? 'إنشاء الحساب والبدء'
                             : recovering
                               ? 'تحديث كلمة المرور'
-                              : 'تسجيل الدخول إلى حسابي'}
+                              : 'تسجيل الدخول'}
                       </span>
-                      <ArrowLeft size={18} className="btn-arrow" />
                     </button>
                   </fieldset>
                 </form>
 
                 <div className="access-switch-wrap">
-                  <span>{registering || recovering ? 'لديكِ حساب بالفعل؟' : 'ليس لديكِ حساب حتى الآن؟'}</span>{' '}
+                  {(registering || recovering) && <span>لديكِ حساب بالفعل؟</span>}
                   <Link
                     to={registering || recovering ? '/login' : '/register'}
                     className="switch-link"
@@ -421,7 +328,10 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                   <p className="field-hint recover-help">
                     فقدتِ الرمز؟{' '}
                     <a
-                      href={whatsappUrl(catalog.clinic.whatsapp, 'أحتاج مساعدة في استعادة حسابي في مركز المستقبل.')}
+                      href={whatsappUrl(
+                        catalog.clinic.whatsapp,
+                        'أحتاج مساعدة في استعادة حسابي في مركز المستقبل.',
+                      )}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -430,74 +340,71 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                   </p>
                 )}
 
-                <div className="access-divider">
-                  <span>أو يمكنكِ المتابعة مباشرة دون حساب</span>
-                </div>
-
-                <ButtonLink to="/booking" kind="outline full" className="guest-booking-btn">
-                  <CalendarCheck size={17} />
-                  <span>احجزي كشفكِ دون حساب</span>
-                </ButtonLink>
-
-                <div className="access-security-note">
-                  <ShieldCheck size={15} />
-                  <span>بياناتكِ مشفرة ومحمية بخصوصية طبية تامة. لن نطلب كلمة مروركِ عبر أي وسيلة.</span>
-                </div>
+                <Link to="/booking" className="guest-booking-btn">
+                  احجزي كشفكِ دون حساب
+                </Link>
               </>
             )}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Luxury Showcase Aside - 100% Unobstructed Doctor Portrait */}
-      <aside className="access-visual">
-        <div className="showcase-bg-wrap">
+        <figure className="access-visual">
+          <div className="access-portrait-arch" aria-hidden="true" />
           <img
-            src="/assets/dr-rana.jpg"
-            alt="د. رنا ياسر الشورى - استشاري التغذية العلاجية ونحت القوام"
-            className="showcase-img"
+            className="access-portrait"
+            src="/assets/doctor-profile-portrait.webp"
+            alt=""
+            width="1122"
+            height="1402"
+            loading="lazy"
+            decoding="async"
           />
-          <div className="showcase-gradient-overlay" />
-          <div className="ambient-orb ambient-orb-1" />
-          <div className="ambient-orb ambient-orb-2" />
-        </div>
+          <img
+            className="access-sculpture"
+            src="/assets/hero-brand-sculpture-cutout.webp"
+            alt=""
+            width="1402"
+            height="1122"
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption>د. رنا ياسر الشورى</figcaption>
+        </figure>
+      </div>
 
-        {/* Content strictly in the lower area - zero overlap on the doctor's face */}
-        <div className="showcase-bottom-area">
-          <div className="showcase-doctor-pill">
-            <Award size={16} className="pill-award-icon" />
-            <strong>د. رنا ياسر الشورى</strong>
-            <span className="pill-dot">·</span>
-            <span className="pill-spec">استشاري التغذية العلاجية (EMASO)</span>
-            <span className="pill-dot">·</span>
-            <span className="pill-rating">4.9 (+5K حالة موثقة)</span>
-          </div>
-
-          <h2 className="showcase-headline">
-            رعاية طبية تليق بكِ.. تبدأ بفهمكِ وتستمر معكِ.
-          </h2>
-          <p className="showcase-subtext">
-            نظام متكامل يتابع تفاصيل جسمكِ أسبوعياً، مع خطط غذائية علمية تناسب يومكِ بدون حرمان أو إرهاق.
-          </p>
-
-          <div className="showcase-stats-bar">
-            <div className="stat-item">
-              <span className="stat-number">+5,000</span>
-              <span className="stat-label">حالة وصلت لهدفها</span>
+      <div className="access-utilities">
+        {mode === 'login' && availableRoles.length > 0 && (
+          <details className="access-dev-tools">
+            <summary>دخول سريع · بيئة التطوير المحلية</summary>
+            <div className="quick-login-panel">
+              <div className="quick-login-grid">
+                {availableRoles.map((role) => (
+                  <button
+                    key={role}
+                    type="button"
+                    className={`quick-login-btn role-${role}`}
+                    disabled={busy}
+                    onClick={() => void quickLogin(role)}
+                  >
+                    <div className="quick-btn-info">
+                      <span className="quick-role-badge">
+                        {role === 'admin' ? 'إدارة المركز' : 'حساب المريض'}
+                      </span>
+                      <bdi dir="ltr">{role === 'admin' ? 'Admin Portal' : 'Patient Account'}</bdi>
+                    </div>
+                    <ArrowLeft size={16} className="quick-arrow" />
+                  </button>
+                ))}
+              </div>
+              {quickError && (
+                <p className="access-dev-error" role="alert">
+                  {quickError}
+                </p>
+              )}
             </div>
-            <div className="stat-divider" />
-            <div className="stat-item">
-              <span className="stat-number">100%</span>
-              <span className="stat-label">خطط علمية مخصصة</span>
-            </div>
-            <div className="stat-divider" />
-            <div className="stat-item">
-              <span className="stat-number">24/7</span>
-              <span className="stat-label">ملفكِ الطبي متاح</span>
-            </div>
-          </div>
-        </div>
-      </aside>
+          </details>
+        )}
+      </div>
     </main>
   );
 }

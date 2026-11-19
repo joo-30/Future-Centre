@@ -47,7 +47,7 @@ test('patient registration, recovery acknowledgement, account booking, administr
     }
   }
   expect(picked).toBe(true);
-  await page.getByRole('button', { name: 'متابعة لبياناتك' }).click();
+  await page.getByRole('button', { name: 'متابعة لبيانات التواصل' }).click();
   await expect(page.getByRole('textbox', { name: 'الاسم بالكامل' })).toHaveValue(
     'عميلة اختبار المرحلة الرابعة',
   );

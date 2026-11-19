@@ -39,6 +39,7 @@ export function PageMeta() {
       '/recover': 'استعادة الحساب',
       '/account': 'حسابي',
       '/admin': 'إدارة المواعيد',
+      '/admin/dashboard': 'تحليلات العيادة',
       '/admin/programs': 'إدارة البرامج والأسعار',
       '/admin/patients': 'العملاء والاشتراكات',
       '/admin/settings': 'إعدادات المركز',

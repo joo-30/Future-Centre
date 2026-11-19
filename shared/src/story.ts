@@ -16,6 +16,8 @@ export interface SuccessStory {
   details?: string;
   imageUrl?: string;
   detailsImageUrl?: string;
+  beforeImageUrl?: string;
+  afterImageUrl?: string;
   additionalImages?: string[];
   storyType?: 'transformation' | 'review';
   verified?: boolean;

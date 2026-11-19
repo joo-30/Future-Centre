@@ -101,6 +101,30 @@ export interface ScheduleData {
   demoSchedule: boolean;
 }
 
+export interface ClinicAnalytics {
+  date: string;
+  today: string;
+  weekStart: string;
+  weekEnd: string;
+  timezone: string;
+  demoSchedule: boolean;
+  day: {
+    received: number;
+    booked: number;
+    completed: number;
+    pending: number;
+    confirmed: number;
+    noShow: number;
+    services: { id: string; title: string; booked: number; completed: number }[];
+  };
+  week: {
+    received: number;
+    days: { date: string; scheduledMinutes: number; completed: number; visitMinutes: number }[];
+    subscriptionsStarted: number;
+    subscriptionsActive: number;
+  };
+}
+
 export interface PatientClinicalNote {
   id: string;
   userId?: string | null;

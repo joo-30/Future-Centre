@@ -446,6 +446,33 @@ describe('authenticated patient and administrative workflows', () => {
       ),
     ).toBe(true);
   });
+
+  it('publishes independently uploaded before and after image references and allows clearing them', async () => {
+    const agent = await administrator();
+    const story = {
+      name: 'حالة اختبار', title: 'تجربة اختبار الصور', category: 'تغذية',
+      weightLostKg: 1, durationText: 'شهر', programTitle: 'برنامج اختبار',
+      quote: 'نص للمعاينة والاختبار فقط.',
+      storyType: 'transformation', published: true,
+      beforeImageUrl: '/stories/before-test.webp', afterImageUrl: '/stories/after-test.webp',
+    };
+    const created = await post(agent, '/api/admin/stories', story);
+    expect(created.status).toBe(201);
+    const id = created.body.story.id;
+    const readPublic = async () => {
+      const response = await request(app).get('/api/stories');
+      return response.body.stories.find((record: { id: string }) => record.id === id);
+    };
+    expect(await readPublic()).toMatchObject({
+      beforeImageUrl: story.beforeImageUrl,
+      afterImageUrl: story.afterImageUrl,
+    });
+    expect((await agent.put('/api/admin/stories/' + id).set('X-FC-Request', '1').send({
+      beforeImageUrl: '', afterImageUrl: '',
+    })).status).toBe(200);
+    expect(await readPublic()).not.toHaveProperty('beforeImageUrl');
+    expect(await readPublic()).not.toHaveProperty('afterImageUrl');
+  });
   it('edits publication state and settings without accepting scripts or exposing draft articles', async () => {
     const admin = await administrator();
     const article = (await admin.get('/api/admin/articles')).body.articles[0];

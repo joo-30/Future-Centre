@@ -10,6 +10,7 @@ import {
   Heart,
   ImageIcon,
   Layers,
+  MessageCircle,
   Pencil,
   Plus,
   Search,
@@ -23,6 +24,7 @@ import { useMemo, useRef, useState } from 'react';
 import { Button, ErrorState, Loading, Modal } from '../../../components/ui';
 import { adminApi } from '../../../lib/portal-api';
 import { ConsoleTitle } from '../components/ConsoleTitle';
+import { ContentPreview } from '../components/ContentPreview';
 import { Notice } from '../components/Notice';
 
 // 4 Modern Core Clinical Categories requested by user
@@ -85,6 +87,9 @@ export function AdminStories() {
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingDetails, setUploadingDetails] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [uploadingComparison, setUploadingComparison] = useState(false);
+  const [previewTitle, setPreviewTitle] = useState('');
+  const [previewQuote, setPreviewQuote] = useState('');
   const [showAdvancedUrls, setShowAdvancedUrls] = useState(false);
 
   const coverInputRef = useRef<HTMLInputElement>(null);
@@ -121,6 +126,8 @@ export function AdminStories() {
   const handleOpenEdit = (story: Partial<SuccessStory>, isCreating = false) => {
     setIsNew(isCreating);
     setEditing(story);
+    setPreviewTitle(story.title || '');
+    setPreviewQuote(story.quote || '');
     setCategory(story.category || 'إنقاص وزن');
     setStoryType(story.storyType || 'transformation');
     setCoverImageUrl(story.imageUrl || '');
@@ -264,9 +271,31 @@ export function AdminStories() {
     setGalleryImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  async function uploadComparison(
+    field: 'beforeImageUrl' | 'afterImageUrl',
+    file: File | undefined,
+  ) {
+    if (!file || !editing) return;
+    const draft = editing;
+    setUploadingComparison(true);
+    setError('');
+    try {
+      const url = await uploadFile(file);
+      setEditing((current) => current === draft ? { ...current, [field]: url } : current);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setUploadingComparison(false);
+    }
+  }
+
   const handleSaveForm = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!editing) return;
+    if (!editing || uploadingComparison) return;
+    if (storyType === 'transformation' && Boolean(editing.beforeImageUrl) !== Boolean(editing.afterImageUrl)) {
+      setError('اختاري الصورتين قبل وبعد معًا.');
+      return;
+    }
     setBusy(true);
     setError('');
 
@@ -284,8 +313,10 @@ export function AdminStories() {
       programTitle: String(form.get('programTitle') || '').trim(),
       quote: String(form.get('quote') || '').trim(),
       details: String(form.get('details') || '').trim(),
-      imageUrl: coverImageUrl.trim() || undefined,
-      detailsImageUrl: detailsImageUrl.trim() || undefined,
+      imageUrl: coverImageUrl.trim(),
+      detailsImageUrl: detailsImageUrl.trim(),
+      beforeImageUrl: editing.beforeImageUrl || '',
+      afterImageUrl: editing.afterImageUrl || '',
       additionalImages: galleryImages,
       storyType,
       published: form.get('published') === 'on',
@@ -339,7 +370,7 @@ export function AdminStories() {
       </ConsoleTitle>
 
       <Notice message={message} />
-      <Notice message={error} error />
+      {!editing && <Notice message={error} error />}
 
       {/* KPI Stats Strip */}
       <div className="console-stats stories-admin-stats">
@@ -652,6 +683,46 @@ export function AdminStories() {
       >
         {editing && (
           <form onSubmit={handleSaveForm} className="story-admin-form">
+            <Notice message={error} error />
+            {/* Story Type Segmented Control */}
+            <div className="story-type-segmented-box" style={{ marginBottom: '18px' }}>
+              <span className="story-form-label" style={{ marginBottom: '8px' }}>نوع التوثيق والعرض *</span>
+              <div className="story-type-pills">
+                <button
+                  type="button"
+                  className={`story-type-pill ${storyType === 'transformation' ? 'is-active' : ''}`}
+                  aria-pressed={storyType === 'transformation'}
+                    onClick={() => setStoryType('transformation')}
+                >
+                  <ImageIcon size={22} aria-hidden="true" />
+                  <div>
+                    <strong>صور قبل وبعد</strong>
+                    <small>صورة موحّدة على الموقع وصورتان داخل التجربة</small>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  className={`story-type-pill ${storyType === 'review' ? 'is-active' : ''}`}
+                  aria-pressed={storyType === 'review'}
+                    onClick={() => setStoryType('review')}
+                >
+                  <MessageCircle size={22} aria-hidden="true" />
+                  <div>
+                    <strong>رسالة من العملاء</strong>
+                    <small>مقتطف قصير وصورة الرسالة الأصلية</small>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <ContentPreview
+              title={previewTitle || 'عنوان التجربة'}
+              dark={storyType === 'review'}
+              artwork={storyType === 'transformation' && <img src="/stories/results-cover.webp" alt="" />}
+            >
+              {storyType === 'review' && <blockquote>{previewQuote}</blockquote>}
+            </ContentPreview>
             {/* Hidden inputs to bridge modern interactive state */}
             <input type="hidden" name="category" value={category} />
             <input type="hidden" name="storyType" value={storyType} />
@@ -726,6 +797,7 @@ export function AdminStories() {
                   type="text"
                   required
                   defaultValue={editing.title}
+                  onChange={(event) => setPreviewTitle(event.target.value)}
                   placeholder="مثال: خسارة 27 كجم والتعافي من خمول الغدة وارتجاع المريء"
                   className="story-form-input"
                 />
@@ -864,6 +936,7 @@ export function AdminStories() {
                 <span className="story-form-label">شهادة وتجربة المريض (Quote) *</span>
                 <textarea
                   name="quote"
+                  onChange={(event) => setPreviewQuote(event.target.value)}
                   required
                   rows={3}
                   defaultValue={editing.quote}
@@ -898,43 +971,41 @@ export function AdminStories() {
                 </div>
               </div>
 
-              {/* Story Type Segmented Control */}
-              <div className="story-type-segmented-box" style={{ marginBottom: '18px' }}>
-                <span className="story-form-label" style={{ marginBottom: '8px' }}>نوع التوثيق والعرض *</span>
-                <div className="story-type-pills">
-                  <button
-                    type="button"
-                    className={`story-type-pill ${storyType === 'transformation' ? 'is-active' : ''}`}
-                    onClick={() => setStoryType('transformation')}
-                  >
-                    <span className="stp-icon">📸</span>
-                    <div>
-                      <strong>دراسة حالة وتحول سريري (Before & After)</strong>
-                      <small>كارت غلاف أخضر فاخر + تقرير فحص تفصيلي</small>
+              {storyType === 'transformation' && (
+                <div className="story-compare-editor">
+                  {(['beforeImageUrl', 'afterImageUrl'] as const).map((field) => (
+                    <div className="story-form-field" key={field}>
+                      {editing[field] && <img src={editing[field]} alt="" />}
+                      <label>
+                        <span className="story-form-label">{field === 'beforeImageUrl' ? 'صورة قبل' : 'صورة بعد'}</span>
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          disabled={busy || uploadingComparison}
+                          onChange={(event) => {
+                            const file = event.currentTarget.files?.[0];
+                            event.currentTarget.value = '';
+                            void uploadComparison(field, file);
+                          }}
+                        />
+                      </label>
+                      {editing[field] && (
+                        <button type="button" disabled={busy || uploadingComparison} onClick={() =>
+                          setEditing({ ...editing, [field]: '' })
+                        }>إزالة الصورة</button>
+                      )}
                     </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    className={`story-type-pill ${storyType === 'review' ? 'is-active' : ''}`}
-                    onClick={() => setStoryType('review')}
-                  >
-                    <span className="stp-icon">💬</span>
-                    <div>
-                      <strong>محادثة ورأي مراجع (WhatsApp Review)</strong>
-                      <small>كارت محادثة مراجعي العيادة ولقطة شاشة موثقة</small>
-                    </div>
-                  </button>
+                  ))}
                 </div>
-              </div>
+              )}
 
-              {/* Two Primary Image Slots (Card Cover & Clinical Details) */}
+              {/* Legacy images remain available for older entries. */}
               <div className="story-images-studio-grid">
                 {/* Slot 1: Card Cover */}
                 <div className="story-image-slot-card">
                   <div className="sis-header">
-                    <strong className="sis-title">غلاف الكارت الخارجي</strong>
-                    <span className="sis-tag">يظهر على المعرض الرئيسي</span>
+                    <strong className="sis-title">{storyType === 'review' ? 'صورة الرسالة الأصلية' : 'غلاف القصة المحفوظ'}</strong>
+                    <span className="sis-tag">{storyType === 'review' ? 'تظهر عند فتح الرسالة' : 'المعرض الحالي يستخدم الغلاف الموحد'}</span>
                   </div>
 
                   <div className="sis-preview-box">
@@ -966,12 +1037,12 @@ export function AdminStories() {
                       disabled={uploadingCover}
                     >
                       <Upload size={14} />
-                      <span>{uploadingCover ? 'جاري الرفع...' : 'رفع غلاف من جهازك'}</span>
+                      <span>{uploadingCover ? 'جاري الرفع...' : storyType === 'review' ? 'رفع صورة الرسالة' : 'رفع غلاف من جهازك'}</span>
                     </button>
                   </div>
 
                   {/* Quick Preset Covers */}
-                  <div className="sis-presets-row">
+                  {storyType === 'transformation' && <div className="sis-presets-row">
                     <span className="sis-presets-label">أغلفة المركز المعتمدة:</span>
                     <div className="sis-presets-chips">
                       <button
@@ -996,7 +1067,7 @@ export function AdminStories() {
                         غلاف صفية
                       </button>
                     </div>
-                  </div>
+                  </div>}
                 </div>
 
                 {/* Slot 2: Detailed Clinical Photo */}
@@ -1209,7 +1280,7 @@ export function AdminStories() {
               >
                 إلغاء
               </button>
-              <Button disabled={busy}>
+              <Button disabled={busy || uploadingComparison}>
                 {busy ? 'جارِ الحفظ...' : isNew ? 'إضافة القصة للموقع 🚀' : 'حفظ التعديلات ✓'}
               </Button>
             </div>

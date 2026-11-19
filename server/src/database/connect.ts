@@ -8,6 +8,7 @@ import { Interest } from '../models/interest.model.js';
 import { Reservation } from '../models/reservation.model.js';
 import { ServiceModel } from '../models/service.model.js';
 import { Session } from '../models/session.model.js';
+import { StoryModel } from '../models/story.model.js';
 import { SubscriptionModel } from '../models/subscription.model.js';
 import { User } from '../models/user.model.js';
 
@@ -23,6 +24,7 @@ export async function connectDatabase(uri: string) {
     User.init(),
     Session.init(),
     SubscriptionModel.init(),
+    StoryModel.init(),
     InBody.init(),
     Audit.init(),
   ]);

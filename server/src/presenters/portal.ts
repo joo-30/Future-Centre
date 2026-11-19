@@ -116,6 +116,8 @@ export const storyPublic = (s: any) => ({
   details: s.details || '',
   imageUrl: s.imageUrl || undefined,
   detailsImageUrl: s.detailsImageUrl || undefined,
+  beforeImageUrl: s.beforeImageUrl || undefined,
+  afterImageUrl: s.afterImageUrl || undefined,
   additionalImages: Array.isArray(s.additionalImages) ? s.additionalImages : [],
   storyType: s.storyType || 'transformation',
   verified: s.verified !== false,

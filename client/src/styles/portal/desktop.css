@@ -32,15 +32,6 @@
   }
 }
 @media (max-width: 1024px) {
-  .access-page {
-    grid-template-columns: 1fr 1fr;
-  }
-  .access-form-area {
-    padding: 26px;
-  }
-  .access-form {
-    padding-block: 20px;
-  }
   .console-sidebar {
     width: min(310px, 86vw);
     padding-inline: 18px;

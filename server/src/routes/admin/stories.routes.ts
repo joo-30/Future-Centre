@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
 import { ApiError } from '../../lib/api-error.js';
-import { ensureDefaultStories, StoryModel } from '../../models/story.model.js';
+import { StoryModel } from '../../models/story.model.js';
 import { storyPublic } from '../../presenters/portal.js';
 
 export const router = Router();
@@ -25,6 +25,8 @@ const storyInputSchema = z.object({
   details: z.string().trim().optional(),
   imageUrl: z.string().trim().optional(),
   detailsImageUrl: z.string().trim().optional(),
+  beforeImageUrl: z.string().trim().max(2048).optional(),
+  afterImageUrl: z.string().trim().max(2048).optional(),
   additionalImages: z.array(z.string().trim()).default([]).optional(),
   storyType: z.enum(['transformation', 'review']).default('transformation'),
   verified: z.boolean().default(true),
@@ -80,7 +82,6 @@ router.post('/stories/upload', express.json({ limit: '20mb' }), async (req, res)
 });
 
 router.get('/stories', async (_req, res) => {
-  await ensureDefaultStories();
   const stories = await StoryModel.find({})
     .sort({ order: 1, createdAt: -1 })
     .lean();

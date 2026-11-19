@@ -8,6 +8,7 @@ import {
   Flame,
   Minimize2,
   MessageCircle,
+  Quote,
   ShieldCheck,
   Layers,
   Trophy,
@@ -97,7 +98,11 @@ function ReviewMessage({ review, whatsapp }: { review: SuccessStory; whatsapp: s
                 mediaRef.current?.scrollTo({ top: 0, left: 0 });
               }}
             >
-              {expanded ? <Minimize2 size={17} aria-hidden="true" /> : <ZoomIn size={17} aria-hidden="true" />}
+              {expanded ? (
+                <Minimize2 size={17} aria-hidden="true" />
+              ) : (
+                <ZoomIn size={17} aria-hidden="true" />
+              )}
               {expanded ? 'عرض الصورة كاملة' : 'تكبير الرسالة'}
             </button>
           </div>
@@ -110,7 +115,11 @@ function ReviewMessage({ review, whatsapp }: { review: SuccessStory; whatsapp: s
             aria-busy={imageState === 'loading'}
             tabIndex={expanded ? 0 : undefined}
           >
-            {imageState === 'loading' && <span className="rmd-loading" role="status">جارٍ تحميل الرسالة…</span>}
+            {imageState === 'loading' && (
+              <span className="rmd-loading" role="status">
+                جارٍ تحميل الرسالة…
+              </span>
+            )}
             <img
               src={review.imageUrl}
               alt="صورة الرسالة الأصلية"
@@ -129,7 +138,9 @@ function ReviewMessage({ review, whatsapp }: { review: SuccessStory; whatsapp: s
       )}
 
       <details className="rmd-inquiry">
-        <summary>استفسري عن التجربة <ChevronDown size={17} aria-hidden="true" /></summary>
+        <summary>
+          استفسري عن التجربة <ChevronDown size={17} aria-hidden="true" />
+        </summary>
         <div className="rmd-inquiry-content">
           <label htmlFor="story-review-inquiry">رسالتكِ لد. رنا</label>
           <textarea
@@ -154,12 +165,12 @@ function ReviewMessage({ review, whatsapp }: { review: SuccessStory; whatsapp: s
 export function SuccessStoriesSection() {
   const sectionRef = useRef<HTMLElement>(null);
 
-
   const { data: catalogData } = useCatalog();
   const whatsapp = catalogData?.clinic.whatsapp || '201041504201';
   const [activeTab, setActiveTab] = useState<'all' | 'transformations' | 'reviews'>('all');
   const [selectedCase, setSelectedCase] = useState<SuccessStory | null>(null);
   const [selectedReview, setSelectedReview] = useState<SuccessStory | null>(null);
+  const [reviewSlide, setReviewSlide] = useState<{ id: string; direction: -1 | 1 } | null>(null);
 
   const storiesQuery = useQuery({
     queryKey: ['public', 'stories'],
@@ -169,67 +180,65 @@ export function SuccessStoriesSection() {
 
   const stories = storiesQuery.data?.stories || [];
   const selectedComparison = casePhotoSets.get(selectedCase?.detailsImageUrl ?? '');
-  const selectedCaseName = selectedCase?.age != null
-    ? selectedCase.name.replace(/\s*(?:\(\s*[0-9٠-٩۰-۹]+\s+سنة\s*\)|[0-9٠-٩۰-۹]+\s+سنة)\s*$/u, '').trim()
-    : selectedCase?.name;
+  const beforeImage = selectedCase?.beforeImageUrl ||
+    (selectedComparison ? '/stories/compare-' + selectedComparison + '-before.webp' : undefined);
+  const afterImage = selectedCase?.afterImageUrl ||
+    (selectedComparison ? '/stories/compare-' + selectedComparison + '-after.webp' : undefined);
+  const selectedCaseName =
+    selectedCase?.age != null
+      ? selectedCase.name
+          .replace(/\s*(?:\(\s*[0-9٠-٩۰-۹]+\s+سنة\s*\)|[0-9٠-٩۰-۹]+\s+سنة)\s*$/u, '')
+          .trim()
+      : selectedCase?.name;
 
   useGSAP(
     () => {
       if (isReducedMotion() || !sectionRef.current) return;
 
-      gsap.fromTo(
-        '.stories-section-title-wrap, .stories-trust-box',
-        { opacity: 0, y: 16 },
-        {
-          scrollTrigger: {
-            trigger: '.stories-section-head',
-            start: 'top 85%',
-            once: true,
-          },
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-          stagger: 0.1,
+      const groups = [
+        ['.stories-section-head', '.stories-section-title-wrap, .stories-trust-box'],
+        ['.transformations-grid', '.transform-card-compact'],
+        ['.feedback-block', '.feedback-heading, .feedback-card'],
+      ];
+      for (const [triggerSelector, elements] of groups) {
+        const trigger = sectionRef.current.querySelector(triggerSelector);
+        if (!trigger) continue;
+        gsap.from(trigger.querySelectorAll(elements), {
+          scrollTrigger: { trigger, start: 'top 88%', once: true },
+          immediateRender: false,
+          opacity: 0.6,
+          y: 16,
+          duration: 0.65,
+          stagger: 0.08,
           ease: 'power2.out',
-        }
-      );
-
-      gsap.fromTo(
-        '.transform-card-compact',
-        { opacity: 0, y: 18 },
-        {
-          scrollTrigger: {
-            trigger: '.transformations-grid',
-            start: 'top 85%',
-            once: true,
-          },
-          opacity: 1,
-          y: 0,
-          duration: 0.75,
-          stagger: 0.1,
-          ease: 'power2.out',
-        }
-      );
+          clearProps: 'opacity,transform',
+        });
+      }
     },
-    { scope: sectionRef, dependencies: [stories.length] }
+    { scope: sectionRef, dependencies: [stories.length, activeTab], revertOnUpdate: true },
   );
 
   const transformations = useMemo(
     () => stories.filter((s) => s.storyType === 'transformation'),
-    [stories]
+    [stories],
   );
 
-  const reviews = useMemo(
-    () => stories.filter((s) => s.storyType === 'review'),
-    [stories]
-  );
+  const reviews = useMemo(() => stories.filter((s) => s.storyType === 'review'), [stories]);
 
+  const activeReviewIndex = Math.max(
+    0,
+    reviews.findIndex((review) => review.id === reviewSlide?.id),
+  );
+  const activeReview = reviews[activeReviewIndex];
   const selectedReviewIndex = reviews.findIndex((review) => review.id === selectedReview?.id);
 
-  function moveReview(direction: number) {
+  function moveReview(direction: -1 | 1) {
     if (reviews.length <= 1) return;
-    const nextIndex = (selectedReviewIndex + direction + reviews.length) % reviews.length;
-    setSelectedReview(reviews[nextIndex]);
+    const index = selectedReviewIndex < 0 ? activeReviewIndex : selectedReviewIndex;
+    const nextIndex = (index + direction + reviews.length) % reviews.length;
+    const nextReview = reviews[nextIndex];
+    setReviewSlide({ id: nextReview.id, direction });
+    if (selectedReview) setSelectedReview(nextReview);
   }
 
   if (!stories.length && !storiesQuery.isPending) {
@@ -237,7 +246,12 @@ export function SuccessStoriesSection() {
   }
 
   return (
-    <section ref={sectionRef} className="stories-section" id="stories" aria-label="قصص وتجارب النجاح">
+    <section
+      ref={sectionRef}
+      className="stories-section"
+      id="stories"
+      aria-label="قصص وتجارب النجاح"
+    >
       {/* 1. Header with Trust Credential */}
       <div className="section-top stories-section-head">
         <div className="stories-section-title-wrap">
@@ -247,7 +261,8 @@ export function SuccessStoriesSection() {
           </div>
           <h2>نتائج حقيقية صنعت فرقاً في حياة أصحابها.</h2>
           <p className="stories-section-sub">
-            قصص ونتائج حقيقية لمرضى بدأوا رحلتهم مع دكتورة رنا، ووصلوا لوزنهم المثالي وصحتهم الأفضل بدون حرمان.
+            قصص ونتائج حقيقية لمرضى بدأوا رحلتهم مع دكتورة رنا، ووصلوا لوزنهم المثالي وصحتهم الأفضل
+            بدون حرمان.
           </p>
         </div>
 
@@ -312,7 +327,8 @@ export function SuccessStoriesSection() {
               <div>
                 <h3 className="block-title">تجارب وصور قبل وبعد</h3>
                 <p className="block-sub">
-                  حالات حقيقية وثقت نتائجها بالمركز — اضغطي على أي كارت لمشاهدة الصور والنتيجة كاملة.
+                  حالات حقيقية وثقت نتائجها بالمركز — اضغطي على أي كارت لمشاهدة الصور والنتيجة
+                  كاملة.
                 </p>
               </div>
             </div>
@@ -392,59 +408,89 @@ export function SuccessStoriesSection() {
         </div>
       )}
 
-      {(activeTab === 'all' || activeTab === 'reviews') && reviews.length > 0 && (
+      {(activeTab === 'all' || activeTab === 'reviews') && activeReview && (
         <section className="feedback-block" aria-labelledby="feedback-title">
-          <header className="feedback-heading">
-            <h3 id="feedback-title">رسائل من عملائنا</h3>
-            <p>تجارب شاركها عملاء المركز خلال رحلتهم مع د. رنا.</p>
-          </header>
+          <h3 className="feedback-heading" id="feedback-title">
+            رسائل من عملائنا
+          </h3>
 
-          <div className="feedback-micro-grid">
-            {reviews.map((review) => (
-              <article className="feedback-micro-card" key={review.id}>
-                <p className="fmc-source">
-                  <MessageCircle size={17} aria-hidden="true" />
-                  {review.verified ? 'تجربة موثّقة' : 'تجربة عميل'}
-                </p>
-                <h4 className="fmc-headline" id={'review-title-' + review.id}>{review.title}</h4>
-                {review.quote && <blockquote className="fmc-quote-text">{review.quote}</blockquote>}
-                <button
-                  type="button"
-                  className="fmc-view-screenshot-btn"
-                  aria-describedby={'review-title-' + review.id}
-                  aria-haspopup="dialog"
-                  onClick={() => setSelectedReview(review)}
-                >
-                  {review.imageUrl ? 'افتحي الرسالة' : 'اقرئي التجربة'} <ArrowLeft size={17} aria-hidden="true" />
-                </button>
-              </article>
-            ))}
+          <div
+            className="feedback-card"
+            data-direction={reviewSlide?.direction === -1 ? 'previous' : 'next'}
+            onKeyDown={(event) => {
+              if (reviews.length > 1 && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+                event.preventDefault();
+                moveReview(event.key === 'ArrowLeft' ? 1 : -1);
+              }
+            }}
+          >
+            <div className="feedback-art" aria-hidden="true">
+              <div className="feedback-art-paper">
+                <Quote strokeWidth={1.4} />
+              </div>
+            </div>
+
+            <div className="feedback-slides">
+              {reviews.map((review) => {
+                const isActive = review.id === activeReview.id;
+                return (
+                  <article
+                    key={review.id}
+                    className={'feedback-slide' + (isActive ? ' is-active' : '')}
+                    aria-hidden={!isActive}
+                  >
+                    <h4 id={isActive ? 'active-feedback-title' : undefined}>{review.title}</h4>
+                    {review.quote && <blockquote>{review.quote}</blockquote>}
+                    {review.verified && (
+                      <p className="feedback-verification">
+                        <ShieldCheck size={18} aria-hidden="true" /> رسالة موثّقة
+                      </p>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+
+            <footer className="feedback-controls">
+              <button
+                type="button"
+                className="feedback-open-message"
+                aria-describedby="active-feedback-title"
+                aria-haspopup="dialog"
+                onClick={() => setSelectedReview(activeReview)}
+              >
+                {activeReview.imageUrl ? 'اقرئي الرسالة الأصلية' : 'اقرئي التجربة كاملة'}
+                <ArrowLeft size={19} aria-hidden="true" />
+              </button>
+              {reviews.length > 1 && (
+                <div className="feedback-navigation" role="group" aria-label="التنقل بين الرسائل">
+                  <div className="feedback-progress">
+                    <span className="feedback-counter" role="status" aria-atomic="true">
+                      <span className="sr-only">الرسالة </span>
+                      {(activeReviewIndex + 1).toLocaleString('ar-EG')} من{' '}
+                      {reviews.length.toLocaleString('ar-EG')}
+                      <span className="sr-only">، {activeReview.title}</span>
+                    </span>
+                    <span className="feedback-progress-track" aria-hidden="true">
+                      <span
+                        style={{
+                          inlineSize: `${((activeReviewIndex + 1) / reviews.length) * 100}%`,
+                        }}
+                      />
+                    </span>
+                  </div>
+                  <button type="button" aria-label="الرسالة السابقة" onClick={() => moveReview(-1)}>
+                    <ChevronRight size={23} aria-hidden="true" />
+                  </button>
+                  <button type="button" aria-label="الرسالة التالية" onClick={() => moveReview(1)}>
+                    <ChevronLeft size={23} aria-hidden="true" />
+                  </button>
+                </div>
+              )}
+            </footer>
           </div>
         </section>
       )}
-
-      <section className="stories-cta-banner" aria-labelledby="stories-cta-title">
-        <div className="scb-content">
-          <h3 className="scb-title" id="stories-cta-title">جاهزة تبدأي رحلتكِ؟</h3>
-          <p className="scb-desc">
-            ابدئي بكشف في العيادة مع د. رنا. في الزيارة الأولى بتتعرّف على احتياجكِ وبتحدّد معكِ الخطوة المناسبة.
-          </p>
-        </div>
-        <div className="scb-actions">
-          <Link to="/booking" className="scb-cta-btn">
-            احجزي كشفكِ <ArrowLeft size={18} aria-hidden="true" />
-          </Link>
-          <a
-            href={whatsappUrl(whatsapp, 'مرحباً د. رنا، أود الاستفسار عن كشف واستشارة التغذية والتخسيس بالمركز.')}
-            className="scb-whatsapp-btn"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <WhatsAppIcon size={17} color="currentColor" />
-            استفسري على واتساب
-          </a>
-        </div>
-      </section>
 
       {selectedCase && (
         <StoryDialog
@@ -470,15 +516,21 @@ export function SuccessStoriesSection() {
               </button>
             </header>
             <div className="cmd-body">
-              {selectedComparison ? (
+              {beforeImage && afterImage ? (
                 <div className="cmd-comparison">
                   <figure>
                     <figcaption>قبل</figcaption>
-                    <img src={`/stories/compare-${selectedComparison}-before.webp`} alt={'قبل — ' + selectedCaseName} />
+                    <img
+                      src={beforeImage}
+                      alt={'قبل — ' + selectedCaseName}
+                    />
                   </figure>
                   <figure>
                     <figcaption>بعد</figcaption>
-                    <img src={`/stories/compare-${selectedComparison}-after.webp`} alt={'بعد — ' + selectedCaseName} />
+                    <img
+                      src={afterImage}
+                      alt={'بعد — ' + selectedCaseName}
+                    />
                   </figure>
                 </div>
               ) : selectedCase.detailsImageUrl ? (
@@ -507,8 +559,11 @@ export function SuccessStoriesSection() {
               if (
                 reviews.length < 2 ||
                 (event.target instanceof HTMLElement &&
-                  event.target.closest('input, textarea, select, [contenteditable], .rmd-media.is-expanded'))
-              ) return;
+                  event.target.closest(
+                    'input, textarea, select, [contenteditable], .rmd-media.is-expanded',
+                  ))
+              )
+                return;
               if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
                 event.preventDefault();
                 moveReview(event.key === 'ArrowLeft' ? 1 : -1);
@@ -534,7 +589,9 @@ export function SuccessStoriesSection() {
                 <button type="button" className="rmd-control" onClick={() => moveReview(-1)}>
                   <ChevronRight size={18} aria-hidden="true" /> السابقة
                 </button>
-                <span className="rmd-nav-counter" aria-live="polite">{selectedReviewIndex + 1} من {reviews.length}</span>
+                <span className="rmd-nav-counter" aria-live="polite">
+                  {selectedReviewIndex + 1} من {reviews.length}
+                </span>
                 <button type="button" className="rmd-control" onClick={() => moveReview(1)}>
                   التالية <ChevronLeft size={18} aria-hidden="true" />
                 </button>
