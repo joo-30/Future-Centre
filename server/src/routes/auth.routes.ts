@@ -70,7 +70,17 @@ authRouter.get('/me', (req, res) => {
   res.json({ user: user ? publicUser(user) : null });
 });
 
-const localQuickLogin = (_req: Request) => config.NODE_ENV === "development";
+const loopbackAddresses = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
+
+// Passwordless login is only for local development: it needs the explicit
+// ENABLE_QUICK_LOGIN flag, development mode, and a direct loopback connection
+// (requests forwarded by a reverse proxy are refused).
+const localQuickLogin = (req: Request) =>
+  config.ENABLE_QUICK_LOGIN &&
+  config.NODE_ENV === 'development' &&
+  loopbackAddresses.has(req.socket.remoteAddress ?? '') &&
+  !req.headers['x-forwarded-for'] &&
+  !req.headers['forwarded'];
 
 authRouter.get('/quick-login', (req, res) => {
   if (!localQuickLogin(req))

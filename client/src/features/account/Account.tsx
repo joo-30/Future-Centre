@@ -367,11 +367,22 @@ export function Account() {
       />
     );
   const appointments = accountQuery.data.appointments;
+  const todayDate = today();
+  const isOpenStatus = (status: string) => ['pending', 'confirmed'].includes(status);
+  // An appointment is upcoming only while it is still open AND its day has not passed.
+  // Open appointments from earlier days wait for the clinic to record the visit, so they
+  // belong in the history list, not under "موعدك القادم".
+  const isUpcoming = (a: (typeof appointments)[number]) =>
+    isOpenStatus(a.status) && a.date >= todayDate;
+  const isAwaitingClinicUpdate = (a: (typeof appointments)[number]) =>
+    isOpenStatus(a.status) && a.date < todayDate;
   const upcoming = appointments
-    .filter((a) => ['pending', 'confirmed'].includes(a.status))
+    .filter(isUpcoming)
     .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
   const nextAppointment = upcoming[0];
-  const historyList = appointments.filter((a) => !['pending', 'confirmed'].includes(a.status));
+  const historyList = appointments
+    .filter((a) => !isUpcoming(a))
+    .sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
   const selected = tab === 'history' ? historyList : upcoming;
   const activeSubs = accountQuery.data.subscriptions.filter(
     (s) => s.status === 'active' && s.endDate >= today(),
@@ -1275,9 +1286,11 @@ export function Account() {
                   </ButtonLink>
                 </div>
               ) : (
-                selected.map((a) => (
+                selected.map((a) => {
+                  const awaitingUpdate = isAwaitingClinicUpdate(a);
+                  return (
                   <article
-                    className={`member-appointment ${a.status === 'pending' ? 'is-pending' : ''}`}
+                    className={`member-appointment ${a.status === 'pending' && !awaitingUpdate ? 'is-pending' : ''}`}
                     key={a.reference}
                   >
                     <div className="appointment-date">
@@ -1288,14 +1301,21 @@ export function Account() {
                       <div className="between appointment-header-row">
                         <div className="appointment-title-block">
                           <h3>{a.serviceTitle}</h3>
-                          {a.status === 'pending' && (
+                          {a.status === 'pending' && !awaitingUpdate && (
                             <span className="appointment-pending-chip">
                               <Clock size={12} />
                               <span>بانتظار تأكيد العيادة</span>
                             </span>
                           )}
                         </div>
-                        <StatusBadge status={a.status} />
+                        {awaitingUpdate ? (
+                          <span className="state-badge state-awaiting-update">
+                            <i />
+                            في انتظار تحديث المركز
+                          </span>
+                        ) : (
+                          <StatusBadge status={a.status} />
+                        )}
                       </div>
                       <div className="appointment-meta-pills">
                         <span className="meta-pill">
@@ -1357,7 +1377,7 @@ export function Account() {
                       </div>
 
                       {/* Prominent Pending Warning Banner right on the card */}
-                      {a.status === 'pending' && (
+                      {a.status === 'pending' && !awaitingUpdate && (
                         <div className="appointment-pending-card-alert">
                           <div className="pending-card-alert-header">
                             <Clock size={16} className="pending-icon-pulse" />
@@ -1375,7 +1395,7 @@ export function Account() {
                           {timeLabel(a.reschedule.time)}، بانتظار اعتماد المركز.
                         </p>
                       )}
-                      <AppointmentActions appointment={a} onDone={reload} />
+                      {!awaitingUpdate && <AppointmentActions appointment={a} onDone={reload} />}
                       <details className="member-history">
                         <summary>سجل تحديثات الموعد</summary>
                         {a.history.map((h, i) => (
@@ -1384,7 +1404,8 @@ export function Account() {
                       </details>
                     </div>
                   </article>
-                ))
+                  );
+                })
               )}
             </section>
           )}

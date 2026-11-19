@@ -42,6 +42,7 @@ import { DailyOperationsPulse } from '../components/DailyOperationsPulse';
 import { refreshAdmin } from '../lib/cache';
 import { DietPrescriptionModal } from '../prescription/DietPrescriptionModal';
 import { AppointmentReview } from './AppointmentReview';
+import { AwaitingOutcomeQueue } from './AwaitingOutcomeQueue';
 import { AdvancedCapacityModal } from './AdvancedCapacityModal';
 import { DailyRemindersModal } from './DailyRemindersModal';
 import { ManualBooking } from './ManualBooking';
@@ -184,10 +185,17 @@ export function AdminAppointments() {
   });
   const todayAppointments = remindersQuery.data?.appointments ?? [];
 
+  const awaitingQuery = useQuery({
+    queryKey: ['admin', 'appointments', 'awaiting-outcome'],
+    queryFn: adminApi.awaitingOutcome,
+    refetchInterval: 60000,
+  });
+
   const current =
     appointmentsQuery.data?.appointments.find((a) => a.reference === selected) ||
     agendaQuery.data?.appointments.find((a) => a.reference === selected) ||
-    remindersQuery.data?.appointments.find((a) => a.reference === selected);
+    remindersQuery.data?.appointments.find((a) => a.reference === selected) ||
+    awaitingQuery.data?.appointments.find((a) => a.reference === selected);
   const revealResults = () => {
     results.current?.focus({ preventScroll: true });
     results.current?.scrollIntoView({ block: 'start' });
@@ -255,6 +263,14 @@ export function AdminAppointments() {
           </button>
         </div>
       </section>
+
+      {awaitingQuery.data && (
+        <AwaitingOutcomeQueue
+          appointments={awaitingQuery.data.appointments}
+          total={awaitingQuery.data.total}
+          onOpen={setSelected}
+        />
+      )}
 
       {/* جدول مواعيد اليوم · المطلوب منكِ اليوم */}
       <section className="today-agenda-section">

@@ -1,0 +1,225 @@
+/* Admin: confirmed visits whose time passed without a recorded outcome. */
+
+.awaiting-outcome {
+  direction: rtl;
+  margin-block: 0 24px;
+  padding: 20px 22px;
+  border: 1px solid #ebdbb8;
+  border-radius: 16px;
+  background: var(--amber-bg, #fbf2df);
+}
+
+.awaiting-outcome-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-block-end: 14px;
+}
+
+.awaiting-outcome-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #fffefa;
+  color: var(--amber, #8b681d);
+  border: 1px solid #ebdbb8;
+}
+
+.awaiting-outcome-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink, #163d33);
+}
+
+.awaiting-outcome-count {
+  min-width: 26px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--amber, #8b681d);
+  color: #fffefa;
+  font-size: 13px;
+  text-align: center;
+}
+
+.awaiting-outcome-head p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--muted, #687a70);
+}
+
+.awaiting-outcome-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.awaiting-outcome-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--line, #dfe5db);
+  border-radius: 12px;
+  background: var(--white, #fffefa);
+}
+
+.awaiting-outcome-who,
+.awaiting-outcome-when {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.awaiting-outcome-who strong {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink, #163d33);
+}
+
+.awaiting-outcome-who span,
+.awaiting-outcome-when small {
+  font-size: 13px;
+  color: var(--muted, #687a70);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.awaiting-outcome-when span {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-light, #2b5549);
+}
+
+.awaiting-outcome-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.awaiting-outcome-confirm {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink, #163d33);
+}
+
+.awaiting-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--line, #dfe5db);
+  border-radius: 10px;
+  background: #fffefa;
+  color: var(--ink, #163d33);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.awaiting-btn:hover:not(:disabled) {
+  border-color: var(--forest, #073f33);
+}
+
+.awaiting-btn:focus-visible,
+.awaiting-outcome-more:focus-visible {
+  outline: 2px solid var(--forest, #073f33);
+  outline-offset: 2px;
+}
+
+.awaiting-btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.awaiting-btn.is-primary {
+  background: var(--forest, #073f33);
+  border-color: var(--forest, #073f33);
+  color: #fffefa;
+}
+
+.awaiting-btn.is-primary:hover:not(:disabled) {
+  background: var(--forest-hover, #0b4f40);
+}
+
+.awaiting-btn.is-warn {
+  background: var(--red, #a43f3d);
+  border-color: var(--red, #a43f3d);
+  color: #fffefa;
+}
+
+.awaiting-btn.is-quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted, #687a70);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.awaiting-outcome-error {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 13px;
+  color: var(--red, #a43f3d);
+}
+
+.awaiting-outcome-more {
+  margin-block-start: 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--forest, #073f33);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.awaiting-outcome-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--muted, #687a70);
+}
+
+@media (max-width: 760px) {
+  .awaiting-outcome {
+    padding: 16px;
+  }
+
+  .awaiting-outcome-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .awaiting-outcome-actions {
+    justify-content: flex-start;
+  }
+
+  .awaiting-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .awaiting-btn.is-quiet {
+    flex: 0 0 auto;
+  }
+}

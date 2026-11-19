@@ -35,7 +35,13 @@ if (!clientOnly) {
     spawn(
       process.execPath,
       [path.join(root, 'node_modules/tsx/dist/cli.mjs'), 'watch', 'server/src/index.ts'],
-      { cwd: root, stdio, windowsHide: true },
+      {
+        cwd: root,
+        stdio,
+        windowsHide: true,
+        // Local dev only: `npm start` never sets this, so production has no passwordless login.
+        env: { ...process.env, ENABLE_QUICK_LOGIN: 'true' },
+      },
     ),
   );
 }

@@ -881,7 +881,8 @@
   border-color: #ebd4cc;
 }
 .state-expired,
-.state-paused {
+.state-paused,
+.state-awaiting-update {
   background: #f2eee8;
   color: #8a7964;
   border-color: #e6ded2;

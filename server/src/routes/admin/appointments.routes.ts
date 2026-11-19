@@ -404,6 +404,46 @@ router.get('/booking-list', async (req, res) => {
   });
 });
 
+// Confirmed visits whose time has fully passed but whose outcome (attended / no-show)
+// was never recorded. Oldest first, so the backlog is cleared in order.
+router.get('/appointments/awaiting-outcome', async (_req, res) => {
+  const now = DateTime.now();
+  const today = now.setZone('Africa/Cairo').toISODate()!;
+  const candidates = await Appointment.find({ status: 'confirmed', date: { $lte: today } })
+    .select('+phone +whatsapp')
+    .sort({ date: 1, time: 1 })
+    .lean();
+  const rows = candidates.filter(
+    (a) =>
+      DateTime.fromISO(`${a.date}T${a.time}`, { zone: 'Africa/Cairo' }).plus({
+        minutes: a.duration,
+      }) <= now,
+  );
+
+  const userIds = rows.map((a) => a.userId).filter(Boolean);
+  const users =
+    userIds.length > 0
+      ? await User.find({ _id: { $in: userIds } }).select('_id name fileNumber').lean()
+      : [];
+  const userMap = new Map(users.map((u) => [String(u._id), u]));
+
+  res.json({
+    total: rows.length,
+    appointments: rows.slice(0, 50).map((a) => {
+      const u = a.userId ? userMap.get(String(a.userId)) : null;
+      return {
+        ...publicAppointment(a),
+        name: u?.name || a.name,
+        fileNumber: u?.fileNumber,
+        phone: a.phone,
+        whatsapp: a.whatsapp,
+        userId: a.userId ? String(a.userId) : null,
+        createdAt: new Date(a.createdAt).toISOString(),
+      };
+    }),
+  });
+});
+
 router.get('/appointments/:reference/availability', async (req, res) => {
   const a = await Appointment.findOne({ reference: req.params.reference }).lean();
   if (!a) throw new ApiError(404, 'NOT_FOUND', 'الطلب غير موجود.');

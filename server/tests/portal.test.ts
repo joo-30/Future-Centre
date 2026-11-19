@@ -506,4 +506,53 @@ describe('authenticated patient and administrative workflows', () => {
     ).toBe(200);
     expect((await request(app).get('/api/catalog')).body.clinic.address).toBe(settings.address);
   });
+
+  it('lists only confirmed visits that ended without an outcome, and clears them once recorded', async () => {
+    const cairo = DateTime.now().setZone('Africa/Cairo');
+    const make = (reference: string, date: string, status: string) =>
+      Appointment.create({
+        reference,
+        serviceId: 'nutrition',
+        serviceTitle: 'كشف واستشارة بالعيادة',
+        date,
+        time: '10:00',
+        duration: 30,
+        status,
+        name: 'مريضة اختبار التقفيل',
+        phone: '01022223333',
+        tokenHash: crypto.randomBytes(32).toString('hex'),
+        payloadHash: crypto.randomBytes(32).toString('hex'),
+        idempotencyHash: crypto.randomBytes(32).toString('hex'),
+        history: [{ status, at: new Date(), message: 'اختبار', actor: 'admin' }],
+      });
+    const pastDate = cairo.minus({ days: 3 }).toISODate()!;
+    await make('FC-PAST1', pastDate, 'confirmed');
+    await make('FC-FUTR1', futureDate(), 'confirmed');
+    await make('FC-PAST2', pastDate, 'completed');
+
+    expect((await request(app).get('/api/admin/appointments/awaiting-outcome')).status).toBe(401);
+
+    const admin = await administrator();
+    const before = await admin.get('/api/admin/appointments/awaiting-outcome');
+    expect(before.status).toBe(200);
+    expect(before.body.total).toBe(1);
+    expect(before.body.appointments.map((a: { reference: string }) => a.reference)).toEqual([
+      'FC-PAST1',
+    ]);
+
+    expect(
+      (await post(admin, '/api/admin/appointments/FC-PAST1/decision', { action: 'complete' }))
+        .status,
+    ).toBe(200);
+    const after = await admin.get('/api/admin/appointments/awaiting-outcome');
+    expect(after.body.total).toBe(0);
+    expect(after.body.appointments).toEqual([]);
+  });
+
+  it('refuses passwordless quick login unless explicitly enabled for local development', async () => {
+    expect((await request(app).get('/api/auth/quick-login')).status).toBe(404);
+    expect(
+      (await post(request.agent(app), '/api/auth/quick-login', { role: 'admin' })).status,
+    ).toBe(404);
+  });
 });

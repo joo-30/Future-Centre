@@ -151,6 +151,10 @@ export const adminApi = {
     request<{ appointments: AdminAppointment[]; total: number; page: number }>(
       '/admin/booking-list?' + query,
     ),
+  awaitingOutcome: () =>
+    request<{ appointments: AdminAppointment[]; total: number }>(
+      '/admin/appointments/awaiting-outcome',
+    ),
   decision: (reference: string, body: unknown) =>
     send<AppointmentPublic>(`/admin/appointments/${reference}/decision`, body),
   services: () => request<{ services: Service[] }>('/admin/services'),

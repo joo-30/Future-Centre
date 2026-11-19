@@ -30,6 +30,11 @@ const schema = z.object({
   QR_LEGACY_SUNSET_DAYS: z.coerce.number().int().default(45),
   QR_PROD_DEPLOYED_AT: z.string().default(() => process.env.QR_PROD_DEPLOYED_AT || new Date().toISOString().slice(0, 10)),
   PENDING_HOLD_HOURS: z.coerce.number().min(1).max(168).default(24),
+  // Passwordless dev login. Off unless explicitly enabled (scripts/dev.mjs sets it for local dev only).
+  ENABLE_QUICK_LOGIN: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
   VAPID_PUBLIC_KEY: z.string().default('BD0UbGzUtKZYn1vmxgsuDKIBG_WMmJW3e3hpO33CZRf5g1QSdFFOQRYd08kSHATZ7gmxUEZY0Agsr7ban_kPaLo'),
   VAPID_PRIVATE_KEY: z.string().default('Yy1epHjr5Ij4f2qEUJgx5WgknskTrmMNOIaz_YyNURY'),
   VAPID_SUBJECT: z.string().default('mailto:admin@futurecenter.clinic'),
@@ -40,3 +45,5 @@ if (
   [config.TRACKING_SECRET, config.ADMIN_API_KEY].some((v) => v.startsWith('replace-'))
 )
   throw new Error('Set production secrets before startup.');
+if (config.NODE_ENV === 'production' && config.ENABLE_QUICK_LOGIN)
+  throw new Error('ENABLE_QUICK_LOGIN must not be enabled in production.');
