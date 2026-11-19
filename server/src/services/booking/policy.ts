@@ -40,7 +40,7 @@ export function slotPolicy(
     !hours?.open ||
     start < minutes(hours.start) ||
     end > minutes(hours.end) ||
-    (start - minutes(hours.start)) % 30 !== 0
+    (start - minutes(hours.start)) % 45 !== 0
   )
     return { ok: false, reason: 'blocked' };
   if (

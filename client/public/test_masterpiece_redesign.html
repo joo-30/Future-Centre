@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Future Center - Masterpiece Luxury Art Direction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #F5F2E9;
+      --paper-warm: #FAF8F2;
+      --evergreen: #063F32;
+      --evergreen-dark: #042921;
+      --moss: #C9DF83;
+      --sage: #71834A;
+      --lead: #3D4F44;
+      --muted: #627568;
+      --border-fine: rgba(6, 63, 50, 0.08);
+      --border-accent: rgba(113, 131, 74, 0.25);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Alexandria', sans-serif;
+      background: var(--paper);
+      color: var(--evergreen);
+      direction: rtl;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       1. HERO SECTION: THE LUXURY WELLNESS SANCTUARY
+       Subtle ambient atmosphere, architectural visual, zero clutter
+       ═══════════════════════════════════════════════════════════════ */
+    .hero-sanctuary {
+      padding: 64px 0 48px;
+      position: relative;
+    }
+    .hero-sanctuary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 15%;
+      width: 500px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(201, 223, 131, 0.18) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 56px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 56px;
+    }
+
+    /* Hero Text Column */
+    .hero-kicker-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 16px;
+      background: #FFFFFF;
+      border: 1px solid rgba(6, 63, 50, 0.1);
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 750;
+      color: var(--sage);
+      box-shadow: 0 2px 8px rgba(6, 63, 50, 0.04);
+      margin-bottom: 22px;
+    }
+    .kicker-live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #16a34a;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+    }
+
+    .hero-h1 {
+      font-size: clamp(38px, 4.2vw, 56px);
+      font-weight: 900;
+      color: var(--evergreen);
+      line-height: 1.2;
+      letter-spacing: -0.8px;
+      margin-bottom: 20px;
+      text-wrap: balance;
+    }
+    .hero-h1 span.highlight {
+      color: var(--sage);
+      display: inline;
+      position: relative;
+    }
+    .hero-lead-text {
+      font-size: clamp(16px, 1.25vw, 18.5px);
+      line-height: 1.85;
+      color: var(--lead);
+      max-width: 48ch;
+      margin-bottom: 36px;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .btn-hero-book {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 36px;
+      border-radius: 9999px;
+      background: var(--evergreen);
+      color: #FFFFFF;
+      font-size: 15.5px;
+      font-weight: 750;
+      text-decoration: none;
+      box-shadow: 0 6px 22px rgba(6, 63, 50, 0.2);
+      transition: all 0.25s ease;
+    }
+    .btn-hero-book:hover {
+      background: #094d3e;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(6, 63, 50, 0.26);
+    }
+    .btn-hero-book span.arrow {
+      color: var(--moss);
+      font-size: 16px;
+    }
+    .link-hero-services {
+      color: var(--evergreen);
+      font-size: 15px;
+      font-weight: 750;
+      text-decoration: none;
+      border-bottom: 1.5px solid rgba(6, 63, 50, 0.3);
+      padding-bottom: 3px;
+      transition: all 0.2s ease;
+    }
+    .link-hero-services:hover {
+      border-color: var(--evergreen);
+    }
+    .hero-reassurance-note {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* Hero Visual: Architectural Medical Composition */
+    .hero-visual-card {
+      position: relative;
+      width: 100%;
+    }
+    .hero-visual-frame {
+      position: relative;
+      aspect-ratio: 4 / 3.4;
+      border-radius: 32px;
+      overflow: hidden;
+      background: #E8EFE3;
+      box-shadow: 
+        0 24px 54px -14px rgba(6, 63, 50, 0.2),
+        0 4px 18px rgba(6, 63, 50, 0.05);
+      border: 1.5px solid rgba(113, 131, 74, 0.25);
+    }
+    .hero-visual-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 25%;
+      display: block;
+    }
+    .hero-trust-tag-float {
+      position: absolute;
+      bottom: -18px;
+      right: 28px;
+      background: #FFFFFF;
+      border: 1px solid rgba(6, 63, 50, 0.12);
+      border-radius: 16px;
+      padding: 12px 20px;
+      box-shadow: 0 10px 30px rgba(6, 63, 50, 0.12);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 2;
+    }
+    .htt-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(113, 131, 74, 0.14);
+      color: var(--evergreen);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+    }
+    .htt-text strong {
+      display: block;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--evergreen);
+    }
+    .htt-text span {
+      display: block;
+      font-size: 11.5px;
+      color: var(--sage);
+      font-weight: 600;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       EDITORIAL HORIZON INDEX: REFINED & BREATHABLE (NO REPETITIVE BOXES)
+       An ultra-clean 4-pillar index with subtle vertical dividers
+       ═══════════════════════════════════════════════════════════════ */
+    .hero-pillars-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      padding: 32px;
+      background: #FFFFFF;
+      border-radius: 24px;
+      border: 1px solid var(--border-fine);
+      box-shadow: 0 4px 20px rgba(6, 63, 50, 0.03);
+    }
+    .pillar-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-left: 16px;
+    }
+    .pillar-col:not(:last-child) {
+      border-left: 1px solid rgba(6, 63, 50, 0.08);
+    }
+    .pillar-badge-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(113, 131, 74, 0.12);
+      color: var(--evergreen);
+      font-size: 12.5px;
+      font-weight: 850;
+      margin-bottom: 2px;
+    }
+    .pillar-h3 {
+      font-size: 16px;
+      font-weight: 850;
+      color: var(--evergreen);
+      line-height: 1.35;
+    }
+    .pillar-p {
+      font-size: 13px;
+      color: var(--lead);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       2. CLINIC SERVICES: BESPOKE ATELIER CARDS
+       ═══════════════════════════════════════════════════════════════ */
+    .services-sanctuary {
+      padding: 72px 0;
+    }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 40px;
+    }
+    .section-title {
+      font-size: clamp(28px, 3.2vw, 40px);
+      font-weight: 900;
+      color: var(--evergreen);
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .section-desc {
+      font-size: 15px;
+      color: var(--lead);
+    }
+
+    .services-3grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .srv-card-new {
+      background: #FFFFFF;
+      border: 1px solid var(--border-fine);
+      border-radius: 26px;
+      padding: 36px 30px;
+      box-shadow: 0 4px 20px rgba(6, 63, 50, 0.04);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+    .srv-card-new:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px -8px rgba(6, 63, 50, 0.12);
+      border-color: rgba(6, 63, 50, 0.22);
+    }
+    .srv-card-new.featured {
+      border: 1.5px solid var(--sage);
+      box-shadow: 0 8px 30px -4px rgba(6, 63, 50, 0.09);
+    }
+    .srv-featured-pill {
+      position: absolute;
+      top: -13px;
+      right: 28px;
+      background: var(--evergreen);
+      color: var(--moss);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 5px 16px;
+      border-radius: 9999px;
+      letter-spacing: 0.3px;
+    }
+    .srv-meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 750;
+      color: var(--sage);
+      background: rgba(113, 131, 74, 0.1);
+      padding: 5px 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .srv-name {
+      font-size: 21px;
+      font-weight: 850;
+      color: var(--evergreen);
+      margin-bottom: 10px;
+      line-height: 1.35;
+    }
+    .srv-details-text {
+      font-size: 14px;
+      color: var(--lead);
+      line-height: 1.65;
+      margin-bottom: 24px;
+      min-height: 44px;
+    }
+    .srv-inclusions-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-top: 1px solid rgba(6, 63, 50, 0.06);
+      padding-top: 20px;
+      margin-bottom: 28px;
+    }
+    .srv-inclusions-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13.5px;
+      color: var(--lead);
+      line-height: 1.5;
+    }
+    .srv-check-dot {
+      color: #16a34a;
+      font-weight: 900;
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .srv-card-foot {
+      border-top: 1px solid rgba(6, 63, 50, 0.08);
+      padding-top: 22px;
+    }
+    .srv-price-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 18px;
+    }
+    .srv-price-line strong {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--evergreen);
+    }
+    .srv-price-line span {
+      font-size: 14px;
+      font-weight: 750;
+      color: var(--sage);
+      margin-right: 4px;
+    }
+    .btn-srv-action {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      background: var(--evergreen);
+      color: #FFFFFF;
+      font-size: 14.5px;
+      font-weight: 750;
+      text-align: center;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(6, 63, 50, 0.14);
+      transition: all 0.2s ease;
+    }
+    .btn-srv-action:hover {
+      background: #094d3e;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(6, 63, 50, 0.2);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       3. DR. RANA SHOWCASE: EXECUTIVE HARLEY STREET PRESTIGE
+       Deep contrast, majestic portrait, authentic credentials
+       ═══════════════════════════════════════════════════════════════ */
+    .dr-executive-section {
+      padding: 60px 0 80px;
+    }
+    .dr-executive-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-fine);
+      border-radius: 32px;
+      padding: clamp(38px, 4.5vw, 64px);
+      box-shadow: 0 16px 48px -12px rgba(6, 63, 50, 0.08);
+      display: grid;
+      grid-template-columns: 1.25fr 0.85fr;
+      gap: 56px;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .dr-copy-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .dr-badge-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 750;
+      color: var(--sage);
+      background: rgba(113, 131, 74, 0.1);
+      padding: 6px 16px;
+      border-radius: 9999px;
+      margin-bottom: 14px;
+    }
+    .dr-h2 {
+      font-size: clamp(32px, 3.8vw, 46px);
+      font-weight: 900;
+      color: var(--evergreen);
+      line-height: 1.2;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .dr-spec {
+      font-size: clamp(15.5px, 1.3vw, 18px);
+      font-weight: 750;
+      color: var(--sage);
+      line-height: 1.5;
+      margin-bottom: 22px;
+    }
+    .dr-quote-banner {
+      background: #F8F6F0;
+      border-right: 4px solid var(--sage);
+      border-radius: 14px;
+      padding: 16px 20px;
+      font-size: 14.5px;
+      font-weight: 500;
+      color: var(--evergreen);
+      line-height: 1.8;
+      font-style: italic;
+      margin-bottom: 26px;
+    }
+    .dr-credentials-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 16px;
+      width: 100%;
+      margin-bottom: 28px;
+    }
+    .dr-cred-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #FAF9F5;
+      border: 1px solid rgba(6, 63, 50, 0.07);
+      border-radius: 14px;
+      padding: 12px 16px;
+    }
+    .dr-cred-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: rgba(113, 131, 74, 0.14);
+      color: var(--evergreen);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .dr-cred-text strong {
+      display: block;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--evergreen);
+      line-height: 1.3;
+    }
+    .dr-cred-text span {
+      display: block;
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .btn-dr-book {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 34px;
+      border-radius: 9999px;
+      background: var(--evergreen);
+      color: #FFFFFF;
+      font-size: 15px;
+      font-weight: 750;
+      text-decoration: none;
+      box-shadow: 0 4px 18px rgba(6, 63, 50, 0.16);
+      transition: all 0.22s ease;
+    }
+    .btn-dr-book:hover {
+      background: #094d3e;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(6, 63, 50, 0.22);
+    }
+
+    /* Doctor Portrait with Real Authority Frame */
+    .dr-portrait-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .dr-portrait-frame {
+      border-radius: 28px;
+      overflow: hidden;
+      aspect-ratio: 4 / 5.1;
+      background: #EAF0E2;
+      box-shadow: 
+        0 24px 50px -12px rgba(6, 63, 50, 0.2),
+        0 4px 16px rgba(6, 63, 50, 0.05);
+      border: 2px solid rgba(113, 131, 74, 0.3);
+    }
+    .dr-portrait-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 18%;
+      display: block;
+    }
+    .dr-portrait-tag {
+      position: absolute;
+      bottom: -16px;
+      right: 20px;
+      background: var(--evergreen);
+      color: #FFFFFF;
+      border-radius: 14px;
+      padding: 10px 18px;
+      box-shadow: 0 6px 20px rgba(6, 63, 50, 0.25);
+    }
+    .dr-portrait-tag strong {
+      display: block;
+      font-size: 13.5px;
+      font-weight: 800;
+    }
+    .dr-portrait-tag span {
+      display: block;
+      font-size: 11.5px;
+      color: var(--moss);
+      margin-top: 2px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       4. "بعض عملائنا" (AUTHENTIC REAL RESULTS — NO UGLY GREEN COVERS)
+       Clean, dignified, clear for older people
+       ═══════════════════════════════════════════════════════════════ */
+    .clients-sanctuary {
+      padding: 60px 0 80px;
+    }
+    .client-3cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      margin-bottom: 56px;
+    }
+    .client-card-editorial {
+      background: #FFFFFF;
+      border: 1px solid var(--border-fine);
+      border-radius: 26px;
+      padding: 24px;
+      box-shadow: 0 6px 24px rgba(6, 63, 50, 0.05);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+    .client-card-editorial:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 40px -10px rgba(6, 63, 50, 0.14);
+      border-color: rgba(6, 63, 50, 0.2);
+    }
+    .client-photo-canvas {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10.5;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #E8ECE0;
+      margin-bottom: 20px;
+    }
+    .client-photo-canvas img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+    .client-card-editorial:hover .client-photo-canvas img {
+      transform: scale(1.03);
+    }
+    .client-duration-chip {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(6, 63, 50, 0.9);
+      backdrop-filter: blur(8px);
+      color: #FFFFFF;
+      font-size: 12px;
+      font-weight: 750;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .client-name-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .client-name-text {
+      font-size: 19px;
+      font-weight: 850;
+      color: var(--evergreen);
+    }
+    .client-tag-pill {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--sage);
+      background: rgba(113, 131, 74, 0.1);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    /* Clear Big Result Box (Zero Jargon) */
+    .client-result-box {
+      background: #F8F7F2;
+      border-radius: 16px;
+      padding: 14px 18px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      border: 1px solid rgba(6, 63, 50, 0.05);
+    }
+    .client-loss-huge {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--evergreen);
+      line-height: 1;
+    }
+    .client-loss-huge span {
+      font-size: 15px;
+      font-weight: 750;
+      color: var(--sage);
+      margin-right: 4px;
+    }
+    .client-scale-text {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--lead);
+    }
+
+    .client-story-line {
+      font-size: 13.5px;
+      color: var(--lead);
+      line-height: 1.65;
+      margin-bottom: 22px;
+      min-height: 44px;
+    }
+    .btn-client-details {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      background: #F4F2E9;
+      color: var(--evergreen);
+      font-size: 14px;
+      font-weight: 750;
+      border: 1px solid rgba(6, 63, 50, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .client-card-editorial:hover .btn-client-details {
+      background: var(--evergreen);
+      color: #FFFFFF;
+      border-color: var(--evergreen);
+      box-shadow: 0 4px 14px rgba(6, 63, 50, 0.16);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. HERO SECTION -->
+  <section class="hero-sanctuary">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-text-col">
+          <div class="hero-kicker-pill">
+            <span class="kicker-live-dot"></span>
+            <span>عيادة التغذية العلاجية ونحت القوام · كفر الزيات</span>
+          </div>
+
+          <h1 class="hero-h1">
+            صحتكِ تبدأ من
+            <span class="highlight">الإصغاء لجسمكِ.</span>
+          </h1>
+
+          <p class="hero-lead-text">
+            برامج علاجية متكاملة بإشراف د. رنا ياسر الشورى (عضو الجمعية المصرية لدراسة السمنة EMASO)، تدمج الفحص الإكلينيكي الدقيق مع نمط حياتكِ اليومي لتحقيق نتائج دائمة دون تعقيد.
+          </p>
+
+          <div class="hero-cta-group">
+            <a href="/booking" class="btn-hero-book">
+              <span>احجزي موعدكِ في العيادة</span>
+              <span class="arrow">←</span>
+            </a>
+            <a href="#services" class="link-hero-services">استكشفي خدمات العيادة</a>
+          </div>
+          <p class="hero-reassurance-note">الموعد يتأكد بعد مراجعة الفريق الطبي بالمركز.</p>
+        </div>
+
+        <div class="hero-visual-card">
+          <div class="hero-visual-frame">
+            <img src="/assets/consultation.png" alt="جلسة استشارة طبية متخصصة">
+          </div>
+          <div class="hero-trust-tag-float">
+            <div class="htt-icon">🩺</div>
+            <div class="htt-text">
+              <strong>استشارة إكلينيكية مباشرة</strong>
+              <span>بإشراف د. رنا ياسر الشورى</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STREAMLINED LUXURY PILLAR ROW -->
+      <div class="hero-pillars-row">
+        <div class="pillar-col">
+          <span class="pillar-badge-num">01</span>
+          <div class="pillar-h3">تحليل InBody الشامل</div>
+          <p class="pillar-p">تتبع سريري دقيق لكتلة الدهون، العضلات، ومعدل الحرق وتوزيع السوائل.</p>
+        </div>
+        <div class="pillar-col">
+          <span class="pillar-badge-num">02</span>
+          <div class="pillar-h3">أنظمة غذائية مخصصة</div>
+          <p class="pillar-p">خطط علمية مرنة تلائم وتيرة يومكِ، أكلاتكِ المفضلة، وظروف عملكِ دون حرمان.</p>
+        </div>
+        <div class="pillar-col">
+          <span class="pillar-badge-num">03</span>
+          <div class="pillar-h3">نحت وتنسيق القوام</div>
+          <p class="pillar-p">أحدث تقنيات تفتيت الدهون الموضعية وشد الترهلات غير الجراحية بأمان تام.</p>
+        </div>
+        <div class="pillar-col">
+          <span class="pillar-badge-num">04</span>
+          <div class="pillar-h3">متابعة إكلينيكية مباشرة</div>
+          <p class="pillar-p">إشراف مستمر من د. رنا في كل جلسة لمراجعة التطورات وتعديل الخطة.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. CLINIC SERVICES -->
+  <section class="services-sanctuary" id="services">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">خدمات العيادة</h2>
+          <p class="section-desc">الكشف والبرامج بالحضور في مقر المركز. الدفع في العيادة.</p>
+        </div>
+        <a href="/programs" class="link-hero-services">كل البرامج ←</a>
+      </div>
+
+      <div class="services-3grid">
+        <!-- Card 1 (Featured) -->
+        <article class="srv-card-new featured">
+          <span class="srv-featured-pill">البرنامج الأكثر طلباً</span>
+          <div>
+            <span class="srv-meta-pill">⏱ شهر واحد (4 جلسات) · 30 دقيقة</span>
+            <h3 class="srv-name">برنامج متابعة شهرية بالعيادة</h3>
+            <p class="srv-details-text">خطة شخصية متكاملة و4 زيارات دورية بمقر المركز لدعمك أسبوعياً وتعديل الخطة حسب استجابة جسمكِ.</p>
+            <ul class="srv-inclusions-list">
+              <li><span class="srv-check-dot">✓</span> فحص InBody أسبوعي شامل لمتابعة تكوين الجسم</li>
+              <li><span class="srv-check-dot">✓</span> نظام غذائي مرن ومفصل يلائم نمط يومكِ وعملكِ</li>
+              <li><span class="srv-check-dot">✓</span> إشراف ومتابعة مباشرة من د. رنا طوال الشهر</li>
+            </ul>
+          </div>
+          <div class="srv-card-foot">
+            <div class="srv-price-line">
+              <strong>1,200</strong>
+              <span>ج.م</span>
+            </div>
+            <button class="btn-srv-action">طلب البرنامج</button>
+          </div>
+        </article>
+
+        <!-- Card 2 -->
+        <article class="srv-card-new">
+          <div>
+            <span class="srv-meta-pill">⏱ جلسة كشف بالعيادة · 30 دقيقة</span>
+            <h3 class="srv-name">كشف واستشارة بالعيادة (حضور شخصي)</h3>
+            <p class="srv-details-text">كشف وتقييم سريري شامل مع الدكتورة بمقر العيادة لتحديد خطتكِ الصحية والبدء في برنامج التغذية.</p>
+            <ul class="srv-inclusions-list">
+              <li><span class="srv-check-dot">✓</span> تقييم إكلينيكي كامل وتاريخ صحي مفصل</li>
+              <li><span class="srv-check-dot">✓</span> قراءة تحليلية دقيقة لمعدلات الحرق والدهون</li>
+              <li><span class="srv-check-dot">✓</span> تحديد الخطة العلاجية والهدف الواقعي خطوة بخطوة</li>
+            </ul>
+          </div>
+          <div class="srv-card-foot">
+            <div class="srv-price-line">
+              <strong>450</strong>
+              <span>ج.م</span>
+            </div>
+            <button class="btn-srv-action">طلب موعد</button>
+          </div>
+        </article>
+
+        <!-- Card 3 -->
+        <article class="srv-card-new">
+          <div>
+            <span class="srv-meta-pill">⏱ جلسة فردية تخصصية · 45 دقيقة</span>
+            <h3 class="srv-name">تغذية المرأة ورعاية الحمل بالعيادة</h3>
+            <p class="srv-details-text">رعاية غذائية تخصصية لحالات الحمل، الرضاعة، وتكيسات المبايض بمقر المركز لدعم التوازن الهرموني.</p>
+            <ul class="srv-inclusions-list">
+              <li><span class="srv-check-dot">✓</span> برامج مخصصة لتكيسات المبايض وتوازن الهرمونات</li>
+              <li><span class="srv-check-dot">✓</span> تغذية علاجية آمنة لمراحل الحمل والرضاعة</li>
+              <li><span class="srv-check-dot">✓</span> استعادة النشاط والحيوية بدون أدوية قاسية</li>
+            </ul>
+          </div>
+          <div class="srv-card-foot">
+            <div class="srv-price-line">
+              <strong>500</strong>
+              <span>ج.م</span>
+            </div>
+            <button class="btn-srv-action">طلب موعد</button>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. DR. RANA SHOWCASE -->
+  <section class="dr-executive-section">
+    <div class="container">
+      <div class="dr-executive-card">
+        <div class="dr-copy-wrap">
+          <span class="dr-badge-kicker">🏛️ الإشراف الطبي المباشر · مركز المستقبل</span>
+          <h2 class="dr-h2">د. رنا ياسر الشورى</h2>
+          <p class="dr-spec">أخصائية التغذية العلاجية والسمنة وتنسيق القوام · عضو الجمعية المصرية لدراسة السمنة (EMASO)</p>
+          
+          <div class="dr-quote-banner">
+            “العلاج الغذائي الناجح لا يعتمد على الحرمان أو الجداول القاسية، بل على فهم كيمياء جسمكِ وتوازن هرموناتكِ، وبناء خطة علمية تناسب إيقاع حياتكِ اليومي لتحقيق نتائج تدوم مدى الحياة.”
+          </div>
+
+          <div class="dr-credentials-grid">
+            <div class="dr-cred-card">
+              <div class="dr-cred-icon">🎓</div>
+              <div class="dr-cred-text">
+                <strong>ماجستير ودبلومة التغذية الإكلينيكية</strong>
+                <span>تخصص معتمد في إدارة السمنة وصحة الأيض</span>
+              </div>
+            </div>
+            <div class="dr-cred-card">
+              <div class="dr-cred-icon">🏛️</div>
+              <div class="dr-cred-text">
+                <strong>عضو الجمعية المصرية لدراسة السمنة</strong>
+                <span>تطبيق أحدث البروتوكولات الإكلينيكية (EMASO)</span>
+              </div>
+            </div>
+            <div class="dr-cred-card">
+              <div class="dr-cred-icon">📊</div>
+              <div class="dr-cred-text">
+                <strong>تتبع تكوين الجسم بقياسات InBody</strong>
+                <span>متابعة دقيقة لنسب الدهون وتطور العضلات</span>
+              </div>
+            </div>
+            <div class="dr-cred-card">
+              <div class="dr-cred-icon">🤝</div>
+              <div class="dr-cred-text">
+                <strong>إشراف طبي ومتابعة فردية مباشرة</strong>
+                <span>تقييم شخصي وتعديل دوري مستمر في كل زيارة</span>
+              </div>
+            </div>
+          </div>
+
+          <a href="/booking" class="btn-dr-book">
+            <span>احجزي استشارتكِ مع د. رنا</span>
+            <span class="arrow">←</span>
+          </a>
+        </div>
+
+        <div class="dr-portrait-wrap">
+          <div class="dr-portrait-frame">
+            <img src="/assets/dr-rana.jpg" alt="د. رنا ياسر الشورى">
+          </div>
+          <div class="dr-portrait-tag">
+            <strong>د. رنا الشورى</strong>
+            <span>استشارة إكلينيكية متخصصة</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. "بعض عملائنا" (AUTHENTIC REAL RESULTS — NO UGLY GREEN COVERS) -->
+  <section class="clients-sanctuary">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">بعض عملائنا</h2>
+          <p class="section-desc">حالات واقعية بدأت رحلتها مع دكتورة رنا، ووصلوا لوزنهم المثالي وصحتهم الأفضل بدون حرمان.</p>
+        </div>
+      </div>
+
+      <div class="client-3cards-grid">
+        <!-- 1. مدام ندى (Real Photo, No Green Banner) -->
+        <article class="client-card-editorial">
+          <div>
+            <div class="client-photo-canvas">
+              <img src="/stories/transformation_107kg.jpg" alt="مدام ندى">
+              <span class="client-duration-chip">⏱ المدة: ٥ أشهر</span>
+            </div>
+
+            <div class="client-name-bar">
+              <h3 class="client-name-text">مدام ندى</h3>
+              <span class="client-tag-pill">إنقاص وزن</span>
+            </div>
+
+            <div class="client-result-box">
+              <div class="client-loss-huge">
+                -٢٧ <span>كجم</span>
+              </div>
+              <div class="client-scale-text">
+                من ١٠٧ كجم ➔ ٨٠ كجم
+              </div>
+            </div>
+
+            <p class="client-story-line">التعافي من خمول الغدة وارتجاع المريء واستعادة الرشاقة والخفة بدون حرمان.</p>
+          </div>
+
+          <button class="btn-client-details">
+            <span>مشاهدة الصور والتفاصيل كاملة</span>
+            <span>←</span>
+          </button>
+        </article>
+
+        <!-- 2. أستاذ سامح (Real Photo, No Green Banner) -->
+        <article class="client-card-editorial">
+          <div>
+            <div class="client-photo-canvas">
+              <img src="/stories/transformation_sameh.jpg" alt="أستاذ سامح">
+              <span class="client-duration-chip">⏱ المدة: ٣ أشهر</span>
+            </div>
+
+            <div class="client-name-bar">
+              <h3 class="client-name-text">أستاذ سامح</h3>
+              <span class="client-tag-pill">مقاومة الأنسولين</span>
+            </div>
+
+            <div class="client-result-box">
+              <div class="client-loss-huge">
+                -١٤ <span>كجم</span>
+              </div>
+              <div class="client-scale-text">
+                من ٩٨.٥ كجم ➔ ٨٦ كجم
+              </div>
+            </div>
+
+            <p class="client-story-line">انتظام مستويات السكر في الدم، وزيادة النشاط اليومي وتوديع الإرهاق المستمر.</p>
+          </div>
+
+          <button class="btn-client-details">
+            <span>مشاهدة الصور والتفاصيل كاملة</span>
+            <span>←</span>
+          </button>
+        </article>
+
+        <!-- 3. مدام صفية (Real Photo with Dr. Rana, No Green Banner) -->
+        <article class="client-card-editorial">
+          <div>
+            <div class="client-photo-canvas">
+              <img src="/stories/safia_with_dr.jpg" alt="مدام صفية مع دكتورة رنا">
+              <span class="client-duration-chip">⏱ المدة: شهرين</span>
+            </div>
+
+            <div class="client-name-bar">
+              <h3 class="client-name-text">مدام صفية</h3>
+              <span class="client-tag-pill">نحت القوام</span>
+            </div>
+
+            <div class="client-result-box">
+              <div class="client-loss-huge">
+                -١٥ <span>كجم</span>
+              </div>
+              <div class="client-scale-text">
+                من ٩٢ كجم ➔ ٧٧ كجم
+              </div>
+            </div>
+
+            <p class="client-story-line">نحت محيط الخصر والفرق الواضح في المقاسات واللبس في وقت قياسي بكل راحة.</p>
+          </div>
+
+          <button class="btn-client-details">
+            <span>مشاهدة الصور والتفاصيل كاملة</span>
+            <span>←</span>
+          </button>
+        </article>
+      </div>
+
+      <!-- INTIBA'AT WA RASAYEL AL-MURAJI'EEN -->
+      <div class="section-head" style="margin-top: 40px;">
+        <div>
+          <h2 class="section-title">انطباعات ورسائل المراجعين</h2>
+          <p class="section-desc">رسائل وانطباعات حقيقية موثقة من مراجعي المركز وفرحتهم بالوصول للوزن المثالي مع دكتورة رنا.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

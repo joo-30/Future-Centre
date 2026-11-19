@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Luxury Client Cards - Future Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #F3F0E5;
+      --evergreen: #063F32;
+      --moss: #C9DF83;
+      --sage: #71834A;
+      --lead: #4A5E52;
+      --muted: #55695A;
+      --border: rgba(6, 63, 50, 0.09);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Alexandria', sans-serif;
+      background: var(--paper);
+      color: var(--evergreen);
+      direction: rtl;
+      padding: 60px 24px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+
+    /* Headings - Simple, Big & Clear for Older People */
+    .block-head {
+      margin-bottom: 36px;
+      text-align: right;
+    }
+    .block-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 750;
+      color: var(--sage);
+      background: rgba(113, 131, 74, 0.12);
+      padding: 6px 16px;
+      border-radius: 9999px;
+      margin-bottom: 12px;
+    }
+    .block-title {
+      font-size: clamp(32px, 3.8vw, 44px);
+      font-weight: 900;
+      color: var(--evergreen);
+      line-height: 1.25;
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
+    }
+    .block-sub {
+      font-size: 16px;
+      color: var(--lead);
+      max-width: 58ch;
+      line-height: 1.7;
+    }
+
+    /* 3 Simple, Prestigious Cards Grid */
+    .clients-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      margin-bottom: 64px;
+    }
+
+    .client-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(6, 63, 50, 0.09);
+      border-radius: 26px;
+      padding: 24px;
+      box-shadow: 
+        0 8px 30px -6px rgba(6, 63, 50, 0.06),
+        0 2px 10px rgba(6, 63, 50, 0.02);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      position: relative;
+    }
+    .client-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 
+        0 20px 42px -10px rgba(6, 63, 50, 0.14),
+        0 4px 16px rgba(6, 63, 50, 0.04);
+      border-color: rgba(6, 63, 50, 0.22);
+    }
+
+    /* Image Showcase */
+    .card-photo-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #E8ECE0;
+      margin-bottom: 22px;
+    }
+    .card-photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+    .client-card:hover .card-photo-wrap img {
+      transform: scale(1.03);
+    }
+    .card-duration-badge {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(6, 63, 50, 0.88);
+      backdrop-filter: blur(8px);
+      color: #FFFFFF;
+      font-size: 12.5px;
+      font-weight: 750;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Card Content: Simple, Clear & Grand */
+    .card-content {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    /* Name & Age Row */
+    .card-name-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .card-name {
+      font-size: 20px;
+      font-weight: 850;
+      color: var(--evergreen);
+    }
+    .card-category-pill {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--sage);
+      background: rgba(113, 131, 74, 0.12);
+      padding: 4px 12px;
+      border-radius: 9999px;
+    }
+
+    /* THE BIG IMPACT RESULT (Readable in 1 second by anyone) */
+    .card-result-box {
+      background: #F8F7F2;
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      border: 1px solid rgba(6, 63, 50, 0.05);
+    }
+    .card-loss-highlight {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--evergreen);
+      line-height: 1;
+    }
+    .card-loss-highlight span {
+      font-size: 15px;
+      font-weight: 750;
+      color: var(--sage);
+      margin-right: 4px;
+    }
+    .card-weight-journey {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--lead);
+    }
+
+    /* Summary Note */
+    .card-note {
+      font-size: 14px;
+      color: var(--lead);
+      line-height: 1.65;
+      margin-bottom: 22px;
+      min-height: 46px;
+    }
+
+    /* Simple, Prestigious Button */
+    .card-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      background: #F3F1E7;
+      color: var(--evergreen);
+      font-size: 14.5px;
+      font-weight: 750;
+      border: 1px solid rgba(6, 63, 50, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .client-card:hover .card-btn {
+      background: var(--evergreen);
+      color: #FFFFFF;
+      border-color: var(--evergreen);
+      box-shadow: 0 4px 14px rgba(6, 63, 50, 0.16);
+    }
+
+    /* SECTION B: REVIEWS HEAD (انطباعات ورسائل المراجعين) */
+    .feedback-head {
+      margin-top: 56px;
+      margin-bottom: 28px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- SECTION A: بعض عملائنا (Simple, Direct, Dignified) -->
+    <div class="block-head">
+      <span class="block-kicker">✨ نتائج حقيقية من المركز</span>
+      <h2 class="block-title">بعض عملائنا</h2>
+      <p class="block-sub">حالات واقعية بدأت رحلتها مع دكتورة رنا، ووصلت لوزنها المثالي وصحتها الأفضل بدون حرمان.</p>
+    </div>
+
+    <div class="clients-grid">
+      <!-- 1. مدام ندى -->
+      <article class="client-card">
+        <div>
+          <div class="card-photo-wrap">
+            <img src="/stories/case_cover_nada.png" alt="مدام ندى">
+            <span class="card-duration-badge">⏱ المدة: ٥ أشهر</span>
+          </div>
+
+          <div class="card-content">
+            <div class="card-name-row">
+              <h3 class="card-name">مدام ندى</h3>
+              <span class="card-category-pill">إنقاص وزن</span>
+            </div>
+
+            <!-- The Big Impact Result -->
+            <div class="card-result-box">
+              <div class="card-loss-highlight">
+                -٢٧ <span>كجم</span>
+              </div>
+              <div class="card-weight-journey">
+                من ١٠٧ كجم ➔ ٨٠ كجم
+              </div>
+            </div>
+
+            <p class="card-note">التعافي من خمول الغدة وارتجاع المريء واستعادة الرشاقة والخفة بدون حرمان.</p>
+          </div>
+        </div>
+
+        <button class="card-btn">
+          <span>مشاهدة الصور والتفاصيل كاملة</span>
+          <span>←</span>
+        </button>
+      </article>
+
+      <!-- 2. أستاذ سامح -->
+      <article class="client-card">
+        <div>
+          <div class="card-photo-wrap">
+            <img src="/stories/case_cover_sameh.png" alt="أستاذ سامح">
+            <span class="card-duration-badge">⏱ المدة: ٣ أشهر</span>
+          </div>
+
+          <div class="card-content">
+            <div class="card-name-row">
+              <h3 class="card-name">أستاذ سامح</h3>
+              <span class="card-category-pill">مقاومة الأنسولين</span>
+            </div>
+
+            <!-- The Big Impact Result -->
+            <div class="card-result-box">
+              <div class="card-loss-highlight">
+                -١٤ <span>كجم</span>
+              </div>
+              <div class="card-weight-journey">
+                من ٩٨.٥ كجم ➔ ٨٦ كجم
+              </div>
+            </div>
+
+            <p class="card-note">انتظام مستويات السكر في الدم، وزيادة النشاط اليومي وتوديع الإرهاق المستمر.</p>
+          </div>
+        </div>
+
+        <button class="card-btn">
+          <span>مشاهدة الصور والتفاصيل كاملة</span>
+          <span>←</span>
+        </button>
+      </article>
+
+      <!-- 3. مدام صفية -->
+      <article class="client-card">
+        <div>
+          <div class="card-photo-wrap">
+            <img src="/stories/case_cover_safia.png" alt="مدام صفية">
+            <span class="card-duration-badge">⏱ المدة: شهرين</span>
+          </div>
+
+          <div class="card-content">
+            <div class="card-name-row">
+              <h3 class="card-name">مدام صفية</h3>
+              <span class="card-category-pill">نحت القوام</span>
+            </div>
+
+            <!-- The Big Impact Result -->
+            <div class="card-result-box">
+              <div class="card-loss-highlight">
+                -١٥ <span>كجم</span>
+              </div>
+              <div class="card-weight-journey">
+                من ٩٢ كجم ➔ ٧٧ كجم
+              </div>
+            </div>
+
+            <p class="card-note">نحت محيط الخصر والفرق الواضح في المقاسات واللبس في وقت قياسي بكل راحة.</p>
+          </div>
+        </div>
+
+        <button class="card-btn">
+          <span>مشاهدة الصور والتفاصيل كاملة</span>
+          <span>←</span>
+        </button>
+      </article>
+    </div>
+
+    <!-- SECTION B: انطباعات ورسائل المراجعين (Exact user requested title) -->
+    <div class="feedback-head">
+      <span class="block-kicker">💬 رسائل حقيقية</span>
+      <h2 class="block-title">انطباعات ورسائل المراجعين</h2>
+      <p class="block-sub">رسائل وانطباعات موثقة من مراجعي المركز وفرحتهم بالنتيجة والوصول للوزن المثالي مع دكتورة رنا.</p>
+    </div>
+  </div>
+
+</body>
+</html>

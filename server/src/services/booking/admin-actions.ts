@@ -33,17 +33,27 @@ export async function adminDecision(
       let message = '';
       let status: AppointmentStatus = appointment.status;
       if (action === 'approve') {
-        if (appointment.status !== 'pending')
-          throw new ApiError(409, 'INVALID_STATE', 'يمكن تأكيد الطلبات الجديدة فقط.');
+        if (!['pending', 'expired'].includes(appointment.status))
+          throw new ApiError(409, 'INVALID_STATE', 'يمكن تأكيد الطلبات الجديدة أو المنتهية فقط.');
         if (
           DateTime.fromISO(`${appointment.date}T${appointment.time}`, { zone: clinic.timezone }) <=
           DateTime.now()
         )
           throw new ApiError(409, 'PAST_APPOINTMENT', 'لا يمكن تأكيد موعد مضى.');
+        if (appointment.status === 'expired') {
+          await Reservation.deleteMany({ appointmentId: appointment._id }, { session });
+          await reserve(
+            appointment._id,
+            appointment.date,
+            appointment.startMinute,
+            appointment.endMinute,
+            session,
+          );
+        }
         status = 'confirmed';
         message = 'أكد المركز موعدك.';
       } else if (action === 'reject') {
-        if (appointment.status !== 'pending')
+        if (!['pending', 'expired'].includes(appointment.status))
           throw new ApiError(409, 'INVALID_STATE', 'لا يمكن رفض الطلب بحالته الحالية.');
         status = 'rejected';
         message = reason || 'تعذر تأكيد الوقت المطلوب. تواصلي مع المركز لاختيار بديل.';

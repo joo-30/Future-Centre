@@ -3,6 +3,7 @@ import { normalizePhone } from '@future/shared';
 import {
   Award,
   Clock,
+  Code2,
   Heart,
   MapPin,
   Phone,
@@ -157,14 +158,50 @@ export function Footer() {
             <span className="legal-dot">·</span>
             <Link to="/appointment-policy">سياسة المواعيد</Link>
             <span className="legal-dot">·</span>
-            <Link to="/admin">لوحة الإدارة</Link>
-            <span className="legal-dot">·</span>
             <Link to="/contact">تواصل معنا</Link>
           </nav>
 
           <div className="footer-motto">
             <Heart size={14} className="motto-heart" />
             <span>رعاية تبدأ بفهمك · نتائج تستمر</span>
+          </div>
+        </div>
+
+        {/* Developer Credit & Business Contact */}
+        <div className="footer-developer-strip">
+          <div className="dev-credit-info">
+            <Code2 size={13} className="dev-icon" />
+            <span>تصميم وتطوير:</span>
+            <strong className="dev-name">يوسف إسلام الوكيل</strong>
+          </div>
+
+          <span className="dev-sep">·</span>
+
+          <div className="dev-actions">
+            <a
+              href="tel:01285523418"
+              className="dev-phone"
+              dir="ltr"
+              title="اتصال مباشر بالمهندس يوسف إسلام"
+            >
+              01285523418
+            </a>
+
+            <span className="dev-sep">·</span>
+
+            <a
+              href={whatsappUrl(
+                '01285523418',
+                'السلام عليكم يا باشمهندس يوسف، شفت موقع مركز المستقبل وعاجبني السيستم، وحابب أستفسر عن تصميم وبرمجة موقع / نظام خاص بيا.'
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="dev-whatsapp-btn"
+              title="تواصل واتساب لطلب موقعك أو نظامك البرمجي"
+            >
+              <WhatsAppIcon size={13} color="#25D366" />
+              <span>طلب موقعك (واتساب) ↗</span>
+            </a>
           </div>
         </div>
       </div>

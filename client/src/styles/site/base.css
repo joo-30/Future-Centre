@@ -10,12 +10,15 @@ html {
   max-width: 100vw;
 }
 body,
-#root,
 .site-layout,
 .home-body,
 .app-wrap {
   overflow-x: clip;
   max-width: 100vw;
+}
+
+#root {
+  overflow: visible !important;
 }
 body {
   overflow-wrap: break-word;
@@ -1298,4 +1301,37 @@ body, button, input, select, textarea {
 dialog.modal.modal-reschedule,
 .modal:has(.custom-datepicker-container) {
   overflow: visible !important;
+}
+
+/* ==========================================================================
+   Serene Motion Design Suite & Accessibility Baseline
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001s !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Subtle, velvety micro-interactions for interactive cards and buttons */
+.clinic-service,
+.journal-feature-card,
+.journal-item-card,
+.article-list-card,
+.program-detail-card,
+.account-code-lookup-card {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.clinic-service:hover,
+.program-detail-card:hover {
+  transform: translateY(-2px);
 }

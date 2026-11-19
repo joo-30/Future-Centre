@@ -57,7 +57,7 @@ export function ScheduleEditor({ initial }: { initial: ScheduleData }) {
     }
 
     const totalHours = Math.round((totalMinutes / 60) * 10) / 10;
-    const estimatedSlots = Math.floor(totalMinutes / 30);
+    const estimatedSlots = Math.floor(totalMinutes / 45);
     return { openCount, totalHours, estimatedSlots };
   }, [hours]);
 
@@ -72,7 +72,7 @@ export function ScheduleEditor({ initial }: { initial: ScheduleData }) {
       { weekday: 6, open: false, start: '13:00', end: '20:00', breaks: [] },
       { weekday: 7, open: false, start: '13:00', end: '20:00', breaks: [] },
     ]);
-    setMessage('تم تطبيق جدول الدكتورة المعتمد (الاثنين إلى الخميس من 01:00 م إلى 08:00 م بدون استراحة). اضغطي حفظ لتأكيد التغيير.');
+    setMessage('تم تطبيق جدول الدكتورة المعتمد (الاثنين إلى الخميس من 01:00 م إلى 08:00 م بفواصل 45 دقيقة بدون استراحة). اضغطي حفظ لتأكيد التغيير.');
   };
 
   const clearAllBreaks = () => {
@@ -119,7 +119,7 @@ export function ScheduleEditor({ initial }: { initial: ScheduleData }) {
             <span className="metric-icon"><Clock size={20} /></span>
             <div>
               <div className="metric-num">~{stats.estimatedSlots} موعد</div>
-              <div className="metric-label">السعة الاستيعابية أسبوعياً</div>
+              <div className="metric-label">السعة الاستيعابية أسبوعياً (فواصل 45 دقيقة)</div>
             </div>
           </div>
           <div className="metric-box status-box">
@@ -311,7 +311,7 @@ export function ScheduleEditor({ initial }: { initial: ScheduleData }) {
                         className="add-break-btn"
                         onClick={() =>
                           change(index, {
-                            breaks: [...h.breaks, { start: '15:00', end: '15:30' }],
+                            breaks: [...h.breaks, { start: '15:00', end: '15:45' }],
                           })
                         }
                       >

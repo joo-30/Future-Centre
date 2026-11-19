@@ -29,16 +29,35 @@ await seed();
 const server = createApp().listen(config.PORT, config.HOST, () =>
   console.log(`Future Center API: http://${config.HOST}:${config.PORT}`),
 );
+
+server.keepAliveTimeout = 5000;
+server.headersTimeout = 6000;
+
 const cleanup = setInterval(
   () => void expirePending().catch(() => console.error('Pending reservation cleanup failed')),
   60000,
 );
 cleanup.unref();
+
 async function shutdown() {
   clearInterval(cleanup);
-  server.close();
-  await mongoose.disconnect();
+  if (typeof (server as any).closeAllConnections === 'function') {
+    (server as any).closeAllConnections();
+  }
+  server.close(() => {
+    console.log('HTTP server closed cleanly.');
+  });
+  await mongoose.disconnect().catch(() => {});
   process.exit(0);
 }
+
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection at Promise:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception thrown:', err);
+});

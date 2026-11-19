@@ -6121,7 +6121,9 @@
   max-height: 94vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   box-shadow: 0 25px 60px rgba(10, 30, 18, 0.35);
   border: 1px solid #cfdeca;
   direction: rtl;
@@ -6140,6 +6142,9 @@
   background: #fafdf7;
   border-bottom: 1px solid #e2ebd9;
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 30;
 }
 .prescription-actions-bar .title-wrap {
   display: flex;
@@ -6425,7 +6430,7 @@
   padding: 28px 34px;
   overflow-y: visible;
   height: auto;
-  flex: none;
+  flex: 1 0 auto;
   background: #ffffff;
 }
 .rx-header {
@@ -10535,4 +10540,435 @@ dialog.advanced-capacity-modal-dialog {
 .admin-page-error-fallback .admin-error-btns {
   display: flex;
   gap: 12px;
+}
+
+/* ==========================================================================
+   CONSOLE PANEL UNIFIED CARD HEADER (UI/UX PRO MAX)
+   ========================================================================== */
+.console-panel-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 18px 24px 16px;
+  background: #ffffff;
+  border-bottom: 1.5px solid #e7eee2;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+.console-panel-card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.console-panel-header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: #edf5ea;
+  color: #174d2b;
+  border: 1px solid #cee2ca;
+  flex-shrink: 0;
+}
+
+.console-panel-headings {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.console-panel-card-header .admin-appointment-results {
+  margin: 0 !important;
+  font-size: 21px !important;
+  font-weight: 850 !important;
+  color: #0d281a !important;
+  font-family: Alex, 'Alexandria', sans-serif !important;
+  letter-spacing: -0.015em !important;
+  line-height: 1.25 !important;
+}
+
+.console-panel-subtitle {
+  margin: 0 !important;
+  font-size: 13px !important;
+  color: #55705d !important;
+  font-weight: 500 !important;
+}
+
+.console-panel-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.console-panel-reminder-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  min-height: 40px !important;
+  padding: 0 16px !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  border-color: #c9dbca !important;
+  color: #164627 !important;
+  background: #f7faf5 !important;
+  transition: all 0.2s ease !important;
+}
+
+.console-panel-reminder-btn:hover:not(:disabled) {
+  background: #eef6ec !important;
+  border-color: #88a97c !important;
+}
+
+.console-panel-add-manual-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-height: 40px !important;
+  padding: 0 16px !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  background: #194f2c !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(25, 79, 44, 0.15) !important;
+}
+
+@media (max-width: 768px) {
+  .console-panel-card-header {
+    padding: 14px 16px !important;
+    gap: 12px !important;
+  }
+  
+  .console-panel-card-actions {
+    width: 100% !important;
+    justify-content: stretch !important;
+  }
+
+  .console-panel-reminder-btn,
+  .console-panel-add-manual-btn {
+    flex: 1 1 auto !important;
+    justify-content: center !important;
+  }
+}
+
+/* ==========================================================================
+   TODAY AGENDA COLLAPSE / EXPAND TOGGLE (UI/UX PRO MAX)
+   ========================================================================== */
+.agenda-toggle-collapse-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-height: 38px !important;
+  height: 38px !important;
+  padding: 0 14px 0 10px !important;
+  border-radius: 999px !important;
+  border: 1.5px solid #c8dcc6 !important;
+  background: #f4f9f2 !important;
+  color: #174226 !important;
+  font-size: 13px !important;
+  font-weight: 750 !important;
+  cursor: pointer !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 1px 3px rgba(23, 66, 38, 0.05) !important;
+  user-select: none !important;
+}
+
+.agenda-toggle-collapse-btn:hover {
+  background: #eaf4e7 !important;
+  border-color: #88a97c !important;
+  color: #0c2918 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 8px rgba(23, 66, 38, 0.1) !important;
+}
+
+.agenda-toggle-collapse-btn.is-collapsed {
+  background: #174226 !important;
+  color: #ffffff !important;
+  border-color: #174226 !important;
+  box-shadow: 0 3px 10px rgba(23, 66, 38, 0.18) !important;
+}
+
+.agenda-toggle-collapse-btn.is-collapsed:hover {
+  background: #1f5632 !important;
+  border-color: #1f5632 !important;
+  color: #ffffff !important;
+}
+
+.agenda-toggle-arrow-circle {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
+  background: rgba(23, 66, 38, 0.08) !important;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.agenda-toggle-collapse-btn.is-collapsed .agenda-toggle-arrow-circle {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.agenda-toggle-icon {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.agenda-toggle-icon.is-flipped {
+  transform: rotate(180deg) !important;
+}
+
+.agenda-collapsed-banner {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 14px 20px !important;
+  background: #f7faf5 !important;
+  border: 1.5px dashed #c9dcc6 !important;
+  border-radius: 14px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  user-select: none !important;
+  margin-top: 6px !important;
+}
+
+.agenda-collapsed-banner:hover {
+  background: #edf5eb !important;
+  border-color: #88a97c !important;
+}
+
+.agenda-collapsed-banner .acb-content {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.agenda-collapsed-banner .acb-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background: #256f3f !important;
+  animation: pulse-soft 2s infinite !important;
+}
+
+.agenda-collapsed-banner .acb-text {
+  font-size: 13.5px !important;
+  font-weight: 650 !important;
+  color: #1f472d !important;
+}
+
+.agenda-collapsed-banner .acb-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 13px !important;
+  font-weight: 750 !important;
+  color: #174226 !important;
+}
+
+@media (max-width: 768px) {
+  .agenda-toggle-collapse-btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* ==========================================================================
+   TODAY AGENDA HEADER 3-TIER LUXURY RESTRUCTURING (UI/UX PRO MAX)
+   ========================================================================== */
+.today-agenda-header-v2 {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  margin-bottom: 20px !important;
+  padding-bottom: 16px !important;
+  border-bottom: 1.5px solid #edf4ea !important;
+}
+
+/* Tier 1: Centered Title */
+.today-agenda-top-centered {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  text-align: center !important;
+  padding-bottom: 2px !important;
+}
+
+.today-agenda-header-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 8px 24px !important;
+  background: #f4f9f2 !important;
+  border: 1.5px solid #d2e4ce !important;
+  border-radius: 999px !important;
+  box-shadow: 0 2px 8px rgba(18, 52, 28, 0.05) !important;
+}
+
+.today-agenda-header-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  background: #174d2b !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(23, 77, 43, 0.2) !important;
+}
+
+.today-agenda-header-pill .today-agenda-title {
+  margin: 0 !important;
+  font-size: 20px !important;
+  font-weight: 850 !important;
+  color: #0c2918 !important;
+  font-family: Alex, 'Alexandria', sans-serif !important;
+  letter-spacing: -0.015em !important;
+}
+
+/* Tier 2: Date on Start (Right), Nav on End (Left) */
+.today-agenda-nav-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  gap: 16px !important;
+  flex-wrap: wrap !important;
+}
+
+/* Date Badge Luxury Refresh */
+.today-agenda-nav-bar .today-date-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  padding: 8px 18px !important;
+  background: #ffffff !important;
+  border: 1.5px solid #cee0cb !important;
+  border-radius: 999px !important;
+  font-size: 14.5px !important;
+  font-weight: 800 !important;
+  color: #0c2819 !important;
+  font-family: Alex, 'Alexandria', sans-serif !important;
+  box-shadow: 0 1px 4px rgba(20, 55, 30, 0.04) !important;
+}
+
+.today-agenda-nav-bar .today-date-badge svg {
+  color: #174d2b !important;
+}
+
+/* Navigation Cluster Luxury Styling */
+.today-agenda-nav-bar .agenda-day-nav {
+  display: inline-flex !important;
+  align-items: center !important;
+  background: rgba(244, 249, 242, 0.95) !important;
+  border: 1.5px solid #d0e2cb !important;
+  border-radius: 999px !important;
+  padding: 4px 6px !important;
+  gap: 4px !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+}
+
+.today-agenda-nav-bar .agenda-day-nav-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 7px 15px !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 999px !important;
+  font-size: 13.5px !important;
+  font-weight: 750 !important;
+  color: #1e452e !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  white-space: nowrap !important;
+}
+
+.today-agenda-nav-bar .agenda-day-nav-btn:hover {
+  background: #ffffff !important;
+  color: #0c2617 !important;
+  box-shadow: 0 2px 8px rgba(18, 52, 28, 0.08) !important;
+}
+
+.today-agenda-nav-bar .agenda-day-nav-btn.is-calendar-toggle {
+  background: #ffffff !important;
+  color: #174d2b !important;
+  border: 1px solid #c8dbc5 !important;
+}
+
+.today-agenda-nav-bar .agenda-day-nav-btn.is-calendar-toggle:hover,
+.today-agenda-nav-bar .agenda-day-nav-btn.is-calendar-toggle.is-active {
+  background: #174d2b !important;
+  color: #ffffff !important;
+  border-color: #174d2b !important;
+  box-shadow: 0 3px 10px rgba(23, 77, 43, 0.2) !important;
+}
+
+.today-agenda-nav-bar .agenda-day-nav-btn.is-calendar-toggle.is-active svg {
+  color: #ffffff !important;
+}
+
+/* Tier 3: Metrics & Collapse Bar */
+.today-agenda-metrics-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  gap: 14px !important;
+  flex-wrap: wrap !important;
+}
+
+.today-agenda-metrics-bar .today-count-badge {
+  background: #174d2b !important;
+  color: #ffffff !important;
+  padding: 8px 18px !important;
+  border-radius: 999px !important;
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+  font-family: Alex, 'Alexandria', sans-serif !important;
+  box-shadow: 0 2px 8px rgba(23, 77, 43, 0.18) !important;
+}
+
+.today-agenda-metrics-bar .today-capacity-quick-pill {
+  margin: 0 !important;
+}
+
+@media (max-width: 900px) {
+  .today-agenda-nav-bar,
+  .today-agenda-metrics-bar {
+    justify-content: center !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .today-agenda-header-pill {
+    width: 100% !important;
+    border-radius: 16px !important;
+    padding: 8px 12px !important;
+  }
+
+  .today-agenda-nav-bar,
+  .today-agenda-metrics-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .today-agenda-nav-bar .today-date-badge,
+  .today-agenda-nav-bar .agenda-day-nav,
+  .today-agenda-metrics-bar .today-count-badge,
+  .today-agenda-metrics-bar .today-capacity-quick-pill,
+  .today-agenda-metrics-bar .agenda-toggle-collapse-btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
 }

@@ -436,7 +436,7 @@ router.post('/patients/:id/reset-password', async (req, res) => {
   const patientId = id.parse(req.params.id);
   const { password } = z
     .object({
-      password: z.string().min(8).max(128).optional(),
+      password: z.string().min(6).max(128).optional(),
     })
     .parse(req.body || {});
 

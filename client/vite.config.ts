@@ -19,7 +19,29 @@ export default defineConfig({
     port: 5176,
     strictPort: true,
     allowedHosts: true,
-    proxy: { '/api': { target: 'http://127.0.0.1:5001', changeOrigin: true } },
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:5001',
+        changeOrigin: true,
+        timeout: 15000,
+        proxyTimeout: 15000,
+        configure: (proxy) => {
+          proxy.on('error', (_err, _req, res) => {
+            if (res && 'writeHead' in res && !res.headersSent) {
+              res.writeHead(504, { 'Content-Type': 'application/json; charset=utf-8' });
+              res.end(
+                JSON.stringify({
+                  error: {
+                    code: 'GATEWAY_TIMEOUT',
+                    message: 'السيرفر قيد إعادة التشغيل أو لم يستجب بالوقت المحدد. يرجى المحاولة بعد لحظات.',
+                  },
+                }),
+              );
+            }
+          });
+        },
+      },
+    },
   },
   preview: { host: '127.0.0.1', port: 4173 },
 });

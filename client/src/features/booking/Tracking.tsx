@@ -23,7 +23,8 @@ import {
   Ticket,
   X,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { gsap, isReducedMotion, useGSAP } from '../../lib/motion';
 import { Link, useLocation } from 'react-router-dom';
 import { Button, ButtonLink, Loading, Modal, WhatsAppLink } from '../../components/ui';
 import { BookingQrPass } from '../../components/appointments/BookingQrPass';
@@ -33,6 +34,7 @@ import { api, dateLabel, formatPrice, timeLabel } from '../../lib/api';
 import { RescheduleDialog } from './components/RescheduleDialog';
 
 export function Tracking() {
+  const trackingRef = useRef<HTMLElement>(null);
   const hashToken = useLocation().hash.slice(1);
   const location = useLocation();
   const [lookupToken, setLookupToken] = useState('');
@@ -139,13 +141,41 @@ export function Tracking() {
     }
   }, []);
 
-  if (token && result.isPending) return <Loading label="جاري تحديث حالة طلبك..." />;
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get('q') || params.get('ref') || (location.state as any)?.query;
+    if (q && !token && !lookupData) {
+      setLookupQuery(q);
+      void (async () => {
+        setLookupBusy(true);
+        try {
+          const res = await api.lookup({ query: q });
+          setLookupData(res.appointment);
+          if (res.trackingToken) {
+            setLookupToken(res.trackingToken);
+            window.history.replaceState(null, '', '#' + res.trackingToken);
+          }
+        } catch (err) {
+          setLookupError(
+            (err as Error).message ||
+              'لم نتمكن من العثور على أي حجز يطابق هذا الكود. يرجى التأكد من صحة البيانات والمحاولة مجدداً.',
+          );
+        } finally {
+          setLookupBusy(false);
+        }
+      })();
+    }
+  }, [location.search, location.state]);
 
   const a = token ? result.data : lookupData;
 
+
+
+  if (token && result.isPending) return <Loading label="جاري تحديث حالة طلبك..." />;
+
   if (!a) {
     return (
-      <main className="app-wrap tracking-wrap">
+      <main ref={trackingRef} className="app-wrap tracking-wrap">
         {toast && (
           <div className={`app-floating-toast ${toast.type}`} role="status" aria-live="polite">
             <div className="app-toast-left-wrap">
@@ -289,8 +319,33 @@ export function Tracking() {
     }
   };
 
+  useGSAP(
+    () => {
+      if (!a || !trackingRef.current || isReducedMotion()) return;
+      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+      tl.fromTo(
+        '.tracking-banner',
+        { opacity: 0, y: -10 },
+        { opacity: 1, y: 0, duration: 0.55 }
+      )
+        .fromTo(
+          '.tracking-receipt, .booking-pass-card',
+          { opacity: 0, y: 16, scale: 0.98 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.65, ease: 'power3.out' },
+          '-=0.3'
+        )
+        .fromTo(
+          '.tracking-main > *',
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.55, stagger: 0.08 },
+          '-=0.4'
+        );
+    },
+    { scope: trackingRef, dependencies: [a?.reference, a?.status] }
+  );
+
   return (
-    <main className="app-wrap tracking-wrap">
+    <main ref={trackingRef} className="app-wrap tracking-wrap">
       {toast && (
         <div className={`app-floating-toast ${toast.type}`} role="status" aria-live="polite">
           <div className="app-toast-left-wrap">
@@ -399,6 +454,23 @@ export function Tracking() {
             </h1>
             <p className="track-hero-desc">
               تم تأكيد واعتماد موعدكِ بنجاح في عيادة د. رنا الشورى. نتطلع لاستقبالكِ بكل ترحاب وتأكيد حضوركِ عبر التذكرة الذكية أدناه.
+            </p>
+          </div>
+        </div>
+      ) : a.status === 'expired' ? (
+        <div className="track-hero-card is-rejected">
+          <div className="track-hero-icon-wrap">
+            <Clock size={32} />
+          </div>
+          <div className="track-hero-body">
+            <div className="track-hero-badge-pill">
+              <span>انتهت مهلة المراجعة ⏳</span>
+            </div>
+            <h1 className="track-hero-title">
+              أهلاً بكِ يا {a.firstName}.. انتهت مهلة مراجعة الحجز
+            </h1>
+            <p className="track-hero-desc">
+              نظراً لعدم اعتماد الحجز قبل موعده، تم تحرير الموعد تلقائياً. يمكنكِ إعادة حجز موعد جديد أو التواصل المباشر مع المركز عبر واتساب.
             </p>
           </div>
         </div>

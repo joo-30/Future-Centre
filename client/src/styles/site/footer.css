@@ -419,6 +419,85 @@
   color: #d4af37;
 }
 
+/* 4. Developer Credit Strip */
+.footer-developer-strip {
+  max-width: 1200px;
+  margin: 14px auto 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #74947d;
+  flex-wrap: wrap;
+}
+
+.dev-credit-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dev-icon {
+  color: #d4af37;
+  flex-shrink: 0;
+}
+
+.dev-name {
+  color: #d0edd7;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.dev-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dev-sep {
+  color: #31533e;
+  user-select: none;
+}
+
+.dev-phone {
+  color: #9cbda5;
+  text-decoration: none;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  transition: color 0.15s ease;
+}
+
+.dev-phone:hover {
+  color: #ffffff;
+}
+
+.dev-whatsapp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(37, 211, 102, 0.08);
+  border: 1px solid rgba(37, 211, 102, 0.25);
+  padding: 3px 11px;
+  border-radius: 9999px;
+  color: #7ee3b5;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.dev-whatsapp-btn:hover {
+  background: rgba(37, 211, 102, 0.18);
+  border-color: rgba(37, 211, 102, 0.5);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.2);
+}
+
 /* ==========================================================================
    Responsive Breakpoints
    ========================================================================== */
@@ -468,6 +547,15 @@
   .footer-legal-nav {
     justify-content: center;
     flex-wrap: wrap;
+  }
+  .footer-developer-strip {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+  .footer-developer-strip .dev-actions {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }
 

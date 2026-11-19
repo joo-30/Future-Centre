@@ -95,33 +95,33 @@ describe('authenticated patient and administrative workflows', () => {
         await request(app)
           .post('/api/appointments')
           .set('Idempotency-Key', crypto.randomUUID())
-          .send(booking({ phone: '01000000095', time: '13:00' }))
+          .send(booking({ phone: '01000000095', time: '12:15' }))
       ).status,
     ).toBe(201);
     await ServiceModel.updateOne(
       { id: 'women' },
-      { $set: { title: 'اسم معدل للخدمة', duration: 30, active: false } },
+      { $set: { title: 'اسم معدل للخدمة', duration: 45, active: false } },
     );
     const publicSlots = await request(app)
       .get('/api/availability')
       .query({ serviceId: 'women', date: futureDate() });
-    expect(publicSlots.body.slots.find((s: { time: string }) => s.time === '12:30').available).toBe(
+    expect(publicSlots.body.slots.find((s: { time: string }) => s.time === '11:30').available).toBe(
       true,
     );
     const accountSlots = await agent
       .get(`/api/account/appointments/${b.body.appointment.reference}/availability`)
       .query({ date: futureDate() });
     expect(
-      accountSlots.body.slots.find((s: { time: string }) => s.time === '12:30').available,
+      accountSlots.body.slots.find((s: { time: string }) => s.time === '12:15').available,
     ).toBe(false);
     expect(
-      accountSlots.body.slots.find((s: { time: string }) => s.time === '10:30').available,
+      accountSlots.body.slots.find((s: { time: string }) => s.time === '10:45').available,
     ).toBe(true);
     const guestSlots = await request(app)
       .get('/api/appointments/availability')
       .set('Authorization', 'Bearer ' + b.body.trackingToken)
       .query({ date: futureDate() });
-    expect(guestSlots.body.slots.find((s: { time: string }) => s.time === '12:30').available).toBe(
+    expect(guestSlots.body.slots.find((s: { time: string }) => s.time === '12:15').available).toBe(
       false,
     );
     await ServiceModel.updateOne(
@@ -165,7 +165,7 @@ describe('authenticated patient and administrative workflows', () => {
     await request(app)
       .post('/api/appointments/reschedule')
       .set('Authorization', 'Bearer ' + b.body.trackingToken)
-      .send({ date: futureDate(), time: '12:00' });
+      .send({ date: futureDate(), time: '12:15' });
     const admin = await administrator();
     const decision = await post(
       admin,
@@ -177,7 +177,7 @@ describe('authenticated patient and administrative workflows', () => {
     expect(decision.body.time).toBe('10:00');
     expect(decision.body.reschedule).toBeNull();
     expect(decision.body.holdUntil).toBe(before!.holdUntil!.toISOString());
-    expect(await Reservation.countDocuments()).toBe(6);
+    expect(await Reservation.countDocuments()).toBe(9);
   });
   it('prevents overlaps even if an administrator shifts the opening time off the previous five-minute grid', async () => {
     expect(

@@ -8,8 +8,9 @@
 .daily-pulse-container {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  margin-bottom: 24px;
+  gap: 16px;
+  margin-block-start: clamp(34px, 3.8vw, 52px) !important;
+  margin-block-end: 28px !important;
   direction: rtl;
 }
 

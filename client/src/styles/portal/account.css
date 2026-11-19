@@ -1912,3 +1912,78 @@
     gap: 7px 12px;
   }
 }
+
+/* Smart field detection indicator & quick phone button */
+.aclc-detect-badge {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 800;
+  pointer-events: none;
+  animation: aclcBadgeFadeIn 0.18s ease;
+  z-index: 2;
+}
+
+@keyframes aclcBadgeFadeIn {
+  from { opacity: 0; transform: translateY(-50%) scale(0.92); }
+  to { opacity: 1; transform: translateY(-50%) scale(1); }
+}
+
+.aclc-detect-badge.is-phone {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.aclc-detect-badge.is-ticket {
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+.aclc-quick-phone-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 13px;
+  padding-top: 11px;
+  border-top: 1px dashed rgba(201, 222, 195, 0.85);
+  flex-wrap: wrap;
+}
+
+.aclc-quick-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #52755a;
+}
+
+.aclc-quick-phone-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  background: #f0f8ec;
+  border: 1.5px solid #c4dec0;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #14442a;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.aclc-quick-phone-btn:hover {
+  background: #14442a;
+  color: #ffffff;
+  border-color: #14442a;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(20, 68, 42, 0.18);
+}

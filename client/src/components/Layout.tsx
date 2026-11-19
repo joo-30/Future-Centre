@@ -1,5 +1,5 @@
 import { normalizePhone } from '@future/shared';
-import { ArrowLeft, CalendarDays, LogIn, Menu, Phone, ShieldCheck, UserRound, X } from 'lucide-react';
+import { ArrowLeft, CalendarDays, LogIn, Menu, Phone, UserRound, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useCatalog } from '../hooks/useCatalog';
@@ -20,7 +20,7 @@ const links = [
 ];
 
 export function Layout() {
-  const { user, adminUser } = useAuth();
+  const { user } = useAuth();
   const menuButton = useRef<HTMLButtonElement>(null);
   const [menu, setMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -74,12 +74,7 @@ export function Layout() {
             ))}
           </nav>
           <div className="head-actions">
-            {adminUser && (
-              <Link to="/admin" className="head-auth-pill is-admin" title="لوحة الإدارة">
-                <ShieldCheck size={16} />
-                <span>لوحة الإدارة</span>
-              </Link>
-            )}
+            
             {user ? (
               <>
                 <NotificationBell className="is-desktop-head" />
@@ -88,12 +83,12 @@ export function Layout() {
                   <span>حسابي</span>
                 </Link>
               </>
-            ) : !adminUser ? (
+            ) : (
               <Link to="/login" className="head-auth-pill is-guest" title="تسجيل الدخول">
                 <LogIn size={16} />
                 <span>تسجيل الدخول</span>
               </Link>
-            ) : null}
+            )}
             <ButtonLink to="/booking" className="head-cta-btn">
               احجزي موعدك
             </ButtonLink>
@@ -150,30 +145,8 @@ export function Layout() {
               )}
             </NavLink>
           ))}
-          {adminUser && (
-            <NavLink
-              to="/admin"
-              className={({ isActive }) =>
-                `mobile-nav-link ${isActive ? 'active is-active' : ''}`
-              }
-              onClick={() => setMenu(false)}
-            >
-              {({ isActive }) => (
-                <>
-                  <span className="nav-link-label">
-                    <span className="nav-title">لوحة الإدارة</span>
-                    {isActive && <span className="nav-current-pill">الصفحة الحالية</span>}
-                  </span>
-                  <div className="nav-link-meta">
-                    {isActive && <span className="nav-active-dot" aria-hidden="true" />}
-                    <ArrowLeft size={18} />
-                  </div>
-                </>
-              )}
-            </NavLink>
-          )}
           <NavLink
-            to={user ? '/account' : adminUser ? '/admin' : '/login'}
+            to={user ? '/account' : '/login'}
             className={({ isActive }) =>
               `mobile-nav-link ${isActive ? 'active is-active' : ''}`
             }
@@ -183,7 +156,7 @@ export function Layout() {
               <>
                 <span className="nav-link-label">
                   <span className="nav-title">
-                    {user ? 'حسابي' : adminUser ? 'لوحة التحكم' : 'تسجيل الدخول'}
+                    {user ? 'حسابي' : 'تسجيل الدخول'}
                   </span>
                   {isActive && <span className="nav-current-pill">الصفحة الحالية</span>}
                 </span>

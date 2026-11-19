@@ -95,7 +95,7 @@ export async function availability(
   }).lean();
   const occupied = new Set(locks.map((l) => l.minute));
   const slots: Availability['slots'] = [];
-  for (let start = minutes(hours.start); start + duration <= minutes(hours.end); start += 30) {
+  for (let start = minutes(hours.start); start + duration <= minutes(hours.end); start += 45) {
     const time = timeString(start);
     const policy = slotPolicy(clinic, date, time, duration);
     const busy = policy.ok && cells(start, start + duration).some((m) => occupied.has(m));

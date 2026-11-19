@@ -21,7 +21,7 @@ export const handleApiError = (
     return res
       .status(400)
       .json({ error: { code: 'INVALID_JSON', message: 'تعذر قراءة البيانات.' } });
-  console.error('Request failed:', err instanceof Error ? err.name : 'UnknownError');
+  console.error('Request failed:', err instanceof Error ? (err.stack || err.message) : err);
   res.status(500).json({
     error: {
       code: 'SERVER_ERROR',

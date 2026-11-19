@@ -65,6 +65,7 @@ export function AdminAppointments() {
   const [agendaDate, setAgendaDate] = useState<string>(todayStr);
   const [datePickerPopoverOpen, setDatePickerPopoverOpen] = useState(false);
   const [quickDayInput, setQuickDayInput] = useState('');
+  const [agendaCollapsed, setAgendaCollapsed] = useState(false);
   const [capacityModalOpen, setCapacityModalOpen] = useState(false);
   const [remindersOpen, setRemindersOpen] = useState(false);
 
@@ -168,7 +169,6 @@ export function AdminAppointments() {
     refetchInterval: 15000,
   });
   const services = useQuery({ queryKey: ['admin', 'services'], queryFn: adminApi.services });
-  const current = appointmentsQuery.data?.appointments.find((a) => a.reference === selected);
   const counts = overview.data;
 
   const agendaQuery = useQuery({
@@ -183,6 +183,11 @@ export function AdminAppointments() {
     refetchInterval: 15000,
   });
   const todayAppointments = remindersQuery.data?.appointments ?? [];
+
+  const current =
+    appointmentsQuery.data?.appointments.find((a) => a.reference === selected) ||
+    agendaQuery.data?.appointments.find((a) => a.reference === selected) ||
+    remindersQuery.data?.appointments.find((a) => a.reference === selected);
   const revealResults = () => {
     results.current?.focus({ preventScroll: true });
     results.current?.scrollIntoView({ block: 'start' });
@@ -253,84 +258,79 @@ export function AdminAppointments() {
 
       {/* جدول مواعيد اليوم · المطلوب منكِ اليوم */}
       <section className="today-agenda-section">
-        <div className="today-agenda-header">
-          <div className="today-agenda-title-wrap">
-            <button
-              type="button"
-              className={`today-agenda-icon-btn ${datePickerPopoverOpen ? 'is-active' : ''}`}
-              onClick={() => setDatePickerPopoverOpen(!datePickerPopoverOpen)}
-              title="تغيير يوم الجدول (مثلاً يوم 15 أو 20)"
-              aria-label="تغيير يوم الجدول واختيار تاريخ محدد"
-            >
-              <CalendarDays size={22} />
-              {agendaDate !== todayStr && <span className="agenda-btn-badge">•</span>}
-            </button>
-            <div className="today-title-date-container">
-              <div className="today-title-row">
-                <h2 className="today-agenda-title">
-                  {agendaDate === todayStr ? 'جدول مواعيد اليوم • المطلوب منك اليوم' : `جدول مواعيد: ${dateLabel(agendaDate)}`}
-                </h2>
-                {agendaDate !== todayStr && (
-                  <button
-                    type="button"
-                    className="today-back-to-now-btn"
-                    onClick={() => setAgendaDate(todayStr)}
-                    title="العودة لمواعيد اليوم"
-                  >
-                    <RotateCcw size={12} />
-                    <span>العودة لليوم</span>
-                  </button>
-                )}
-              </div>
-              <div className="today-subtitle-row">
-                <div className="today-date-badge">
-                  <CalendarDays size={16} />
-                  <span>
-                    {dateLabel(agendaDate, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-                  </span>
-                </div>
-
-                {/* Prominent Day Navigation Cluster with larger text and clear buttons */}
-                <div className="agenda-day-nav">
-                  <button
-                    type="button"
-                    className="agenda-day-nav-btn is-prev"
-                    onClick={() => setAgendaDate(addDays(agendaDate, -1))}
-                    title="اليوم السابق"
-                  >
-                    <ChevronRight size={16} />
-                    <span>السابق</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className={`agenda-day-nav-btn is-calendar-toggle ${datePickerPopoverOpen ? 'is-active' : ''}`}
-                    onClick={() => setDatePickerPopoverOpen(!datePickerPopoverOpen)}
-                    title="اختيار يوم محدد من التقويم أو كتابة رقم اليوم"
-                  >
-                    <CalendarDays size={16} />
-                    <span className="hide-on-mobile">اختيار يوم (مثلاً 15 أو 20)</span>
-                    <span className="show-on-mobile">اختيار يوم</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="agenda-day-nav-btn is-next"
-                    onClick={() => setAgendaDate(addDays(agendaDate, 1))}
-                    title="اليوم التالي"
-                  >
-                    <span>التالي</span>
-                    <ChevronLeft size={16} />
-                  </button>
-                </div>
-              </div>
+        <div className="today-agenda-header-v2">
+          {/* Tier 1: Centered Title at the Top */}
+          <div className="today-agenda-top-centered">
+            <div className="today-agenda-header-pill">
+              <span className="today-agenda-header-icon" aria-hidden="true">
+                <CalendarDays size={20} />
+              </span>
+              <h2 className="today-agenda-title">
+                {agendaDate === todayStr ? 'جدول مواعيد اليوم • المطلوب منك اليوم' : `جدول مواعيد: ${dateLabel(agendaDate)}`}
+              </h2>
+              {agendaDate !== todayStr && (
+                <button
+                  type="button"
+                  className="today-back-to-now-btn"
+                  onClick={() => setAgendaDate(todayStr)}
+                  title="العودة لمواعيد اليوم"
+                >
+                  <RotateCcw size={12} />
+                  <span>العودة لليوم</span>
+                </button>
+              )}
             </div>
           </div>
 
-          <div className="today-header-badges-row">
+          {/* Tier 2: Date at Start (Right), Navigation Buttons at End (Left) */}
+          <div className="today-agenda-nav-bar">
+            <div className="today-date-badge">
+              <CalendarDays size={16} />
+              <span>
+                {dateLabel(agendaDate, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              </span>
+            </div>
+
+            <div className="agenda-day-nav">
+              <button
+                type="button"
+                className="agenda-day-nav-btn is-prev"
+                onClick={() => setAgendaDate(addDays(agendaDate, -1))}
+                title="اليوم السابق"
+              >
+                <ChevronRight size={16} />
+                <span>السابق</span>
+              </button>
+
+              <button
+                type="button"
+                className={`agenda-day-nav-btn is-calendar-toggle ${datePickerPopoverOpen ? 'is-active' : ''}`}
+                onClick={() => setDatePickerPopoverOpen(!datePickerPopoverOpen)}
+                title="اختيار يوم محدد من التقويم أو كتابة رقم اليوم"
+              >
+                <CalendarDays size={16} />
+                <span className="hide-on-mobile">اختيار يوم (مثلاً 15 أو 20)</span>
+                <span className="show-on-mobile">اختيار يوم</span>
+              </button>
+
+              <button
+                type="button"
+                className="agenda-day-nav-btn is-next"
+                onClick={() => setAgendaDate(addDays(agendaDate, 1))}
+                title="اليوم التالي"
+              >
+                <span>التالي</span>
+                <ChevronLeft size={16} />
+              </button>
+            </div>
+          </div>
+
+          {/* Tier 3: Registered Count at Start (Right), Capacity in Center, Collapse Toggle at End (Left) */}
+          <div className="today-agenda-metrics-bar">
             <span className="today-count-badge">
               {agendaQuery.data?.appointments.length ?? 0} موعد مسجل {agendaDate === todayStr ? 'اليوم' : `(${dateLabel(agendaDate, { day: 'numeric', month: 'short' })})`}
             </span>
+
             <div className="today-capacity-quick-pill">
               <span className="tcq-icon"><Gauge size={14} /></span>
               <span className="tcq-text">
@@ -353,11 +353,48 @@ export function AdminAppointments() {
                 <span>تعديل السعة</span>
               </button>
             </div>
+
+            <button
+              type="button"
+              className={`agenda-toggle-collapse-btn ${agendaCollapsed ? 'is-collapsed' : ''}`}
+              onClick={() => setAgendaCollapsed(!agendaCollapsed)}
+              aria-expanded={!agendaCollapsed}
+              title={agendaCollapsed ? 'فتح وعرض جدول مرضى اليوم' : 'إخفاء وطي جدول مرضى اليوم'}
+            >
+              <span className="agenda-toggle-label">{agendaCollapsed ? 'عرض المرضى' : 'إخفاء المرضى'}</span>
+              <span className="agenda-toggle-arrow-circle">
+                <ChevronDown size={17} className={`agenda-toggle-icon ${agendaCollapsed ? 'is-flipped' : ''}`} />
+              </span>
+            </button>
           </div>
         </div>
 
-        {/* Date Picker Popover Panel */}
-        {datePickerPopoverOpen && (
+        {agendaCollapsed ? (
+          <div
+            className="agenda-collapsed-banner"
+            role="button"
+            tabIndex={0}
+            onClick={() => setAgendaCollapsed(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') setAgendaCollapsed(false);
+            }}
+            title="انقري لإعادة فتح وعرض قائمة مرضى اليوم"
+          >
+            <div className="acb-content">
+              <span className="acb-dot" />
+              <span className="acb-text">
+                تم إخفاء قائمة المرضى مؤقتاً ({agendaBookedCount} حالات مسجلة) • اضغطي هنا أو على السهم لإعادة فتح القائمة
+              </span>
+            </div>
+            <span className="acb-action">
+              <span>عرض الآن</span>
+              <ChevronDown size={15} />
+            </span>
+          </div>
+        ) : (
+          <>
+            {/* Date Picker Popover Panel */}
+            {datePickerPopoverOpen && (
           <div className="agenda-datepicker-popover">
             <div className="agenda-popover-header">
               <div className="agenda-popover-title">
@@ -520,21 +557,9 @@ export function AdminAppointments() {
             ))}
           </div>
         )}
-      </section>
-
-      <div className="admin-reminder-action">
-        <Button
-          kind="outline"
-          onClick={() => setRemindersOpen(true)}
-          disabled={todayAppointments.length === 0}
-          icon={false}
-        >
-          <WhatsAppIcon size={17} /> تذكيرات مواعيد اليوم
-        </Button>
-        {!remindersQuery.isPending && !remindersQuery.isError && todayAppointments.length === 0 && (
-          <small>لا توجد مواعيد للتذكير اليوم.</small>
+          </>
         )}
-      </div>
+      </section>
 
       <DailyRemindersModal
         open={remindersOpen}
@@ -545,7 +570,42 @@ export function AdminAppointments() {
 
       <div className={'booking-console-grid ' + (current ? 'has-detail' : '')}>
         <section className="console-panel">
-          <h2 className="admin-appointment-results" ref={results} tabIndex={-1}>قائمة المواعيد</h2>
+          {/* Card Header Containing Title & Key Actions */}
+          <div className="console-panel-card-header">
+            <div className="console-panel-card-title-group">
+              <div className="console-panel-header-icon" aria-hidden="true">
+                <CalendarDays size={20} />
+              </div>
+              <div className="console-panel-headings">
+                <h2 className="admin-appointment-results" ref={results} tabIndex={-1}>
+                  قائمة المواعيد
+                </h2>
+                <p className="console-panel-subtitle">إدارة وتصفية ومتابعة مواعيد العيادة والحجوزات</p>
+              </div>
+            </div>
+            <div className="console-panel-card-actions">
+              <Button
+                kind="outline"
+                className="console-panel-reminder-btn"
+                onClick={() => setRemindersOpen(true)}
+                disabled={todayAppointments.length === 0}
+                icon={false}
+              >
+                <WhatsAppIcon size={16} />
+                <span>تذكيرات مواعيد اليوم</span>
+              </Button>
+              <Button
+                kind="brand"
+                className="console-panel-add-manual-btn"
+                onClick={() => setManual(true)}
+                icon={false}
+              >
+                <Plus size={16} />
+                <span>إضافة موعد يدوي</span>
+              </Button>
+            </div>
+          </div>
+
           {/* Modern Segmented Status Tabs */}
           <div className="admin-tabs-segmented" role="tablist" aria-label="تصفية حالة الحجز">
             {[
@@ -1121,7 +1181,7 @@ export function AdminAppointments() {
       </div>
       <DailyOperationsPulse overview={overview.data} />
 
-      <Modal open={manual} onClose={() => setManual(false)} title="إضافة موعد يدوي">
+      <Modal open={manual} onClose={() => setManual(false)} title="إضافة موعد يدوي في العيادة" className="manual-booking-dialog">
         {manual && (
           <ManualBooking
             onDone={() => {

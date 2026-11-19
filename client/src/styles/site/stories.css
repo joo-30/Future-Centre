@@ -532,7 +532,6 @@
   color: #059669;
 }
 
-.feedback-block,
 .stories-cta-banner {
   max-width: 1288px;
   margin-inline: auto;
@@ -540,7 +539,11 @@
 }
 
 .feedback-block {
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
   margin-block-end: clamp(27px, 4vw, 54px);
+  font-family: Plex, sans-serif;
 }
 
 .feedback-heading {
@@ -577,9 +580,12 @@
   gap: 9px;
   padding: clamp(17px, 1.7vw, 24px);
   border: 1px solid #dce4d7;
-  border-radius: 13px;
+  border-radius: 14px;
   background: #fffefa;
-  transition: border-color 0.18s ease, background-color 0.18s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease,
+              background-color 0.2s ease;
 }
 
 .feedback-micro-card:focus-within {
@@ -635,14 +641,29 @@
 
 @media (hover: hover) {
   .feedback-micro-card:hover {
-    background: #fbfcf8;
-    border-color: #a3b998;
+    transform: translateY(-4px);
+    background: #ffffff;
+    border-color: #88a97c;
+    box-shadow: 0 14px 28px -6px rgba(15, 45, 27, 0.09), 0 2px 6px rgba(0, 0, 0, 0.02);
+  }
+
+  .feedback-micro-card:hover .fmc-headline {
+    color: #0c291b;
   }
 
   .feedback-micro-card:hover .fmc-view-screenshot-btn {
+    color: #124024;
     text-decoration: underline;
     text-underline-offset: 4px;
   }
+
+  .feedback-micro-card:hover .fmc-view-screenshot-btn svg {
+    transform: translateX(-3px);
+  }
+}
+
+.fmc-view-screenshot-btn svg {
+  transition: transform 0.2s ease;
 }
 
 @media (max-width: 1050px) {

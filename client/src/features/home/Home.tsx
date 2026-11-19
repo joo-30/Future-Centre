@@ -18,14 +18,14 @@ import { ButtonLink, ErrorState, Loading } from '../../components/ui';
 import { useCatalog } from '../../hooks/useCatalog';
 import { formatPrice } from '../../lib/api';
 import { gsap, isReducedMotion, useGSAP } from '../../lib/motion';
-import { BmiCalculator } from './components/BmiCalculator';
 import { CareGuideQuiz } from './components/CareGuideQuiz';
 import { Faq } from './components/Faq';
 import { SuccessStoriesSection } from './components/SuccessStoriesSection';
 
 const serviceCardTitles = new Map([
   ['برنامج متابعة شهرية بالعيادة', 'برنامج المتابعة الشهرية'],
-  ['كشف واستشارة بالعيادة (حضور شخصي)', 'كشف واستشارة بالعيادة'],
+  ['كشف واستشارة بالعيادة (حضور شخصي)', 'كشف واستشارة في العيادة'],
+  ['كشف واستشارة بالعيادة', 'كشف واستشارة في العيادة'],
   ['تغذية المرأة ورعاية الحمل بالعيادة', 'تغذية المرأة ورعاية الحمل'],
 ]);
 
@@ -39,13 +39,188 @@ export function Home() {
       if (isPending || !data || !mainRef.current) return;
       if (isReducedMotion()) return;
 
-      // Articles Section
+      // 1. Hero Intro Section (Mount Timeline - Serene & Decisive)
+      const heroTl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+      heroTl
+        .fromTo(
+          '.clinic-intro-location',
+          { opacity: 0, y: -8 },
+          { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }
+        )
+        .fromTo(
+          '#clinic-intro-title',
+          { opacity: 0, y: 16 },
+          { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' },
+          '-=0.25'
+        )
+        .fromTo(
+          '.clinic-intro-lead',
+          { opacity: 0, y: 12 },
+          { opacity: 1, y: 0, duration: 0.55 },
+          '-=0.4'
+        )
+        .fromTo(
+          '.clinic-intro-actions > *',
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.5, stagger: 0.08 },
+          '-=0.35'
+        )
+        .fromTo(
+          '.clinic-intro-meta',
+          { opacity: 0 },
+          { opacity: 1, duration: 0.5 },
+          '-=0.25'
+        )
+        .fromTo(
+          '.clinic-intro-art',
+          { opacity: 0, scale: 0.96, y: 12 },
+          { opacity: 1, scale: 1, y: 0, duration: 0.85, ease: 'power2.out' },
+          0.1
+        );
+
+      // 2. Clinic Services Section (ScrollTrigger)
+      gsap.fromTo(
+        '.clinic-services .clinic-section-heading',
+        { opacity: 0, y: 14 },
+        {
+          scrollTrigger: {
+            trigger: '.clinic-services',
+            start: 'top 85%',
+            once: true,
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power2.out',
+        }
+      );
+
+      gsap.fromTo(
+        '.clinic-service-list .clinic-service',
+        { opacity: 0, y: 18 },
+        {
+          scrollTrigger: {
+            trigger: '.clinic-service-list',
+            start: 'top 85%',
+            once: true,
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.65,
+          stagger: 0.08,
+          ease: 'power2.out',
+        }
+      );
+
+      // 3. Clinic Visit Roadmap Section (ScrollTrigger)
+      gsap.fromTo(
+        '.clinic-visit .clinic-section-heading',
+        { opacity: 0, y: 14 },
+        {
+          scrollTrigger: {
+            trigger: '.clinic-visit',
+            start: 'top 85%',
+            once: true,
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power2.out',
+        }
+      );
+
+      gsap.fromTo(
+        '.clinic-visit-ribbon',
+        { opacity: 0, scale: 0.98 },
+        {
+          scrollTrigger: {
+            trigger: '.clinic-visit-map',
+            start: 'top 85%',
+            once: true,
+          },
+          opacity: 1,
+          scale: 1,
+          duration: 0.8,
+          ease: 'power2.out',
+        }
+      );
+
+      gsap.fromTo(
+        '.clinic-visit-steps li',
+        { opacity: 0, y: 16 },
+        {
+          scrollTrigger: {
+            trigger: '.clinic-visit-steps',
+            start: 'top 85%',
+            once: true,
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: 'power2.out',
+        }
+      );
+
+      // 4. Doctor Profile Section (ScrollTrigger)
+      gsap.fromTo(
+        '.clinic-doctor-identity, .clinic-doctor-approach, .clinic-doctor-credentials > div, .clinic-doctor-fields',
+        { opacity: 0, y: 14 },
+        {
+          scrollTrigger: {
+            trigger: '.clinic-doctor-profile',
+            start: 'top 85%',
+            once: true,
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.65,
+          stagger: 0.08,
+          ease: 'power2.out',
+        }
+      );
+
+      gsap.fromTo(
+        '.clinic-doctor-visual img',
+        { opacity: 0, scale: 0.97, y: 14 },
+        {
+          scrollTrigger: {
+            trigger: '.clinic-doctor-visual',
+            start: 'top 85%',
+            once: true,
+          },
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.09,
+          ease: 'power3.out',
+        }
+      );
+
+      // 5. Articles Section (ScrollTrigger)
+      gsap.fromTo(
+        '.articles-section .section-top',
+        { opacity: 0, y: 14 },
+        {
+          scrollTrigger: {
+            trigger: '.articles-section',
+            start: 'top 85%',
+            once: true,
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power2.out',
+        }
+      );
+
       gsap.fromTo(
         '.articles-section .journal-feature-card, .articles-section .journal-item-card',
         { opacity: 0, y: 18 },
         {
           scrollTrigger: {
-            trigger: '.articles-section',
+            trigger: '.journal-layout-pro',
             start: 'top 85%',
             once: true,
           },
@@ -57,10 +232,10 @@ export function Home() {
         }
       );
 
-      // Close Section
+      // 6. Close Section (ScrollTrigger)
       gsap.fromTo(
         '.close-faq-col, .final-invite-pro',
-        { opacity: 0, y: 20 },
+        { opacity: 0, y: 18 },
         {
           scrollTrigger: {
             trigger: '.close-section',
@@ -267,7 +442,7 @@ export function Home() {
               <dl className="clinic-doctor-credentials">
                 <div>
                   <dt>التأهيل العلمي</dt>
-                  <dd>ماجستير ودبلومة في التغذية الإكلينيكية</dd>
+                  <dd>ماجستير ودكتوراة في التغذية العلاجية</dd>
                 </div>
                 <div>
                   <dt>العضوية المهنية</dt>
@@ -314,9 +489,6 @@ export function Home() {
 
       {/* قصص وتجارب النجاح والتحولات */}
       <SuccessStoriesSection />
-
-      {/* حاسبة مؤشرات الجسم ومؤشر كتلة الجسم InBody */}
-      <BmiCalculator />
 
       {/* مرشد البداية التفاعلي مع د. رنا */}
       <CareGuideQuiz whatsappNumber={data.clinic.whatsapp} />

@@ -79,7 +79,7 @@ describe('real MongoDB booking transactions', () => {
     expect(results.filter((r) => r.status === 201)).toHaveLength(1);
     expect(results.filter((r) => r.status === 409)).toHaveLength(7);
     expect(await Appointment.countDocuments()).toBe(1);
-    expect(await Reservation.countDocuments()).toBe(6);
+    expect(await Reservation.countDocuments()).toBe(9);
   });
   it('replays concurrent retries without duplicate bookings and rejects a changed payload', async () => {
     const key = crypto.randomUUID();
@@ -95,11 +95,11 @@ describe('real MongoDB booking transactions', () => {
     expect((await book(data({ serviceId: 'women', phone: '01000000001' }))).status).toBe(201);
     const conflict = await book(data({ time: '10:30', phone: '01000000002' }));
     expect(conflict.status).toBe(409);
-    expect((await book(data({ time: '11:00', phone: '01000000003' }))).status).toBe(201);
+    expect((await book(data({ time: '10:45', phone: '01000000003' }))).status).toBe(201);
     const slots = await request(app)
       .get('/api/availability')
       .query({ serviceId: 'nutrition', date: nextOpenDate() });
-    expect(slots.body.slots.find((s: { time: string }) => s.time === '10:30').reason).toBe(
+    expect(slots.body.slots.find((s: { time: string }) => s.time === '10:00').reason).toBe(
       'booked',
     );
   });
@@ -138,21 +138,21 @@ describe('real MongoDB booking transactions', () => {
   });
   it('preserves the original appointment if a proposed replacement is taken before approval', async () => {
     const a = await book(data({ phone: '01000000004' }));
-    const b = await book(data({ time: '11:00', phone: '01000000005' }));
+    const b = await book(data({ time: '10:45', phone: '01000000005' }));
     await admin(a.body.appointment.reference, { action: 'approve' });
     const proposed = await request(app)
       .post('/api/appointments/reschedule')
       .set('Authorization', 'Bearer ' + a.body.trackingToken)
-      .send({ date: nextOpenDate(), time: '12:00' });
+      .send({ date: nextOpenDate(), time: '11:30' });
     expect(proposed.status).toBe(200);
     expect(proposed.body.time).toBe('10:00');
-    expect(proposed.body.reschedule.time).toBe('12:00');
+    expect(proposed.body.reschedule.time).toBe('11:30');
     expect(
       (
         await admin(b.body.appointment.reference, {
           action: 'reschedule',
           date: nextOpenDate(),
-          time: '12:00',
+          time: '11:30',
         })
       ).status,
     ).toBe(200);
@@ -161,7 +161,7 @@ describe('real MongoDB booking transactions', () => {
     const original = await Appointment.findOne({ reference: a.body.appointment.reference });
     expect(original?.time).toBe('10:00');
     expect(original?.status).toBe('confirmed');
-    expect(await Reservation.countDocuments({ appointmentId: original?._id })).toBe(6);
+    expect(await Reservation.countDocuments({ appointmentId: original?._id })).toBe(9);
   });
   it('updates approval/rejection explicitly, rejects early completion and protects administrative routes', async () => {
     const r = await book(data({ phone: '01000000006' }));
@@ -170,7 +170,7 @@ describe('real MongoDB booking transactions', () => {
       'confirmed',
     );
     expect((await admin(r.body.appointment.reference, { action: 'complete' })).status).toBe(409);
-    const second = await book(data({ time: '12:30', phone: '01000000007' }));
+    const second = await book(data({ time: '12:15', phone: '01000000007' }));
     expect(
       (
         await admin(second.body.appointment.reference, {
@@ -179,7 +179,7 @@ describe('real MongoDB booking transactions', () => {
         })
       ).body.status,
     ).toBe('rejected');
-    expect(await Reservation.countDocuments()).toBe(6);
+    expect(await Reservation.countDocuments()).toBe(9);
   });
   it('requires private tracking tokens and validates contact and consent', async () => {
     expect((await request(app).get('/api/appointments/track')).status).toBe(404);

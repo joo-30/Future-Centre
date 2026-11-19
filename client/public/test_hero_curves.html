@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Hero Section Curve & Layout Explorations - Future Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #F3F0E5;
+      --evergreen: #063F32;
+      --moss: #C9DF83;
+      --sage: #71834A;
+      --lead: #4A5E52;
+      --muted: #55695A;
+      --border: rgba(6, 63, 50, 0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Alexandria', sans-serif;
+      background: #EAE6D8;
+      color: var(--evergreen);
+      direction: rtl;
+      padding: 40px 20px;
+    }
+    .option-wrapper {
+      max-width: 1340px;
+      margin: 0 auto 80px;
+      background: var(--paper);
+      border-radius: 32px;
+      box-shadow: 0 12px 40px rgba(6, 63, 50, 0.08);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .option-header {
+      background: var(--evergreen);
+      color: #FFFFFF;
+      padding: 18px 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .option-header h2 { font-size: 20px; font-weight: 800; }
+    .option-header span { color: var(--moss); font-size: 13.5px; font-weight: 600; }
+
+    /* Base Hero Layout */
+    .hero-box {
+      padding: 56px clamp(24px, 4.5vw, 64px) 48px;
+      position: relative;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.95fr;
+      gap: clamp(32px, 4.5vw, 64px);
+      align-items: center;
+      margin-bottom: 48px;
+    }
+    .tagline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--sage);
+      margin-bottom: 20px;
+    }
+    .hero-box h1 {
+      font-size: clamp(34px, 4vw, 54px);
+      font-weight: 800;
+      line-height: 1.25;
+      letter-spacing: -0.5px;
+      margin-bottom: 18px;
+    }
+    .hero-box h1 span {
+      display: block;
+      color: var(--sage);
+    }
+    .lead {
+      font-size: 16.5px;
+      line-height: 1.85;
+      color: var(--lead);
+      max-width: 48ch;
+      margin-bottom: 32px;
+    }
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .btn-book {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 34px;
+      border-radius: 9999px;
+      background: var(--evergreen);
+      color: #FFFFFF;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 18px rgba(6, 63, 50, 0.16);
+    }
+    .btn-book svg { color: var(--moss); }
+    .link-explore {
+      color: var(--evergreen);
+      font-size: 14.5px;
+      font-weight: 700;
+      text-decoration: none;
+      border-bottom: 1.5px solid rgba(6, 63, 50, 0.35);
+      padding-bottom: 3px;
+    }
+
+    /* Pillars */
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      padding-top: 36px;
+      border-top: 1px solid rgba(6, 63, 50, 0.1);
+    }
+    .pillar {
+      background: #FFFFFF;
+      border: 1px solid rgba(6, 63, 50, 0.08);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(6, 63, 50, 0.03);
+    }
+    .pillar-num {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: rgba(113, 131, 74, 0.12);
+      color: var(--evergreen);
+      font-size: 12px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+    .pillar-t { font-size: 15.5px; font-weight: 800; color: var(--evergreen); }
+    .pillar-d { font-size: 12.5px; color: var(--lead); line-height: 1.55; margin-top: 4px; }
+
+    /* ═══════════════════════════════════════════════════════════
+       OPTION 1: THE INNER FLOWING S-CURVE (المنحنى العضوي من جهة النص)
+       A fluid wave along the inner edge facing the text, connecting text & image
+       ═══════════════════════════════════════════════════════════ */
+    .opt1-visual-wrap {
+      position: relative;
+    }
+    .opt1-organic-frame {
+      position: relative;
+      aspect-ratio: 16 / 12;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 20px 48px -12px rgba(6, 63, 50, 0.18);
+      border: 1px solid rgba(6, 63, 50, 0.1);
+    }
+    .opt1-organic-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 25%;
+      display: block;
+    }
+    /* Flowing organic wave SVG curve coming from the text side */
+    .opt1-wave-edge {
+      position: absolute;
+      top: 0;
+      right: -1px;
+      height: 100%;
+      width: 48px;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .opt1-trust-pill {
+      position: absolute;
+      bottom: -16px;
+      right: 28px;
+      background: #FFFFFF;
+      border: 1px solid rgba(6, 63, 50, 0.12);
+      border-radius: 9999px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--evergreen);
+      box-shadow: 0 8px 24px rgba(6, 63, 50, 0.12);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 3;
+    }
+    .opt1-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #16a34a;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       OPTION 2: ARCHITECTURAL WELLNESS ARCH (القوس المعماري الفاخر المنساب)
+       High-end architectural arch curving towards the headline
+       ═══════════════════════════════════════════════════════════ */
+    .opt2-visual-wrap {
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+    .opt2-arch-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 12.5;
+      /* Sweeping arch curving gracefully on the text-facing top corner and side */
+      border-radius: 140px 28px 28px 28px;
+      overflow: hidden;
+      box-shadow: 0 24px 54px -14px rgba(6, 63, 50, 0.2);
+      border: 1.5px solid rgba(113, 131, 74, 0.25);
+      background: #05261e;
+    }
+    .opt2-arch-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 25%;
+      display: block;
+    }
+    .opt2-arch-accent {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: calc(100% + 20px);
+      height: calc(100% + 20px);
+      border-radius: 148px 34px 34px 34px;
+      border: 1px dashed rgba(113, 131, 74, 0.35);
+      pointer-events: none;
+      z-index: -1;
+    }
+    .opt2-trust-pill {
+      position: absolute;
+      bottom: -16px;
+      right: 32px;
+      background: var(--evergreen);
+      color: #FFFFFF;
+      border-radius: 9999px;
+      padding: 10px 22px;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 8px 24px rgba(6, 63, 50, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .opt2-trust-pill span.highlight {
+      color: var(--moss);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       OPTION 3: THE EMBRACING CANOPY (كانفاس دافئ مقوّس يحتضن النص والصورة)
+       A continuous organic curved canopy in soft sage embracing the layout
+       ═══════════════════════════════════════════════════════════ */
+    .opt3-container {
+      position: relative;
+      background: #FFFFFF;
+      border-radius: 28px;
+      padding: 48px;
+      border: 1px solid rgba(6, 63, 50, 0.08);
+      box-shadow: 0 8px 32px rgba(6, 63, 50, 0.04);
+    }
+    .opt3-cinema-frame {
+      border-radius: 24px;
+      overflow: hidden;
+      aspect-ratio: 16 / 12;
+      box-shadow: 0 16px 40px -10px rgba(6, 63, 50, 0.16);
+      border: 1px solid rgba(6, 63, 50, 0.1);
+    }
+    .opt3-cinema-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 25%;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- OPTION 1 -->
+  <div class="option-wrapper">
+    <div class="option-header">
+      <h2>الخيار 1: المنحنى العضوي الإنسيابي من جهة النص (The Fluid Inner Wave)</h2>
+      <span>منحنى انسيابي طبيعي ناعم يربط جهة النص بإطار الصورة دون أي تشويه للأبعاد</span>
+    </div>
+    <div class="hero-box">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="tagline">📍 عيادة التغذية العلاجية ونحت القوام · كفر الزيات</div>
+          <h1>الرعاية الطبية الحقيقية <span>تبدأ من الإصغاء لجسمكِ.</span></h1>
+          <p class="lead">برامج علاجية متكاملة بإشراف د. رنا ياسر الشورى (عضو الجمعية المصرية لدراسة السمنة EMASO)، تدمج الفحص الإكلينيكي الدقيق مع نمط حياتكِ اليومي لتحقيق نتائج دائمة دون تعقيد.</p>
+          <div class="actions">
+            <a href="#" class="btn-book">احجزي موعدكِ في العيادة ←</a>
+            <a href="#" class="link-explore">استكشفي خدمات العيادة</a>
+          </div>
+        </div>
+
+        <div class="opt1-visual-wrap">
+          <div class="opt1-organic-frame">
+            <img src="/assets/consultation.png" alt="جلسة استشارة طبية">
+            <!-- Organic wave SVG mask edge on the right (text side in RTL) -->
+            <svg class="opt1-wave-edge" viewBox="0 0 48 400" preserveAspectRatio="none" fill="#F3F0E5">
+              <path d="M48,0 C20,100 0,160 0,200 C0,240 20,300 48,400 L48,0 Z"></path>
+            </svg>
+          </div>
+          <div class="opt1-trust-pill">
+            <span class="opt1-dot"></span>
+            <span>استشارات إكلينيكية مباشرة مع د. رنا</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pillars">
+        <div class="pillar">
+          <span class="pillar-num">01</span>
+          <div class="pillar-t">تحليل InBody</div>
+          <div class="pillar-d">تتبع دقيق لكتلة الدهون والعضلات وتوزيع السوائل</div>
+        </div>
+        <div class="pillar">
+          <span class="pillar-num">02</span>
+          <div class="pillar-t">أنظمة غذائية مخصصة</div>
+          <div class="pillar-d">خطط علمية مرنة تلائم وتيرة يومكِ دون حرمان</div>
+        </div>
+        <div class="pillar">
+          <span class="pillar-num">03</span>
+          <div class="pillar-t">نحت وتنسيق القوام</div>
+          <div class="pillar-d">أحدث تقنيات تفتيت الدهون الموضعية غير الجراحية</div>
+        </div>
+        <div class="pillar">
+          <span class="pillar-num">04</span>
+          <div class="pillar-t">متابعة إكلينيكية مباشرة</div>
+          <div class="pillar-d">إشراف مستمر من د. رنا في كل جلسة لتقييم النتائج</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION 2 -->
+  <div class="option-wrapper">
+    <div class="option-header">
+      <h2>الخيار 2: القوس المعماري الفاخر المنساب نحو العنوان (The Architectural Arch)</h2>
+      <span>قوس معماري طبّي فخم يميل بانسيابية من جهة النص مع إطار دقيق وشارة ملكية داكنة</span>
+    </div>
+    <div class="hero-box">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="tagline">📍 عيادة التغذية العلاجية ونحت القوام · كفر الزيات</div>
+          <h1>الرعاية الطبية الحقيقية <span>تبدأ من الإصغاء لجسمكِ.</span></h1>
+          <p class="lead">برامج علاجية متكاملة بإشراف د. رنا ياسر الشورى (عضو الجمعية المصرية لدراسة السمنة EMASO)، تدمج الفحص الإكلينيكي الدقيق مع نمط حياتكِ اليومي لتحقيق نتائج دائمة دون تعقيد.</p>
+          <div class="actions">
+            <a href="#" class="btn-book">احجزي موعدكِ في العيادة ←</a>
+            <a href="#" class="link-explore">استكشفي خدمات العيادة</a>
+          </div>
+        </div>
+
+        <div class="opt2-visual-wrap">
+          <div class="opt2-arch-frame">
+            <img src="/assets/consultation.png" alt="جلسة استشارة طبية">
+          </div>
+          <div class="opt2-arch-accent"></div>
+          <div class="opt2-trust-pill">
+            <span>جلسات استشارة متخصصة</span>
+            <span class="highlight">· حجز مؤكد بالمركز</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pillars">
+        <div class="pillar">
+          <span class="pillar-num">01</span>
+          <div class="pillar-t">تحليل InBody</div>
+          <div class="pillar-d">تتبع دقيق لكتلة الدهون والعضلات وتوزيع السوائل</div>
+        </div>
+        <div class="pillar">
+          <span class="pillar-num">02</span>
+          <div class="pillar-t">أنظمة غذائية مخصصة</div>
+          <div class="pillar-d">خطط علمية مرنة تلائم وتيرة يومكِ دون حرمان</div>
+        </div>
+        <div class="pillar">
+          <span class="pillar-num">03</span>
+          <div class="pillar-t">نحت وتنسيق القوام</div>
+          <div class="pillar-d">أحدث تقنيات تفتيت الدهون الموضعية غير الجراحية</div>
+        </div>
+        <div class="pillar">
+          <span class="pillar-num">04</span>
+          <div class="pillar-t">متابعة إكلينيكية مباشرة</div>
+          <div class="pillar-d">إشراف مستمر من د. رنا في كل جلسة لتقييم النتائج</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION 3 -->
+  <div class="option-wrapper">
+    <div class="option-header">
+      <h2>الخيار 3: الإطار السينمائي الفاخر بدون تشويه مع توازن بصري كامل (The Balanced Atelier)</h2>
+      <span>نسب متناغمة (16:12) مع زوايا ناعمة مدروسة 24px وشارة ثقة عائمة وظلال هادئة</span>
+    </div>
+    <div class="hero-box">
+      <div class="opt3-container">
+        <div class="hero-grid" style="margin-bottom: 36px;">
+          <div class="hero-copy">
+            <div class="tagline">📍 عيادة التغذية العلاجية ونحت القوام · كفر الزيات</div>
+            <h1>الرعاية الطبية الحقيقية <span>تبدأ من الإصغاء لجسمكِ.</span></h1>
+            <p class="lead">برامج علاجية متكاملة بإشراف د. رنا ياسر الشورى (عضو الجمعية المصرية لدراسة السمنة EMASO)، تدمج الفحص الإكلينيكي الدقيق مع نمط حياتكِ اليومي لتحقيق نتائج دائمة دون تعقيد.</p>
+            <div class="actions">
+              <a href="#" class="btn-book">احجزي موعدكِ في العيادة ←</a>
+              <a href="#" class="link-explore">استكشفي خدمات العيادة</a>
+            </div>
+          </div>
+
+          <div style="position: relative;">
+            <div class="opt3-cinema-frame">
+              <img src="/assets/consultation.png" alt="جلسة استشارة طبية">
+            </div>
+            <div class="opt1-trust-pill">
+              <span class="opt1-dot"></span>
+              <span>إشراف طبي متكامل · كفر الزيات</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pillars" style="border-top-color: rgba(6,63,50,0.06);">
+          <div class="pillar" style="background: #F9F8F3;">
+            <span class="pillar-num">01</span>
+            <div class="pillar-t">تحليل InBody</div>
+            <div class="pillar-d">تتبع دقيق لكتلة الدهون والعضلات وتوزيع السوائل</div>
+          </div>
+          <div class="pillar" style="background: #F9F8F3;">
+            <span class="pillar-num">02</span>
+            <div class="pillar-t">أنظمة غذائية مخصصة</div>
+            <div class="pillar-d">خطط علمية مرنة تلائم وتيرة يومكِ دون حرمان</div>
+          </div>
+          <div class="pillar" style="background: #F9F8F3;">
+            <span class="pillar-num">03</span>
+            <div class="pillar-t">نحت وتنسيق القوام</div>
+            <div class="pillar-d">أحدث تقنيات تفتيت الدهون الموضعية غير الجراحية</div>
+          </div>
+          <div class="pillar" style="background: #F9F8F3;">
+            <span class="pillar-num">04</span>
+            <div class="pillar-t">متابعة إكلينيكية مباشرة</div>
+            <div class="pillar-d">إشراف مستمر من د. رنا في كل جلسة لتقييم النتائج</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

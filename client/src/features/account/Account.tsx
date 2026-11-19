@@ -34,7 +34,8 @@ import {
   X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { gsap, isReducedMotion, useGSAP } from '../../lib/motion';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../components/Auth';
 import { PasswordField } from '../../components/forms/PasswordField';
 import { WhatsAppIcon } from '../../components/icons/WhatsAppIcon';
@@ -128,9 +129,11 @@ export function Account() {
   const drawerTrigger = useRef<HTMLButtonElement>(null);
   const drawerClose = useRef<HTMLButtonElement>(null);
   const navScrollRef = useRef<HTMLElement>(null);
+  const accountPageRef = useRef<HTMLElement>(null);
   const [claim, setClaim] = useState(false);
   const [profile, setProfile] = useState(false);
   const [password, setPassword] = useState(false);
+  const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [copiedRef, setCopiedRef] = useState<string | null>(null);
@@ -148,19 +151,22 @@ export function Account() {
     e.preventDefault();
     setLookupErrorMsg('');
     setLookupSuccessMsg('');
-    const q = lookupQuery.trim();
-    if (!q) {
-      setLookupErrorMsg('يرجى كتابة رقم كود الحجز (مثال: #7975 أو 7975)');
+    const clean = lookupQuery.trim().replace(/^[#№#\s]+/, '');
+    if (!clean) {
+      setLookupErrorMsg('يرجى كتابة كود الحجز (مثال: 1863 أو 6867)');
       return;
     }
     setLookupBusy(true);
     try {
-      await accountApi.claim(q.includes('#') ? q.split('#').pop()! : q);
-      setLookupSuccessMsg(`تم ربط وتحديث بيانات الحجز #${q.replace(/^#/, '')} بحسابكِ بنجاح! 🌿`);
-      setLookupQuery('');
-      reload();
+      try {
+        await accountApi.claim(clean);
+        await reload();
+      } catch {
+        // Proceed even if already claimed or in account
+      }
+      navigate('/booking/track?q=' + encodeURIComponent(clean));
     } catch (err) {
-      setLookupErrorMsg((err as Error).message || 'تعذر العثور على الحجز. تأكدي من رقم الكود.');
+      setLookupErrorMsg('تعذر العثور على موعد بهذا الكود، يرجى التأكد من كتابة الرقم بشكل صحيح.');
     } finally {
       setLookupBusy(false);
     }
@@ -326,6 +332,32 @@ export function Account() {
     };
   }, [drawerOpen]);
   const reload = () => void client.invalidateQueries({ queryKey: ['account'] });
+
+  useGSAP(
+    () => {
+      if (!accountPageRef.current || isReducedMotion() || accountQuery.isPending || !accountQuery.data) return;
+      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+      tl.fromTo(
+        '.member-heading',
+        { opacity: 0, y: -8 },
+        { opacity: 1, y: 0, duration: 0.45 }
+      )
+        .fromTo(
+          '.account-code-lookup-card',
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.55 },
+          '-=0.25'
+        )
+        .fromTo(
+          '.member-overview-grid > *, .member-quick-actions',
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.5, stagger: 0.08 },
+          '-=0.3'
+        );
+    },
+    { scope: accountPageRef, dependencies: [tab, accountQuery.isPending] }
+  );
+
   if (accountQuery.isPending) return <Loading />;
   if (accountQuery.error || !accountQuery.data)
     return (
@@ -781,65 +813,106 @@ export function Account() {
     window.print();
   };
 
-  const renderCodeLookupCard = () => (
-    <div className="account-code-lookup-card">
-      <div className="aclc-header">
-        <div className="aclc-icon-wrap">
-          <Search size={18} />
+  const isPhonePattern = (val: string) => {
+    const clean = val.replace(/[\s()\-]/g, '');
+    return /^(01|\+20|0020|\d{9,14})/.test(clean);
+  };
+
+  const renderCodeLookupCard = () => {
+    const isPhone = isPhonePattern(lookupQuery.trim());
+    const hasValue = lookupQuery.trim().length > 0;
+    const formattedUserPhone = user?.phone ? user.phone.replace(/^\+20/, '0') : '';
+
+    return (
+      <div className="account-code-lookup-card">
+        <div className="aclc-header">
+          <div className="aclc-icon-wrap">
+            {isPhone ? <Smartphone size={19} /> : <Search size={18} />}
+          </div>
+          <div>
+            <h3 className="aclc-title">الاستعلام الذكي عن الموعد والتذكرة</h3>
+            <p className="aclc-desc">
+              اكتبي رقم الموبايل أو كود الحجز لعرض تذكرتكِ الذكية ومتابعة موعدكِ فوراً:
+            </p>
+          </div>
         </div>
-        <div>
-          <h3 className="aclc-title">استعلام سريع أو ربط حجز برقم الكود</h3>
-          <p className="aclc-desc">
-            حجزتِ كضيف أو عبر الهاتف وتريدين إضافة الموعد لملفكِ الطبي؟ اكتبي كود الحجز هنا:
-          </p>
-        </div>
+
+        <form onSubmit={handleQuickLookupOrClaim} className="aclc-form">
+          <div className="aclc-input-wrap">
+            {isPhone ? (
+              <Smartphone size={17} className="aclc-field-icon" />
+            ) : (
+              <Ticket size={17} className="aclc-field-icon" />
+            )}
+            <input
+              type="text"
+              className="aclc-input"
+              placeholder="اكتبي رقم الموبايل (مثال: 01012345678) أو كود الحجز (مثال: 1863)"
+              value={lookupQuery}
+              onChange={(e) => setLookupQuery(e.target.value)}
+              dir="rtl"
+            />
+            {hasValue && (
+              <span className={`aclc-detect-badge ${isPhone ? 'is-phone' : 'is-ticket'}`}>
+                {isPhone ? <Smartphone size={12} /> : <Ticket size={12} />}
+                <span>{isPhone ? 'رقم موبايل' : 'كود حجز'}</span>
+              </span>
+            )}
+          </div>
+          <button
+            type="submit"
+            className="aclc-submit-btn"
+            disabled={lookupBusy}
+          >
+            {lookupBusy ? (
+              <span>جارٍ الاستعلام...</span>
+            ) : (
+              <>
+                <Search size={16} />
+                <span>استعلام وعرض التذكرة ←</span>
+              </>
+            )}
+          </button>
+        </form>
+
+        {formattedUserPhone && (
+          <div className="aclc-quick-phone-row">
+            <span className="aclc-quick-label">اختصار سريع:</span>
+            <button
+              type="button"
+              className="aclc-quick-phone-btn"
+              onClick={() => {
+                setLookupQuery(formattedUserPhone);
+                navigate('/booking/track?q=' + encodeURIComponent(formattedUserPhone));
+              }}
+              title="البحث التلقائي عن المواعيد برقم هاتفي المسجل"
+            >
+              <Smartphone size={13} />
+              <span>استعلام برقم هاتفي المسجل ({formattedUserPhone})</span>
+            </button>
+          </div>
+        )}
+
+        {lookupSuccessMsg && (
+          <div className="aclc-feedback is-success" role="status">
+            <CheckCircle2 size={16} />
+            <span>{lookupSuccessMsg}</span>
+          </div>
+        )}
+        {lookupErrorMsg && (
+          <div className="aclc-feedback is-error" role="alert">
+            <AlertCircle size={16} />
+            <span>{lookupErrorMsg}</span>
+          </div>
+        )}
       </div>
+    );
+  };
 
-      <form onSubmit={handleQuickLookupOrClaim} className="aclc-form">
-        <div className="aclc-input-wrap">
-          <Ticket size={17} className="aclc-field-icon" />
-          <input
-            type="text"
-            className="aclc-input"
-            placeholder="اكتبي كود الحجز (مثال: 7975 أو #7975)"
-            value={lookupQuery}
-            onChange={(e) => setLookupQuery(e.target.value)}
-            dir="rtl"
-          />
-        </div>
-        <button
-          type="submit"
-          className="aclc-submit-btn"
-          disabled={lookupBusy}
-        >
-          {lookupBusy ? (
-            <span>جارٍ الربط...</span>
-          ) : (
-            <>
-              <Link2 size={16} />
-              <span>ربط بالحساب الآن</span>
-            </>
-          )}
-        </button>
-      </form>
 
-      {lookupSuccessMsg && (
-        <div className="aclc-feedback is-success" role="status">
-          <CheckCircle2 size={16} />
-          <span>{lookupSuccessMsg}</span>
-        </div>
-      )}
-      {lookupErrorMsg && (
-        <div className="aclc-feedback is-error" role="alert">
-          <AlertCircle size={16} />
-          <span>{lookupErrorMsg}</span>
-        </div>
-      )}
-    </div>
-  );
 
   return (
-    <main className="member-page">
+    <main ref={accountPageRef} className="member-page">
       {toast && (
         <div className={`app-floating-toast ${toast.type}`} role="status" aria-live="polite">
           <div className="app-toast-left-wrap">
@@ -1191,7 +1264,7 @@ export function Account() {
                   حجز موعد جديد
                 </ButtonLink>
               </div>
-              {tab === 'appointments' && renderCodeLookupCard()}
+              
               {selected.length === 0 ? (
                 <div className="portal-empty">
                   <CalendarDays />

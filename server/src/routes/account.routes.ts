@@ -4,7 +4,7 @@ import { getUserNotifications, markNotificationAsRead, markAllNotificationsAsRea
 
 import { z } from 'zod';
 
-import { arabicDigits, rescheduleSchema } from '@future/shared';
+import { arabicDigits, normalizePhone, rescheduleSchema } from '@future/shared';
 
 import { Appointment } from '../models/appointment.model.js';
 import { InBody } from '../models/inbody.model.js';
@@ -97,21 +97,48 @@ accountRouter.post('/claim', async (req, res) => {
 
   let a: any = null;
   const cleanInput = token.replace(/^[#№#\s]+/, '').trim();
-  if (cleanInput.length === 43) {
+
+  // Smart check: is cleanInput a phone number?
+  const asciiQuery = arabicDigits(cleanInput).replace(/[\s()\-]/g, '');
+  let phoneNormalized: string | null = null;
+  if (/^(\+?20|0020)?01[0125]\d{8}$/.test(asciiQuery) || /^01\d{9}$/.test(asciiQuery) || /^\d{10,14}$/.test(asciiQuery)) {
     try {
-      a = await findByToken(cleanInput);
-    } catch {
-      // fallback to reference search
-    }
+      phoneNormalized = normalizePhone(asciiQuery);
+    } catch {}
   }
-  if (!a) {
-    const candidates = cleanReferenceCandidates(cleanInput);
-    a = await Appointment.findOne({ reference: { $in: candidates } })
+
+  if (phoneNormalized) {
+    // 1. Link any guest appointments with this phone to the user
+    await Appointment.updateMany(
+      { phone: phoneNormalized, userId: null },
+      { $set: { userId: req.authUser!._id } },
+    );
+    // 2. Find the user's latest appointment for this phone
+    a = await Appointment.findOne({
+      phone: phoneNormalized,
+      $or: [{ userId: req.authUser!._id }, { userId: null }],
+    })
+      .sort({ createdAt: -1 })
       .select('+phone +idempotencyHash')
       .lean();
+  } else {
+    if (cleanInput.length === 43) {
+      try {
+        a = await findByToken(cleanInput);
+      } catch {
+        // fallback to reference search
+      }
+    }
+    if (!a) {
+      const candidates = cleanReferenceCandidates(cleanInput);
+      a = await Appointment.findOne({ reference: { $in: candidates } })
+        .select('+phone +idempotencyHash')
+        .lean();
+    }
   }
+
   if (!a) {
-    throw new ApiError(404, 'NOT_FOUND', 'لم نتمكن من العثور على أي حجز بهذا الكود أو الرابط.');
+    throw new ApiError(404, 'NOT_FOUND', 'لم نتمكن من العثور على أي حجز بهذا الرقم أو الكود.');
   }
 
   const result = await Appointment.findOneAndUpdate(

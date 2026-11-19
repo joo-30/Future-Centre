@@ -2,7 +2,6 @@ import { normalizePhone, type BookingData } from '@future/shared';
 import { DateTime } from 'luxon';
 import mongoose from 'mongoose';
 import crypto from 'node:crypto';
-import { config } from '../../config.js';
 import { ApiError } from '../../lib/api-error.js';
 import { hash } from '../../lib/crypto.js';
 import { tokenFor } from '../../lib/tracking-tokens.js';
@@ -178,12 +177,7 @@ export async function createBooking(
             startMinute: start,
             endMinute: end,
             status: 'pending',
-            holdUntil: new Date(
-              Math.min(
-                Date.now() + config.PENDING_HOLD_HOURS * 3600000,
-                DateTime.fromISO(`${data.date}T${data.time}`, { zone: clinic.timezone }).toMillis(),
-              ),
-            ),
+            holdUntil: DateTime.fromISO(`${data.date}T${data.time}`, { zone: clinic.timezone }).toJSDate(),
             history: [
               {
                 status: 'pending',

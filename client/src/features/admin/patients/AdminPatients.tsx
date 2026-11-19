@@ -918,7 +918,11 @@ export function AdminPatients() {
                         className="btn-patient-subaction"
                         onClick={() => {
                           setResetTarget(p);
-                          setCustomPassword('');
+                          const cleanPhone = p.phone ? p.phone.replace(/\D/g, '') : '';
+                          const initialSuggestion = cleanPhone.length >= 4
+                            ? `Future@${cleanPhone.slice(-4)}`
+                            : `Future@${Math.floor(1000 + Math.random() * 9000)}`;
+                          setCustomPassword(initialSuggestion);
                           setTempPassResult(null);
                           setCopiedPass(false);
                         }}
@@ -1599,13 +1603,13 @@ export function AdminPatients() {
                 }}
                 style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}
               >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <label htmlFor="custom-temp-pwd" style={{ fontSize: '12.5px', fontWeight: 800, color: '#1e293b' }}>
-                      كلمة مرور مخصصة (اختياري)
+                      كلمة المرور المؤقتة المقترحة
                     </label>
                     <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
-                      أو اتركيها فارغة لتوليد آلي
+                      مخصصة لهذا الملف (يمكنكِ تعديلها)
                     </span>
                   </div>
 
@@ -1618,7 +1622,7 @@ export function AdminPatients() {
                       type="text"
                       dir="ltr"
                       className="pwd-modern-input"
-                      placeholder="Future@2026 أو اتركيها فارغة"
+                      placeholder="اكتبي كلمة مرور أو اتركي الاقتراح الحالي"
                       value={customPassword}
                       onChange={(e) => setCustomPassword(e.target.value)}
                       minLength={6}
@@ -1627,15 +1631,58 @@ export function AdminPatients() {
                     <button
                       type="button"
                       className="pwd-generate-quick-btn"
-                      onClick={() => setCustomPassword(`Future@${new Date().getFullYear()}`)}
-                      title="اقتراح كلمة مرور نموذجية"
+                      onClick={() => setCustomPassword(`Future@${Math.floor(1000 + Math.random() * 9000)}`)}
+                      title="توليد اقتراح عشوائي جديد لهذا المريض"
                     >
-                      اقتراح Future@2026
+                      🎲 اقتراح جديد
                     </button>
                   </div>
 
-                  <p style={{ fontSize: '11.5px', color: '#64748b', margin: '4px 0 0', lineHeight: 1.4 }}>
-                    💡 إذا تركتِ الحقل فارغاً، سيقوم النظام تلقائياً بتوليد كلمة مرور سهلة ومؤقتة ومشاركتها معكِ لنسخها فوراً.
+                  <div className="pwd-quick-chips">
+                    <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 700 }}>خيارات سريعة:</span>
+                    <button
+                      type="button"
+                      className="pwd-chip-btn"
+                      onClick={() => setCustomPassword(`Future@${Math.floor(1000 + Math.random() * 9000)}`)}
+                      title="توليد كلمة مرور عشوائية جديدة"
+                    >
+                      🎲 عشوائي جديد
+                    </button>
+                    {resetTarget.phone && resetTarget.phone.replace(/\D/g, '').length >= 4 && (
+                      <button
+                        type="button"
+                        className="pwd-chip-btn"
+                        onClick={() => {
+                          const last4 = resetTarget.phone.replace(/\D/g, '').slice(-4);
+                          setCustomPassword(`Future@${last4}`);
+                        }}
+                        title={`استخدام آخر 4 أرقام من هاتف المريض (${resetTarget.phone.replace(/\D/g, '').slice(-4)})`}
+                      >
+                        📱 برقم الهاتف ({resetTarget.phone.replace(/\D/g, '').slice(-4)})
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="pwd-chip-btn"
+                      onClick={() => setCustomPassword(`${Math.floor(100000 + Math.random() * 900000)}`)}
+                      title="رمز رقمي مكوّن من 6 أرقام سهل للمريض"
+                    >
+                      🔢 6 أرقام
+                    </button>
+                    {customPassword && (
+                      <button
+                        type="button"
+                        className="pwd-chip-btn pwd-chip-btn-clear"
+                        onClick={() => setCustomPassword('')}
+                        title="مسح الحقل ليقوم السيرفر بالتوليد التلقائي"
+                      >
+                        ✕ مسح (توليد آلي)
+                      </button>
+                    )}
+                  </div>
+
+                  <p style={{ fontSize: '11.5px', color: '#64748b', margin: '2px 0 0', lineHeight: 1.4 }}>
+                    💡 كل ملف مريض له اقتراح فريد خاص به تلقائياً. يمكنكِ الضغط على "اقتراح جديد" لتغييره بأي وقت، أو تعديله يدوياً، أو تركه فارغاً.
                   </p>
                 </div>
 

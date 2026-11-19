@@ -1180,9 +1180,10 @@
 
   /* Daily Pulse Cards 2x2 Grid on Mobile */
   .daily-pulse-container {
-    padding: 14px !important;
+    padding: 16px 14px !important;
     gap: 12px !important;
-    margin-bottom: 18px !important;
+    margin-block-start: 28px !important;
+    margin-block-end: 22px !important;
   }
 
   .pulse-metrics-grid {

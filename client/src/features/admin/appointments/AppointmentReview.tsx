@@ -220,7 +220,7 @@ export function AppointmentReview({
         </button>
       </div>
       <div className="review-decisions">
-        {(a.status === 'pending'
+        {(['pending', 'expired'].includes(a.status)
           ? ['approve', 'reschedule', ...(a.reschedule ? ['decline_change'] : []), 'reject']
           : a.status === 'confirmed'
             ? [

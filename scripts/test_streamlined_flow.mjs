@@ -1,0 +1,526 @@
+import { chromium } from 'playwright';
+import fs from 'fs';
+
+const chromeSystem = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+const artifactDir = 'C:/Users/makah/.gemini/antigravity/brain/c5420236-75f6-4eb0-aed5-e6d16c5e7077';
+
+const html = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Hero Redesign - Streamlined Luxury</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #F3F0E5;
+      --evergreen: #063F32;
+      --moss: #C9DF83;
+      --sage: #71834A;
+      --lead: #4A5E52;
+      --muted: #55695A;
+      --border: rgba(6, 63, 50, 0.09);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Alexandria', sans-serif;
+      background: var(--paper);
+      color: var(--evergreen);
+      direction: rtl;
+    }
+    .hero-section {
+      padding: clamp(36px, 4vw, 60px) clamp(20px, 4.5vw, 64px) 36px;
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+    .hero-main {
+      display: grid;
+      grid-template-columns: 1.15fr 0.95fr;
+      gap: clamp(36px, 5vw, 68px);
+      align-items: center;
+      margin-bottom: 40px;
+    }
+    .tagline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 750;
+      color: var(--sage);
+      margin-bottom: 20px;
+      letter-spacing: 0.2px;
+    }
+    h1 {
+      font-size: clamp(36px, 4.2vw, 56px);
+      font-weight: 900;
+      line-height: 1.22;
+      letter-spacing: -0.6px;
+      margin-bottom: 20px;
+      text-wrap: balance;
+    }
+    h1 span {
+      display: block;
+      color: var(--sage);
+    }
+    .lead {
+      font-size: clamp(16px, 1.3vw, 18.5px);
+      line-height: 1.85;
+      color: var(--lead);
+      max-width: 48ch;
+      margin-bottom: 34px;
+    }
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .btn-book {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 15px 36px;
+      border-radius: 9999px;
+      background: var(--evergreen);
+      color: #FFFFFF;
+      font-size: 15px;
+      font-weight: 750;
+      text-decoration: none;
+      box-shadow: 0 4px 18px rgba(6, 63, 50, 0.16);
+      transition: all 0.2s ease;
+    }
+    .btn-book:hover {
+      background: #094d3e;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(6, 63, 50, 0.22);
+    }
+    .btn-book span.arrow {
+      color: var(--moss);
+      font-size: 17px;
+    }
+    .link-explore {
+      color: var(--evergreen);
+      font-size: 14.5px;
+      font-weight: 750;
+      text-decoration: none;
+      border-bottom: 1.5px solid rgba(6, 63, 50, 0.35);
+      padding-bottom: 3px;
+      transition: all 0.2s ease;
+    }
+    .link-explore:hover {
+      border-color: var(--evergreen);
+    }
+
+    /* Visual Framing with Sculpted Organic Curve */
+    .hero-visual {
+      position: relative;
+    }
+    .hero-photo-frame {
+      position: relative;
+      aspect-ratio: 16 / 12;
+      border-radius: 28px;
+      overflow: hidden;
+      background: #05261e;
+      box-shadow: 
+        0 24px 50px -12px rgba(6, 63, 50, 0.18),
+        0 4px 16px rgba(6, 63, 50, 0.06);
+      border: 1px solid rgba(6, 63, 50, 0.12);
+    }
+    .hero-photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 25%;
+      display: block;
+      filter: saturate(1.03);
+    }
+    .hero-trust-badge {
+      position: absolute;
+      bottom: -16px;
+      right: 28px;
+      background: #FFFFFF;
+      border: 1px solid rgba(6, 63, 50, 0.1);
+      border-radius: 9999px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 750;
+      color: var(--evergreen);
+      box-shadow: 0 8px 24px rgba(6, 63, 50, 0.12);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .trust-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #16a34a;
+    }
+
+    /* STREAMLINED LUXURY PILLAR RIBBON (No competing boxes) */
+    .hero-ribbon {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 28px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(6, 63, 50, 0.08);
+      border-radius: 20px;
+      box-shadow: 0 4px 18px rgba(6, 63, 50, 0.03);
+    }
+    .ribbon-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+    .ribbon-item:not(:last-child) {
+      border-left: 1px solid rgba(6, 63, 50, 0.1);
+      padding-left: 16px;
+    }
+    .ribbon-num {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--sage);
+      background: rgba(113, 131, 74, 0.12);
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    .ribbon-copy strong {
+      display: block;
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--evergreen);
+      line-height: 1.25;
+    }
+    .ribbon-copy span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* SERVICES SECTION (ENLARGED CARDS SIKA) */
+    .services-preview {
+      max-width: 1320px;
+      margin: 48px auto;
+      padding: 0 clamp(20px, 4.5vw, 64px);
+    }
+    .services-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 36px;
+    }
+    .services-head h2 {
+      font-size: clamp(28px, 3.2vw, 42px);
+      font-weight: 900;
+      color: var(--evergreen);
+    }
+    .services-head p {
+      font-size: 15px;
+      color: var(--lead);
+      margin-top: 6px;
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .srv-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(6, 63, 50, 0.09);
+      border-radius: 24px;
+      padding: 38px 30px;
+      box-shadow: 0 4px 20px rgba(6, 63, 50, 0.04);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+    .srv-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px -8px rgba(6, 63, 50, 0.1);
+      border-color: rgba(6, 63, 50, 0.2);
+    }
+    .srv-card.featured {
+      border: 1.5px solid var(--sage);
+      box-shadow: 0 8px 30px -4px rgba(6, 63, 50, 0.09);
+    }
+    .srv-featured-badge {
+      position: absolute;
+      top: -14px;
+      right: 28px;
+      background: var(--evergreen);
+      color: var(--moss);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 5px 16px;
+      border-radius: 9999px;
+    }
+    .srv-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      font-weight: 750;
+      color: var(--sage);
+      background: rgba(113, 131, 74, 0.1);
+      padding: 5px 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .srv-title {
+      font-size: 22px;
+      font-weight: 850;
+      color: var(--evergreen);
+      margin-bottom: 10px;
+      line-height: 1.35;
+    }
+    .srv-desc {
+      font-size: 14.5px;
+      color: var(--lead);
+      line-height: 1.7;
+      margin-bottom: 22px;
+    }
+    .srv-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 28px;
+      border-top: 1px solid rgba(6, 63, 50, 0.06);
+      padding-top: 20px;
+    }
+    .srv-features li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--lead);
+    }
+    .srv-check {
+      color: #16a34a;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .srv-footer {
+      border-top: 1px solid rgba(6, 63, 50, 0.08);
+      padding-top: 22px;
+    }
+    .srv-price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 20px;
+    }
+    .srv-price strong {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--evergreen);
+    }
+    .srv-price span {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--sage);
+      margin-right: 4px;
+    }
+    .srv-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--evergreen);
+      color: #FFFFFF;
+      font-size: 15px;
+      font-weight: 750;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(6, 63, 50, 0.12);
+    }
+    .srv-details {
+      display: block;
+      text-align: center;
+      margin-top: 12px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--muted);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <section class="hero-section">
+    <div class="hero-main">
+      <div class="hero-copy">
+        <div class="tagline">📍 عيادة التغذية العلاجية ونحت القوام · كفر الزيات</div>
+        <h1>الرعاية الطبية الحقيقية <span>تبدأ من الإصغاء لجسمكِ.</span></h1>
+        <p class="lead">برامج علاجية متكاملة بإشراف د. رنا ياسر الشورى (عضو الجمعية المصرية لدراسة السمنة EMASO)، تدمج الفحص الإكلينيكي الدقيق مع نمط حياتكِ اليومي لتحقيق نتائج دائمة دون تعقيد.</p>
+        <div class="actions">
+          <a href="/booking" class="btn-book">
+            <span>احجزي موعدكِ في العيادة</span>
+            <span class="arrow">←</span>
+          </a>
+          <a href="#services" class="link-explore">استكشفي خدمات العيادة</a>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="hero-photo-frame">
+          <img src="/assets/consultation.png" alt="جلسة استشارة طبية">
+        </div>
+        <div class="hero-trust-badge">
+          <span class="trust-dot"></span>
+          <span>استشارات إكلينيكية مباشرة مع د. رنا</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STREAMLINED LUXURY RIBBON -->
+    <div class="hero-ribbon">
+      <div class="ribbon-item">
+        <span class="ribbon-num">01</span>
+        <div class="ribbon-copy">
+          <strong>تحليل InBody</strong>
+          <span>فحص دقيق لتكوين الجسم وتوزيع الدهون</span>
+        </div>
+      </div>
+      <div class="ribbon-item">
+        <span class="ribbon-num">02</span>
+        <div class="ribbon-copy">
+          <strong>أنظمة غذائية مخصصة</strong>
+          <span>جداول مرنة تناسب يومكِ دون حرمان</span>
+        </div>
+      </div>
+      <div class="ribbon-item">
+        <span class="ribbon-num">03</span>
+        <div class="ribbon-copy">
+          <strong>نحت وتنسيق القوام</strong>
+          <span>أحدث تقنيات تفتيت الدهون غير الجراحية</span>
+        </div>
+      </div>
+      <div class="ribbon-item">
+        <span class="ribbon-num">04</span>
+        <div class="ribbon-copy">
+          <strong>متابعة إكلينيكية مباشرة</strong>
+          <span>إشراف مستمر مع د. رنا في كل جلسة</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLINIC SERVICES PREVIEW (ENLARGED SIKA) -->
+  <section class="services-preview" id="services">
+    <div class="services-head">
+      <div>
+        <h2>خدمات العيادة</h2>
+        <p>الكشف والبرامج بالحضور في مقر المركز. الدفع في العيادة.</p>
+      </div>
+      <a href="/programs" class="link-explore">كل البرامج ←</a>
+    </div>
+
+    <div class="services-grid">
+      <!-- Card 1 -->
+      <article class="srv-card featured">
+        <span class="srv-featured-badge">البرنامج الأكثر طلباً</span>
+        <div>
+          <span class="srv-pill">⏱ شهر واحد (4 جلسات) · 30 دقيقة</span>
+          <h3 class="srv-title">برنامج متابعة شهرية بالعيادة</h3>
+          <p class="srv-desc">خطة شخصية متكاملة و4 زيارات دورية بمقر المركز لدعمك أسبوعياً وتعديل الخطة حسب استجابة جسمكِ.</p>
+          <ul class="srv-features">
+            <li><span class="srv-check">✓</span> فحص InBody أسبوعي شامل لمتابعة النتائج</li>
+            <li><span class="srv-check">✓</span> نظام غذائي مرن ومفصل يلائم نمط يومكِ وعملكِ</li>
+            <li><span class="srv-check">✓</span> إشراف ومتابعة مباشرة مع د. رنا طوال الشهر</li>
+          </ul>
+        </div>
+        <div class="srv-footer">
+          <div class="srv-price-row">
+            <div class="srv-price">
+              <strong>1,200</strong>
+              <span>ج.م</span>
+            </div>
+          </div>
+          <button class="srv-btn">طلب البرنامج</button>
+          <a href="#" class="srv-details">تفاصيل الخدمة ←</a>
+        </div>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="srv-card">
+        <div>
+          <span class="srv-pill">⏱ جلسة كشف بالعيادة · 30 دقيقة</span>
+          <h3 class="srv-title">كشف واستشارة بالعيادة (حضور شخصي)</h3>
+          <p class="srv-desc">كشف وتقييم سريري شامل مع الدكتورة بمقر العيادة لتحديد خطتكِ الصحية ومعرفة معدلات الحرق.</p>
+          <ul class="srv-features">
+            <li><span class="srv-check">✓</span> كشف إكلينيكي كامل وتاريخ صحي مفصل</li>
+            <li><span class="srv-check">✓</span> قراءة تحليلية دقيقة لمعدلات الحرق والدهون</li>
+            <li><span class="srv-check">✓</span> تحديد الخطة العلاجية والهدف الواقعي خطوة بخطوة</li>
+          </ul>
+        </div>
+        <div class="srv-footer">
+          <div class="srv-price-row">
+            <div class="srv-price">
+              <strong>450</strong>
+              <span>ج.م</span>
+            </div>
+          </div>
+          <button class="srv-btn">طلب موعد</button>
+          <a href="#" class="srv-details">تفاصيل الخدمة ←</a>
+        </div>
+      </article>
+
+      <!-- Card 3 -->
+      <article class="srv-card">
+        <div>
+          <span class="srv-pill">⏱ جلسة فردية تخصصية · 45 دقيقة</span>
+          <h3 class="srv-title">تغذية المرأة ورعاية الحمل بالعيادة</h3>
+          <p class="srv-desc">رعاية غذائية تخصصية لحالات الحمل، الرضاعة، وتكيسات المبايض بمقر المركز لدعم التوازن الهرموني.</p>
+          <ul class="srv-features">
+            <li><span class="srv-check">✓</span> برامج مخصصة لتكيسات المبايض وتوازن الهرمونات</li>
+            <li><span class="srv-check">✓</span> تغذية علاجية آمنة لمراحل الحمل والرضاعة</li>
+            <li><span class="srv-check">✓</span> استعادة النشاط والحيوية بدون أدوية قاسية</li>
+          </ul>
+        </div>
+        <div class="srv-footer">
+          <div class="srv-price-row">
+            <div class="srv-price">
+              <strong>500</strong>
+              <span>ج.م</span>
+            </div>
+          </div>
+          <button class="srv-btn">طلب موعد</button>
+          <a href="#" class="srv-details">تفاصيل الخدمة ←</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+</body>
+</html>
+`;
+
+fs.writeFileSync('client/public/test_streamlined_flow.html', html);
+
+async function capture() {
+  const browser = await chromium.launch({ executablePath: chromeSystem, headless: true });
+  const page = await browser.newPage();
+  await page.setViewportSize({ width: 1440, height: 1800 });
+  await page.goto('http://127.0.0.1:5176/test_streamlined_flow.html', { waitUntil: 'networkidle' });
+  await page.waitForTimeout(1000);
+
+  const shotPath = `${artifactDir}/streamlined_flow_1440.png`;
+  await page.screenshot({ path: shotPath, fullPage: true });
+  console.log('Saved streamlined flow screenshot:', shotPath);
+
+  await browser.close();
+}
+
+capture().catch(console.error);
