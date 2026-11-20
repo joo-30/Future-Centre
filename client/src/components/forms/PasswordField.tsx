@@ -1,27 +1,31 @@
 import { NEW_PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH } from '@future/shared';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Lock } from 'lucide-react';
 import { useId, useState } from 'react';
 
 export interface PasswordFieldProps {
   name?: string;
   label?: string;
+  labelTag?: string;
   current?: boolean;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   required?: boolean;
   autoComplete?: string;
+  showLockIcon?: boolean;
 }
 
 export function PasswordField({
   name = 'password',
   label = 'كلمة المرور',
+  labelTag,
   current = false,
   value,
   onChange,
-  placeholder,
+  placeholder = '••••••••',
   required = true,
   autoComplete,
+  showLockIcon = true,
 }: PasswordFieldProps) {
   const [show, setShow] = useState(false);
   const hintId = useId();
@@ -29,8 +33,16 @@ export function PasswordField({
   return (
     <div className="password-field-container">
       <label className="field">
-        <span className="field-label-text">{label}</span>
-        <span className="password-input">
+        <div className="field-label-row">
+          <span className="field-label-text">{label}</span>
+          {labelTag && <span className="field-label-tag">{labelTag}</span>}
+        </div>
+        <div className="password-input">
+          {showLockIcon && (
+            <span className="password-field-icon" aria-hidden="true">
+              <Lock size={18} />
+            </span>
+          )}
           <input
             name={name}
             type={show ? 'text' : 'password'}
@@ -42,6 +54,7 @@ export function PasswordField({
             value={value}
             onChange={onChange}
             placeholder={placeholder}
+            className={showLockIcon ? 'has-lock-icon' : ''}
           />
           <button
             type="button"
@@ -49,10 +62,11 @@ export function PasswordField({
             aria-label={show ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
             title={show ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
             onClick={() => setShow(!show)}
+            tabIndex={-1}
           >
-            {show ? <EyeOff size={19} /> : <Eye size={19} />}
+            {show ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
-        </span>
+        </div>
       </label>
 
       {!current && (

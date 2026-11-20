@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Check, ChevronLeft, Copy, KeyRound, Lock, Phone, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -18,7 +18,6 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
   const [params] = useSearchParams();
   const { data: catalog } = useCatalog();
   const [error, setError] = useState('');
-  const [quickError, setQuickError] = useState('');
   const [busy, setBusy] = useState(false);
   const [code, setCode] = useState('');
   const [copied, setCopied] = useState(false);
@@ -37,44 +36,9 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
     setName('');
     setRecoveryCode('');
     setError('');
-    setQuickError('');
   }, [mode]);
   const registering = mode === 'register';
   const recovering = mode === 'recover';
-  const quick = useQuery({
-    queryKey: ['local-quick-login'],
-    queryFn: authApi.quickRoles,
-    enabled: mode === 'login',
-    retry: false,
-    staleTime: 60000,
-  });
-
-  const isLocalHost =
-    typeof window !== 'undefined' &&
-    (window.location.hostname === 'localhost' ||
-      window.location.hostname === '127.0.0.1' ||
-      Boolean(import.meta.env.DEV));
-
-  const availableRoles = quick.data?.roles?.length
-    ? quick.data.roles
-    : isLocalHost
-      ? (['admin', 'patient'] as const)
-      : [];
-
-  async function quickLogin(role: 'admin' | 'patient') {
-    setBusy(true);
-    setQuickError('');
-    try {
-      const result = await authApi.quickLogin(role);
-      await replaceSession(client, result.user, ['local-quick-login']);
-      await auth.refresh();
-      navigate(destination(role), { replace: true });
-    } catch (e) {
-      setQuickError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  }
 
   const next = params.get('next');
   const destination = (role: string) =>
@@ -181,21 +145,21 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                 </Button>
               </div>
             ) : (
-              <>
+              <div className="auth-card-inner">
                 <header className="auth-header">
-                  <h1 id="access-title">
+                  <h1 id="access-title" className="auth-title">
                     {registering
                       ? 'إنشاء حساب جديد'
                       : recovering
-                        ? 'استعادة حسابكِ'
+                        ? 'استعادة الحساب'
                         : 'تسجيل الدخول'}
                   </h1>
-                  <p>
+                  <p className="auth-subtitle">
                     {registering
-                      ? 'أنشئي حسابكِ لمتابعة خطتكِ ومواعيدكِ.'
+                      ? 'أنشئي حسابكِ لمتابعة خطتكِ الغذائية ومواعيدكِ المعتمدة.'
                       : recovering
                         ? 'أدخلي رقم هاتفكِ ورمز الاستعادة لتعيين كلمة مرور جديدة.'
-                        : 'تابعي خطتكِ ومواعيدكِ من حسابكِ.'}
+                        : 'تابعي خطتكِ ومواعيدكِ من حسابكِ بالمركز.'}
                   </p>
                 </header>
 
@@ -203,7 +167,10 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                   <fieldset disabled={busy}>
                     {registering && (
                       <label className="field">
-                        <span className="field-label-text">الاسم بالكامل</span>
+                        <div className="field-label-row">
+                          <span className="field-label-text">الاسم بالكامل</span>
+                          <span className="field-label-tag">كما في السجل الطبي</span>
+                        </div>
                         <div className="input-with-icon">
                           <User size={18} className="input-field-icon" />
                           <input
@@ -221,13 +188,15 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                     )}
 
                     <label className="field">
-                      <span className="field-label-text">رقم الهاتف المسجّل</span>
+                      <div className="field-label-row">
+                        <span className="field-label-text">رقم الهاتف</span>
+                        <span className="field-label-tag">المسجّل بالعيادة</span>
+                      </div>
                       <div className="input-with-icon">
                         <Phone size={18} className="input-field-icon" />
                         <input
                           name="phone"
                           type="tel"
-                          dir="ltr"
                           autoComplete={registering ? 'tel' : 'username'}
                           autoCorrect="off"
                           autoCapitalize="none"
@@ -235,7 +204,7 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                           required
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
-                          placeholder=""
+                          placeholder="01xxxxxxxxx"
                           maxLength={24}
                         />
                       </div>
@@ -243,7 +212,10 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
 
                     {recovering && (
                       <label className="field">
-                        <span className="field-label-text">رمز الاستعادة الشخصي</span>
+                        <div className="field-label-row">
+                          <span className="field-label-text">رمز الاستعادة الشخصي</span>
+                          <span className="field-label-tag">رمز الأمان</span>
+                        </div>
                         <div className="input-with-icon">
                           <KeyRound size={18} className="input-field-icon" />
                           <input
@@ -268,8 +240,9 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                           registering || recovering ? 'new-password' : 'current-password'
                         }
                         current={!registering && !recovering}
-                        placeholder=""
+                        placeholder="••••••••"
                         label={recovering ? 'كلمة المرور الجديدة' : 'كلمة المرور'}
+                        labelTag={registering ? '8 أحرف على الأقل' : 'حسابكِ المحمي'}
                       />
                     </div>
 
@@ -285,7 +258,7 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                       <div className="access-options">
                         <label className="consent">
                           <input name="remember" type="checkbox" />
-                          <span>تذكّرني</span>
+                          <span>تذكّر تسجيل الدخول</span>
                         </label>
                         <Link className="forgot-link" to="/recover">
                           نسيتِ كلمة المرور؟
@@ -303,25 +276,45 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                     <button type="submit" className="auth-submit-btn" disabled={busy}>
                       <span>
                         {busy
-                          ? 'جاري التحقق والمتابعة...'
+                          ? 'جاري التحقق...'
                           : registering
-                            ? 'إنشاء الحساب والبدء'
+                            ? 'إنشاء حساب جديد'
                             : recovering
                               ? 'تحديث كلمة المرور'
                               : 'تسجيل الدخول'}
                       </span>
+                      <ArrowLeft size={17} aria-hidden="true" />
                     </button>
                   </fieldset>
                 </form>
 
-                <div className="access-switch-wrap">
-                  {(registering || recovering) && <span>لديكِ حساب بالفعل؟</span>}
-                  <Link
-                    to={registering || recovering ? '/login' : '/register'}
-                    className="switch-link"
-                  >
-                    {registering || recovering ? 'تسجيل الدخول' : 'إنشاء حساب جديد'}
-                  </Link>
+                <div className="auth-switch-section">
+                  {!registering && !recovering ? (
+                    <>
+                      <div className="auth-divider">
+                        <span>أو</span>
+                      </div>
+
+                      <Link to="/booking" className="guest-booking-btn">
+                        <span>احجزي كشفكِ دون حساب</span>
+                        <ArrowLeft size={16} aria-hidden="true" />
+                      </Link>
+
+                      <div className="auth-footer-prompt">
+                        <span>ليس لديكِ حساب بالمركز؟</span>
+                        <Link to="/register" className="auth-switch-link">
+                          إنشاء حساب جديد
+                        </Link>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="auth-footer-prompt">
+                      <span>{registering ? 'لديكِ حساب بالفعل؟' : 'تذكرتِ كلمة المرور؟'}</span>
+                      <Link to="/login" className="auth-switch-link">
+                        تسجيل الدخول الآن
+                      </Link>
+                    </div>
+                  )}
                 </div>
 
                 {recovering && catalog && (
@@ -339,11 +332,7 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
                     </a>
                   </p>
                 )}
-
-                <Link to="/booking" className="guest-booking-btn">
-                  احجزي كشفكِ دون حساب
-                </Link>
-              </>
+              </div>
             )}
           </div>
         </section>
@@ -370,40 +359,6 @@ export function AuthPage({ mode = 'login' }: { mode?: 'login' | 'register' | 're
           />
           <figcaption>د. رنا ياسر الشورى</figcaption>
         </figure>
-      </div>
-
-      <div className="access-utilities">
-        {mode === 'login' && availableRoles.length > 0 && (
-          <details className="access-dev-tools">
-            <summary>دخول سريع · بيئة التطوير المحلية</summary>
-            <div className="quick-login-panel">
-              <div className="quick-login-grid">
-                {availableRoles.map((role) => (
-                  <button
-                    key={role}
-                    type="button"
-                    className={`quick-login-btn role-${role}`}
-                    disabled={busy}
-                    onClick={() => void quickLogin(role)}
-                  >
-                    <div className="quick-btn-info">
-                      <span className="quick-role-badge">
-                        {role === 'admin' ? 'إدارة المركز' : 'حساب المريض'}
-                      </span>
-                      <bdi dir="ltr">{role === 'admin' ? 'Admin Portal' : 'Patient Account'}</bdi>
-                    </div>
-                    <ArrowLeft size={16} className="quick-arrow" />
-                  </button>
-                ))}
-              </div>
-              {quickError && (
-                <p className="access-dev-error" role="alert">
-                  {quickError}
-                </p>
-              )}
-            </div>
-          </details>
-        )}
       </div>
     </main>
   );

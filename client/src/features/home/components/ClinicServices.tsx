@@ -6,7 +6,7 @@ import { ProgramInterest } from '../../../components/ProgramInterest';
 import { formatPrice } from '../../../lib/api';
 import { clinicServiceArtwork, clinicServiceRank, clinicServiceTitle } from '../../../lib/clinic-presentation';
 
-const serviceNumbers = new Intl.NumberFormat('ar-EG');
+const serviceNumbers = new Intl.NumberFormat('ar-EG-u-nu-latn');
 
 export function ClinicServices({
   services,

@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { DateTime } from 'luxon';
 import mongoose from 'mongoose';
 import request from 'supertest';
 import { afterAll, beforeAll, expect, it } from 'vitest';
@@ -108,6 +109,7 @@ it('reports Cairo-local requests, completed visits per service and net weekly sc
     scheduledMinutes: 330,
     completed: 2,
     visitMinutes: 75,
+    booked: 3,
   });
 });
 
@@ -121,4 +123,86 @@ it('preserves existing clinic hours, edited services and deleted articles on sta
   expect(clinic?.blocks).toEqual(current?.blocks);
   expect((await ServiceModel.findOne({ id: 'nutrition' }).lean())?.price).toBe(777);
   expect(await ArticleModel.exists({ slug: 'meal-planning' })).toBeNull();
+});
+
+it('enforces sequential lifecycle: booking -> confirm -> attendance with paid amount -> analytics realized revenue', async () => {
+  const clinic = await Clinic.findOne({ key: 'main' }).lean();
+  const cairoNow = DateTime.now().setZone(clinic?.timezone || 'Africa/Cairo');
+  const date = cairoNow.toISODate()!;
+  // Set time ahead of current Cairo time today so approve succeeds and visit is today
+  const futureTime = '23:55';
+  const ref = 'TEST-' + randomUUID().slice(0, 6);
+
+  // 1. Initial appointment creation (pending, price 200 EGP)
+  const appt = await Appointment.create({
+    reference: ref,
+    serviceId: 'nutrition',
+    serviceTitle: 'تغذية علاجية',
+    duration: 30,
+    price: 200,
+    name: 'مريض تجريبي',
+    phone: '01012345678',
+    whatsapp: '01012345678',
+    date,
+    time: futureTime,
+    startMinute: 840,
+    endMinute: 870,
+    status: 'pending',
+    idempotencyHash: randomUUID(),
+    payloadHash: randomUUID(),
+    tokenHash: randomUUID(),
+    history: [{ status: 'pending', at: new Date(), message: 'حجز جديد', actor: 'guest' }],
+  });
+
+  // Verify: Cannot mark completed while still pending!
+  const earlyCompleteRes = await request(app)
+    .post(`/api/admin/appointments/${ref}/decision`)
+    .set('X-Admin-Key', config.ADMIN_API_KEY)
+    .send({ action: 'complete' });
+  expect(earlyCompleteRes.status).toBe(409);
+  expect(earlyCompleteRes.body.error.code).toBe('INVALID_STATE');
+
+  // Verify analytics: realize revenue does NOT count pending
+  const resPending = await request(app)
+    .get('/api/admin/analytics')
+    .query({ date, range: 'today' })
+    .set('X-Admin-Key', config.ADMIN_API_KEY);
+  expect(resPending.status).toBe(200);
+  const initialRevenue = resPending.body.period.revenue;
+
+  // 2. Admin approves (confirmed)
+  const approveRes = await request(app)
+    .post(`/api/admin/appointments/${ref}/decision`)
+    .set('X-Admin-Key', config.ADMIN_API_KEY)
+    .send({ action: 'approve' });
+  expect(approveRes.status).toBe(200);
+  expect(approveRes.body.status).toBe('confirmed');
+
+  // Verify analytics: confirmed appointment goes to expected revenue, NOT realized revenue!
+  const resConfirmed = await request(app)
+    .get('/api/admin/analytics')
+    .query({ date, range: 'today' })
+    .set('X-Admin-Key', config.ADMIN_API_KEY);
+  expect(resConfirmed.body.period.revenue).toBe(initialRevenue);
+  expect(resConfirmed.body.period.expectedRevenue).toBeGreaterThanOrEqual(200);
+
+  // 3. Patient attends at clinic: Admin registers attendance and specifies paid amount (e.g. 180 EGP with discount)
+  const completeRes = await request(app)
+    .post(`/api/admin/appointments/${ref}/decision`)
+    .set('X-Admin-Key', config.ADMIN_API_KEY)
+    .send({ action: 'complete', price: 180 });
+  expect(completeRes.status).toBe(200);
+  expect(completeRes.body.status).toBe('completed');
+  expect(completeRes.body.price).toBe(180);
+
+  // 4. Verify analytics: realized revenue now includes the paid 180 EGP!
+  const resCompleted = await request(app)
+    .get('/api/admin/analytics')
+    .query({ date, range: 'today' })
+    .set('X-Admin-Key', config.ADMIN_API_KEY);
+  expect(resCompleted.body.period.revenue).toBe(initialRevenue + 180);
+  expect(resCompleted.body.day.completed).toBeGreaterThanOrEqual(1);
+
+  // Clean up
+  await Appointment.deleteOne({ reference: ref });
 });

@@ -17,17 +17,27 @@
   z-index: 30;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none !important; /* Firefox: hide scrollbar completely */
-  -ms-overflow-style: none !important; /* IE/Edge */
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(126, 227, 181, 0.25) transparent !important;
   border-inline-end: 1px solid rgba(255, 255, 255, 0.08);
+  user-select: none;
+  -webkit-user-select: none;
 }
-.console-sidebar::-webkit-scrollbar,
-.console-sidebar::-webkit-scrollbar-thumb,
+.console-sidebar::-webkit-scrollbar {
+  width: 5px !important;
+  height: 5px !important;
+  display: block !important;
+}
 .console-sidebar::-webkit-scrollbar-track {
-  display: none !important; /* Chrome, Safari, Edge */
-  width: 0 !important;
-  height: 0 !important;
   background: transparent !important;
+}
+.console-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(126, 227, 181, 0.22) !important;
+  border-radius: 999px !important;
+  transition: background 0.2s ease !important;
+}
+.console-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(126, 227, 181, 0.5) !important;
 }
 .console-brand {
   display: flex;
@@ -83,60 +93,86 @@
 .console-sidebar nav a {
   display: flex;
   align-items: center;
-  gap: 9px;
-  font-size: 12.8px;
-  font-weight: 700;
-  min-height: 44px;
-  padding: 9px 11px;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  min-height: 46px;
+  padding: 6px 11px;
   border-radius: 12px;
-  color: #b5d5c5;
+  border: 1px solid transparent;
+  color: #a9cfbd;
   text-decoration: none;
   white-space: nowrap;
   letter-spacing: -0.15px;
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow: hidden;
+}
+.console-sidebar nav a .nav-item-icon-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .console-sidebar nav a .nav-item-icon {
   flex-shrink: 0;
   color: #7ee3b5;
-  transition: transform 0.18s ease, color 0.18s ease;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.22s ease, filter 0.22s ease;
 }
 .console-sidebar nav a .nav-item-label {
   flex: 1;
   min-width: 0;
   white-space: nowrap;
+  transition: color 0.2s ease;
 }
 .console-sidebar nav a .nav-item-arrow {
-  width: 0;
-  opacity: 0;
-  margin: 0;
-  flex-shrink: 0;
-  overflow: hidden;
-  transition: all 0.18s ease;
-  color: #10664f;
+  display: none !important;
 }
 .console-sidebar nav a:hover:not(.active) {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
   color: #ffffff;
   transform: translateX(-3px);
 }
+.console-sidebar nav a:hover:not(.active) .nav-item-icon-box {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(126, 227, 181, 0.25);
+  transform: scale(1.05);
+}
 .console-sidebar nav a:hover:not(.active) .nav-item-icon {
-  color: #ffffff;
-  transform: scale(1.08);
+  color: #a7f3d0;
 }
 .console-sidebar nav a.active {
-  background: #ffffff !important;
-  color: #063126 !important;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(6, 78, 59, 0.42) 55%, rgba(4, 47, 36, 0.30) 100%) !important;
+  color: #ffffff !important;
   font-weight: 800 !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(110, 231, 183, 0.35) !important;
+  box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 0 18px rgba(16, 185, 129, 0.14) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+.console-sidebar nav a.active .nav-item-icon-box {
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.26) 0%, rgba(16, 185, 129, 0.12) 100%) !important;
+  border: 1px solid rgba(110, 231, 183, 0.45) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 12px rgba(52, 211, 153, 0.28) !important;
+  transform: scale(1.03);
 }
 .console-sidebar nav a.active .nav-item-icon {
-  color: #0d5c46 !important;
+  color: #6ee7b7 !important;
+  filter: drop-shadow(0 0 5px rgba(110, 231, 183, 0.6));
 }
-.console-sidebar nav a.active .nav-item-arrow {
-  width: 16px;
-  opacity: 1 !important;
-  margin-inline-start: 4px;
+.console-sidebar nav a.active .nav-item-label {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
 }
 
 /* Badges */
@@ -170,7 +206,7 @@
   color: #ffffff !important;
 }
 .console-sidebar nav a.active .sidebar-notification-badge.badge-info {
-  background: #0d5c46 !important;
+  background: #10b981 !important;
   color: #ffffff !important;
 }
 @keyframes sidebar-badge-pulse {
@@ -3457,8 +3493,9 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background: #25d366;
-  color: #ffffff !important;
+  background: #f0fdf4;
+  color: #166534 !important;
+  border: 1px solid #bbf7d0;
   font-size: 13px;
   font-weight: 700;
   padding: 8px 14px;
@@ -3470,9 +3507,10 @@
 }
 
 .request-whatsapp-action:hover {
-  background: #20bd5a;
+  background: #dcfce7;
+  border-color: #86efac;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.28);
+  box-shadow: 0 2px 8px rgba(22, 101, 52, 0.12);
 }
 
 .request-register-btn {
@@ -5917,8 +5955,8 @@
   align-items: center !important;
   justify-content: center !important;
   gap: 6px !important;
-  background: #25D366 !important;
-  color: #ffffff !important;
+  background: #f0fdf4 !important;
+  color: #166534 !important;
   border-radius: 9px !important;
   padding: 0 13px !important;
   min-height: 36px !important;
@@ -5926,8 +5964,8 @@
   box-sizing: border-box !important;
   font-size: 12.5px !important;
   font-weight: 700 !important;
-  border: 1px solid #1ebe5d !important;
-  box-shadow: 0 1px 4px rgba(37, 211, 102, 0.25) !important;
+  border: 1px solid #bbf7d0 !important;
+  box-shadow: 0 1px 3px rgba(22, 101, 52, 0.08) !important;
   transition: all 0.15s ease !important;
   cursor: pointer !important;
   text-decoration: none !important;
@@ -5939,9 +5977,11 @@
 }
 
 .table-whatsapp-btn:hover {
-  background: #1eb957 !important;
+  background: #dcfce7 !important;
+  color: #14532d !important;
+  border-color: #86efac !important;
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(37, 211, 102, 0.35) !important;
+  box-shadow: 0 2px 6px rgba(22, 101, 52, 0.16) !important;
 }
 
 .table-rx-action-btn {
@@ -6046,13 +6086,18 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #25D366;
-  color: #ffffff !important;
+  background: #f0fdf4;
+  color: #166534 !important;
+  border: 1px solid #bbf7d0;
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
+}
+.mobile-whatsapp-btn:hover {
+  background: #dcfce7;
+  border-color: #86efac;
 }
 
 /* WhatsApp Quick Templates in Appointment Review */
@@ -7693,9 +7738,9 @@ input.rx-num-input,
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background: #25D366;
-  color: #ffffff !important;
-  border: 1px solid #1ebe5d;
+  background: #f0fdf4;
+  color: #166534 !important;
+  border: 1px solid #bbf7d0;
   border-radius: 10px;
   height: 38px;
   padding: 0 10px;
@@ -7707,13 +7752,14 @@ input.rx-num-input,
   white-space: nowrap;
   box-sizing: border-box;
   width: 100%;
-  box-shadow: 0 2px 6px rgba(37, 211, 102, 0.22);
+  box-shadow: 0 1px 3px rgba(22, 101, 52, 0.08);
 }
 
 .today-whatsapp-btn:hover {
-  background: #20ba5a;
+  background: #dcfce7;
+  border-color: #86efac;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.32);
+  box-shadow: 0 2px 6px rgba(22, 101, 52, 0.16);
 }
 
 .today-details-full-btn {
@@ -7751,6 +7797,76 @@ input.rx-num-input,
 .today-details-full-btn:hover svg {
   color: #1e4a2d;
   transform: translateX(-2px);
+}
+
+/* Quick Attendance Actions on Today Cards */
+.today-attendance-quick-bar {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+
+.today-attend-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.today-attend-btn.is-complete {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  border: 1px solid rgba(5, 150, 105, 0.4);
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
+}
+
+.today-attend-btn.is-complete:hover:not(:disabled) {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
+}
+
+.today-attend-btn.is-noshow {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
+.today-attend-btn.is-noshow:hover:not(:disabled) {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+  transform: translateY(-1.5px);
+}
+
+.today-attend-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.today-attended-status-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 34px;
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 700;
 }
 
 .today-empty-state {
@@ -10062,8 +10178,9 @@ dialog.advanced-capacity-modal-dialog {
 .table-whatsapp-btn {
   height: 36px !important;
   padding: 0 12px !important;
-  background: #25d366 !important;
-  color: #ffffff !important;
+  background: #f0fdf4 !important;
+  color: #166534 !important;
+  border: 1px solid #bbf7d0 !important;
   font-size: 13px !important;
   font-weight: 800 !important;
   border-radius: 8px !important;
@@ -10075,7 +10192,8 @@ dialog.advanced-capacity-modal-dialog {
 }
 
 .table-whatsapp-btn:hover {
-  background: #1ea952 !important;
+  background: #dcfce7 !important;
+  border-color: #86efac !important;
   transform: translateY(-1px) !important;
 }
 
@@ -10148,15 +10266,15 @@ dialog.advanced-capacity-modal-dialog {
 
 .console-table th.th-service,
 .console-table td.td-service {
-  width: 32% !important;
-  min-width: 200px !important;
+  width: 29% !important;
+  min-width: 190px !important;
   text-align: right !important;
 }
 
 .console-table th.th-status,
 .console-table td.td-status {
-  width: 13% !important;
-  min-width: 105px !important;
+  width: 16% !important;
+  min-width: 145px !important;
   text-align: right !important;
 }
 
@@ -10179,8 +10297,9 @@ dialog.advanced-capacity-modal-dialog {
 .table-whatsapp-btn {
   height: 35px !important;
   padding: 0 11px !important;
-  background: #25d366 !important;
-  color: #ffffff !important;
+  background: #f0fdf4 !important;
+  color: #166534 !important;
+  border: 1px solid #bbf7d0 !important;
   font-size: 12.5px !important;
   font-weight: 800 !important;
   border-radius: 8px !important;
@@ -10189,7 +10308,7 @@ dialog.advanced-capacity-modal-dialog {
   gap: 5px !important;
   text-decoration: none !important;
   transition: all 0.15s ease !important;
-  box-shadow: 0 1px 3px rgba(37, 211, 102, 0.2) !important;
+  box-shadow: 0 1px 3px rgba(22, 101, 52, 0.08) !important;
 }
 
 .table-rx-action-btn {
@@ -10797,22 +10916,22 @@ dialog.advanced-capacity-modal-dialog {
 .today-agenda-top-centered {
   display: flex !important;
   align-items: center !important;
-  justify-content: center !important;
+  justify-content: flex-start !important;
   width: 100% !important;
-  text-align: center !important;
-  padding-bottom: 2px !important;
+  text-align: right !important;
+  padding-bottom: 6px !important;
 }
 
 .today-agenda-header-pill {
   display: inline-flex !important;
   align-items: center !important;
-  justify-content: center !important;
-  gap: 12px !important;
-  padding: 8px 24px !important;
-  background: #f4f9f2 !important;
-  border: 1.5px solid #d2e4ce !important;
-  border-radius: 999px !important;
-  box-shadow: 0 2px 8px rgba(18, 52, 28, 0.05) !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 
 .today-agenda-header-icon {

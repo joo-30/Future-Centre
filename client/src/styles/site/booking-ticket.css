@@ -6,8 +6,11 @@
   --ticket-gutter: clamp(18px, 2.6vw, 38px);
   width: 100%;
   max-width: none !important;
-  margin: 0;
-  padding: clamp(18px, 2.6vw, 40px) clamp(16px, 4vw, 68px) !important;
+  margin: 0 0 5px !important;
+  padding-block-start: clamp(20px, 2.8vw, 40px) !important;
+  padding-block-end: clamp(16px, 2.2vw, 28px) !important;
+  padding-inline: clamp(16px, 4vw, 68px) !important;
+  border-radius: 0 0 8px 8px;
   background: radial-gradient(ellipse at 6% 40%, #58613d 0%, transparent 58%), #153125;
   color: var(--ticket-ink);
 }
@@ -19,6 +22,12 @@
   gap: clamp(20px, 3.4vw, 52px) !important;
   max-width: 1440px;
   margin-inline: auto;
+}
+
+.booking-ticket .book-main-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .booking-ticket.live-booking .book-main {
@@ -57,23 +66,67 @@
   display: flex;
   grid-area: tools;
   align-items: center;
-  gap: 7px 12px;
+  justify-content: flex-end;
+  gap: 10px 14px;
   flex-wrap: wrap;
 }
-.booking-ticket-topline a {
-  min-height: 44px;
+.booking-ticket-step {
+  padding: 6px 14px;
+  border-radius: 99px;
+  background: var(--ticket-accent);
+  color: #17372a;
+  font-weight: 700;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+}
+.booking-track-pill {
+  min-height: 40px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  color: var(--ticket-ink);
-}
-.booking-ticket-step {
-  padding: 4px 12px;
-  border-radius: 99px;
-  background: var(--ticket-accent);
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1.5px solid #c7d8be;
+  color: #153e28 !important;
   font-weight: 700;
+  font-size: 13.5px;
+  text-decoration: none !important;
+  box-shadow: 0 2px 8px rgba(18, 52, 28, 0.08);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+.booking-track-pill .track-pill-icon {
+  color: #2e603b;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+.booking-track-pill .track-pill-arrow {
+  color: #55785f;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+.booking-track-pill:hover {
+  background: #153e28;
+  color: #ffffff !important;
+  border-color: #153e28;
+  box-shadow: 0 6px 18px rgba(18, 52, 28, 0.22);
+  transform: translateY(-1px);
+}
+.booking-track-pill:hover .track-pill-icon,
+.booking-track-pill:hover .track-pill-arrow {
+  color: #dbe795;
+}
+.booking-track-pill:hover .track-pill-arrow {
+  transform: translateX(-3px);
+}
+.booking-track-pill:focus-visible {
+  outline: 2px solid #153e28;
+  outline-offset: 2px;
+}
+.booking-track-pill:active {
+  transform: translateY(0);
 }
 .booking-ticket-heading h1 {
   grid-area: title;
@@ -276,10 +329,24 @@
   gap: 8px;
 }
 .booking-ticket .legal-foot {
-  color: #f0f2dd;
+  color: #c5d6bf;
+  text-align: center !important;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-block-start: clamp(14px, 1.8vw, 22px);
+  margin-block-end: 0;
+  opacity: 0.88;
+  width: 100% !important;
+  margin-inline: auto !important;
 }
 .booking-ticket .legal-foot a {
-  color: inherit;
+  color: #eaf3e5;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: color 0.18s ease;
+}
+.booking-ticket .legal-foot a:hover {
+  color: #ffffff;
 }
 
 @media (max-width: 1024px) {
@@ -294,9 +361,11 @@
 @media (max-width: 620px) {
   .live-booking.booking-ticket {
     --ticket-gutter: 15px;
-  }
-  .live-booking.booking-ticket {
     padding-inline: 12px !important;
+    padding-block-start: 18px !important;
+    padding-block-end: 18px !important;
+    margin-block-end: 5px !important;
+    border-radius: 0 0 6px 6px;
   }
   .booking-ticket.live-booking .book-main {
     padding-inline: 15px !important;
@@ -313,5 +382,12 @@
   }
   .booking-ticket-topline {
     justify-content: space-between;
+    width: 100%;
+    margin-block-end: 6px;
+  }
+  .booking-track-pill {
+    padding: 6px 12px;
+    font-size: 12.5px;
+    min-height: 38px;
   }
 }

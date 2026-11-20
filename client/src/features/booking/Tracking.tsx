@@ -35,10 +35,12 @@ import { RescheduleDialog } from './components/RescheduleDialog';
 
 export function Tracking() {
   const trackingRef = useRef<HTMLElement>(null);
-  const hashToken = useLocation().hash.slice(1);
   const location = useLocation();
+  const rawHash = location.hash.slice(1);
+  const hashToken = rawHash ? decodeURIComponent(rawHash).trim() : '';
   const [lookupToken, setLookupToken] = useState('');
   const token = hashToken || lookupToken;
+  const cleanToken = token ? token.trim().replace(/\s+/g, '+') : '';
 
   const { data: catalog } = useCatalog();
   const [copyMessage, setCopyMessage] = useState('');
@@ -80,17 +82,17 @@ export function Tracking() {
 
   const client = useQueryClient();
   const result = useQuery({
-    queryKey: ['tracking', token],
-    queryFn: () => api.track(token),
-    enabled: !!token,
+    queryKey: ['tracking', cleanToken],
+    queryFn: () => api.track(cleanToken),
+    enabled: !!cleanToken,
     retry: false,
     refetchInterval: (q) =>
       q.state.data && ['pending', 'confirmed'].includes(q.state.data.status) ? 15000 : false,
   });
   const cancel = useMutation({
-    mutationFn: () => api.cancel(token || lookupData?.reference || ''),
+    mutationFn: () => api.cancel(cleanToken || lookupData?.reference || ''),
     onSuccess: (updated) => {
-      if (token) client.setQueryData(['tracking', token], updated);
+      if (cleanToken) client.setQueryData(['tracking', cleanToken], updated);
       setLookupData(updated);
       setCancelOpen(false);
     },
@@ -143,8 +145,12 @@ export function Tracking() {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const q = params.get('q') || params.get('ref') || (location.state as any)?.query;
-    if (q && !token && !lookupData) {
+    const q =
+      params.get('q') ||
+      params.get('ref') ||
+      (location.state as any)?.query ||
+      (location.state as any)?.reference;
+    if (q && (!cleanToken || result.isError) && !lookupData && !lookupBusy) {
       setLookupQuery(q);
       void (async () => {
         setLookupBusy(true);
@@ -155,25 +161,70 @@ export function Tracking() {
             setLookupToken(res.trackingToken);
             window.history.replaceState(null, '', '#' + res.trackingToken);
           }
-        } catch (err) {
-          setLookupError(
-            (err as Error).message ||
-              'لم نتمكن من العثور على أي حجز يطابق هذا الكود. يرجى التأكد من صحة البيانات والمحاولة مجدداً.',
-          );
+        } catch {
+          // ignore lookup failure on state query
         } finally {
           setLookupBusy(false);
         }
       })();
     }
-  }, [location.search, location.state]);
+  }, [location.search, location.state, cleanToken, result.isError]);
 
-  const a = token ? result.data : lookupData;
+  const a = cleanToken && result.data ? result.data : lookupData;
+  const isRejected = a?.status === 'rejected';
+  const isCancelled = a?.status === 'cancelled';
+  const confirmed = a?.status === 'confirmed' || a?.status === 'completed';
+  const pending = a?.status === 'pending';
 
+  const svc = catalog?.services.find((s) => s.id === a?.serviceId || s.title === a?.serviceTitle);
+  const svcPrice = typeof a?.price === 'number' ? a.price : svc?.price;
+  const latestMessage = a?.history?.at(-1)?.message;
 
+  const copy = async () => {
+    try {
+      const textToCopy = cleanToken ? window.location.href : `#${a?.reference || ''}`;
+      await navigator.clipboard.writeText(textToCopy);
+      setCopyMessage(cleanToken ? 'تم نسخ رابط المتابعة الخاص بكِ بنجاح.' : 'تم نسخ رقم الحجز بنجاح.');
+    } catch {
+      setCopyMessage('تعذر النسخ التلقائي. يمكنك نسخ رقم الحجز يدوياً.');
+    }
+  };
 
-  if (token && result.isPending) return <Loading label="جاري تحديث حالة طلبك..." />;
+  useGSAP(
+    () => {
+      if (!a || !trackingRef.current || isReducedMotion()) return;
+      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+      tl.fromTo(
+        '.tracking-banner',
+        { opacity: 0, y: -10 },
+        { opacity: 1, y: 0, duration: 0.55 }
+      )
+        .fromTo(
+          '.tracking-receipt, .booking-pass-card',
+          { opacity: 0, y: 16, scale: 0.98 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.65, ease: 'power3.out' },
+          '-=0.3'
+        )
+        .fromTo(
+          '.tracking-main > *',
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.55, stagger: 0.08 },
+          '-=0.4'
+        );
+    },
+    { scope: trackingRef, dependencies: [a?.reference, a?.status] }
+  );
+
+  if (cleanToken && result.isPending && !lookupData) {
+    return <Loading label="جاري تحديث حالة طلبك..." />;
+  }
 
   if (!a) {
+    const displayError =
+      lookupError ||
+      (result.isError
+        ? 'لم نتمكن من العثور على الحجز باستخدام هذا الرابط. يمكنك كتابة رقم هاتفك أو كود الحجز أدناه للوصول لموعدك وتذكرتك.'
+        : '');
     return (
       <main ref={trackingRef} className="app-wrap tracking-wrap">
         {toast && (
@@ -272,10 +323,10 @@ export function Tracking() {
               </div>
             </div>
 
-            {lookupError && (
+            {displayError && (
               <div className="lookup-alert-msg" role="alert">
                 <AlertCircle size={18} />
-                <span>{lookupError}</span>
+                <span>{displayError}</span>
               </div>
             )}
           </form>
@@ -299,50 +350,6 @@ export function Tracking() {
       </main>
     );
   }
-
-  const isRejected = a.status === 'rejected';
-  const isCancelled = a.status === 'cancelled';
-  const confirmed = a.status === 'confirmed' || a.status === 'completed';
-  const pending = a.status === 'pending';
-
-  const svc = catalog?.services.find((s) => s.id === a.serviceId || s.title === a.serviceTitle);
-  const svcPrice = typeof a.price === 'number' ? a.price : svc?.price;
-  const latestMessage = a.history.at(-1)?.message;
-
-  const copy = async () => {
-    try {
-      const textToCopy = token ? window.location.href : `#${a.reference}`;
-      await navigator.clipboard.writeText(textToCopy);
-      setCopyMessage(token ? 'تم نسخ رابط المتابعة الخاص بكِ بنجاح.' : 'تم نسخ رقم الحجز بنجاح.');
-    } catch {
-      setCopyMessage('تعذر النسخ التلقائي. يمكنك نسخ رقم الحجز يدوياً.');
-    }
-  };
-
-  useGSAP(
-    () => {
-      if (!a || !trackingRef.current || isReducedMotion()) return;
-      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
-      tl.fromTo(
-        '.tracking-banner',
-        { opacity: 0, y: -10 },
-        { opacity: 1, y: 0, duration: 0.55 }
-      )
-        .fromTo(
-          '.tracking-receipt, .booking-pass-card',
-          { opacity: 0, y: 16, scale: 0.98 },
-          { opacity: 1, y: 0, scale: 1, duration: 0.65, ease: 'power3.out' },
-          '-=0.3'
-        )
-        .fromTo(
-          '.tracking-main > *',
-          { opacity: 0, y: 14 },
-          { opacity: 1, y: 0, duration: 0.55, stagger: 0.08 },
-          '-=0.4'
-        );
-    },
-    { scope: trackingRef, dependencies: [a?.reference, a?.status] }
-  );
 
   return (
     <main ref={trackingRef} className="app-wrap tracking-wrap">

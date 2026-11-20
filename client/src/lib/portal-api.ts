@@ -25,9 +25,6 @@ export const send = <T>(url: string, body: unknown, method = 'POST') =>
     body: JSON.stringify(body),
   });
 export const authApi = {
-  quickRoles: () => request<{ roles: ('admin' | 'patient')[] }>('/auth/quick-login'),
-  quickLogin: (role: 'admin' | 'patient') =>
-    send<{ user: UserPublic }>('/auth/quick-login', { role }),
   me: (context?: 'admin' | 'patient') =>
     request<{ user: UserPublic | null }>(
       '/auth/me' + (context ? `?context=${context}` : ''),
@@ -81,6 +78,7 @@ export interface Overview {
   confirmedTotal?: number;
   todayTotal?: number;
   todayRevenue?: number;
+  todayExpectedRevenue?: number;
   todaySubscriptionRevenue?: number;
   totalDailyRevenue?: number;
   todayCompleted?: number;
@@ -128,9 +126,13 @@ export interface CapacityResponse {
 }
 
 export const adminApi = {
-  analytics: (date: string) => request<ClinicAnalytics>(
-    '/admin/analytics' + (date ? '?' + new URLSearchParams({ date }) : ''),
-  ),
+  analytics: (date = '', range = 'week') => {
+    const params = new URLSearchParams();
+    if (date) params.set('date', date);
+    if (range) params.set('range', range);
+    const qs = params.toString();
+    return request<ClinicAnalytics>('/admin/analytics' + (qs ? '?' + qs : ''));
+  },
   availability: (reference: string, date: string) =>
     request<Availability>(
       `/admin/appointments/${reference}/availability?` + new URLSearchParams({ date }),

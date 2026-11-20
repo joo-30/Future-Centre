@@ -1,4 +1,3 @@
-import crypto from 'node:crypto';
 import { requireUser } from '../middleware/session.js';
 import {
   adminCookieName,
@@ -13,7 +12,7 @@ import {
   verify,
 } from '../services/auth.service.js';
 
-import { Router, type Request } from 'express';
+import { Router } from 'express';
 
 import { rateLimit } from 'express-rate-limit';
 
@@ -28,7 +27,6 @@ import { SubscriptionModel } from '../models/subscription.model.js';
 import { Interest } from '../models/interest.model.js';
 import { InBody } from '../models/inbody.model.js';
 import { Prescription } from '../models/prescription.model.js';
-import { getNextFileNumber } from '../models/counter.model.js';
 import { PatientNote } from '../models/patient-note.model.js';
 
 import { ApiError } from '../lib/api-error.js';
@@ -68,57 +66,6 @@ authRouter.get('/me', (req, res) => {
   }
 
   res.json({ user: user ? publicUser(user) : null });
-});
-
-const loopbackAddresses = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
-
-// Passwordless login is only for local development: it needs the explicit
-// ENABLE_QUICK_LOGIN flag, development mode, and a direct loopback connection
-// (requests forwarded by a reverse proxy are refused).
-const localQuickLogin = (req: Request) =>
-  config.ENABLE_QUICK_LOGIN &&
-  config.NODE_ENV === 'development' &&
-  loopbackAddresses.has(req.socket.remoteAddress ?? '') &&
-  !req.headers['x-forwarded-for'] &&
-  !req.headers['forwarded'];
-
-authRouter.get('/quick-login', (req, res) => {
-  if (!localQuickLogin(req))
-    return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'المسار غير موجود.' } });
-  res.json({ roles: ['admin', 'patient'] });
-});
-
-authRouter.post('/quick-login', limit, async (req, res) => {
-  if (!localQuickLogin(req)) throw new ApiError(404, 'NOT_FOUND', 'المسار غير موجود.');
-  const { role } = z
-    .object({ role: z.enum(['admin', 'patient']) })
-    .strict()
-    .parse(req.body);
-  let user = await User.findOne(
-    role === 'admin' ? { role: 'admin' } : { localDemoKey: 'quick-patient', role: 'patient' },
-  ).lean();
-  if (!user && role === 'patient') {
-    const password = crypto.randomBytes(32).toString('base64url');
-    try {
-      user = (
-        await User.create({
-          fileNumber: await getNextFileNumber(),
-          name: 'حساب تجربة المريض',
-          phone: '+2010' + crypto.randomInt(10000000, 99999999),
-          role: 'patient',
-          passwordHash: await passwordHash(password),
-          recoveryHash: hash(recoveryCode()),
-          localDemoKey: 'quick-patient',
-        })
-      ).toObject();
-    } catch (e) {
-      if ((e as { code?: number }).code !== 11000) throw e;
-      user = await User.findOne({ localDemoKey: 'quick-patient', role: 'patient' }).lean();
-    }
-  }
-  if (!user) throw new ApiError(409, 'ADMIN_NOT_READY', 'شغّلي أمر إنشاء الإدارة المحلية أولًا.');
-  await startSession(req, res, user);
-  res.json({ user: publicUser(user) });
 });
 
 authRouter.post('/register', limit, async (req, res) => {

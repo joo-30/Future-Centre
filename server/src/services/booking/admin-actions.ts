@@ -15,6 +15,7 @@ export async function adminDecision(
   reason = '',
   newDate?: string,
   newTime?: string,
+  newPrice?: number | null,
 ) {
   await expirePending();
   let result: AppointmentRecord | undefined;
@@ -65,15 +66,25 @@ export async function adminDecision(
       } else if (action === 'complete' || action === 'no_show') {
         if (appointment.status !== 'confirmed')
           throw new ApiError(409, 'INVALID_STATE', 'يجب تأكيد الموعد أولًا.');
-        const end = DateTime.fromISO(`${appointment.date}T${appointment.time}`, {
-          zone: clinic.timezone,
-        }).plus({
-          minutes: appointment.duration,
-        });
-        if (end > DateTime.now())
-          throw new ApiError(409, 'VISIT_NOT_FINISHED', 'لم ينته وقت الزيارة بعد.');
+        const apptDate = DateTime.fromISO(appointment.date, { zone: clinic.timezone }).startOf('day');
+        const today = DateTime.now().setZone(clinic.timezone).startOf('day');
+        if (apptDate > today)
+          throw new ApiError(409, 'VISIT_IN_FUTURE', 'لا يمكن تسجيل نتيجة موعد في تاريخ مستقبلي قبل حلول موعده.');
         status = action === 'complete' ? 'completed' : 'no_show';
-        message = action === 'complete' ? 'تم تسجيل الزيارة كمكتملة.' : 'سجل المركز عدم الحضور.';
+        if (action === 'complete' && newPrice !== undefined) {
+          appointment.price = newPrice;
+        }
+        message =
+          action === 'complete'
+            ? appointment.price !== null && appointment.price !== undefined
+              ? `تم تسجيل الزيارة كمكتملة (تم الحضور) - المبلغ المحصل: ${appointment.price} ج.م.`
+              : 'تم تسجيل الزيارة كمكتملة (تم الحضور).'
+            : 'سجل المركز عدم الحضور.';
+      } else if (action === 'update_price') {
+        if (newPrice !== undefined) {
+          appointment.price = newPrice;
+        }
+        message = `تم تعديل رسوم الكشف إلى: ${appointment.price ?? 0} ج.م.`;
       } else if (action === 'decline_change') {
         if (!['pending', 'confirmed'].includes(appointment.status) || !appointment.reschedule)
           throw new ApiError(409, 'INVALID_STATE', 'لا يوجد طلب تغيير قائم.');

@@ -81,7 +81,7 @@ export function About() {
           <div className="about-cred-item">
             <span className="about-cred-icon">🎓</span>
             <div>
-              <strong>ماجستير ودبلومة التغذية الإكلينيكية</strong>
+              <strong>ماجستير ودبلومة التغذية العلاجية</strong>
               <small>علاج السمنة والنحافة وتعديل السلوك الغذائي</small>
             </div>
           </div>

@@ -29,7 +29,7 @@ function coverFor(article: Article) {
 function readingTime(minutes: number) {
   if (minutes === 1) return 'دقيقة قراءة';
   if (minutes === 2) return 'دقيقتان قراءة';
-  const number = new Intl.NumberFormat('ar-EG').format(minutes);
+  const number = new Intl.NumberFormat('ar-EG-u-nu-latn').format(minutes);
   return `${number} ${minutes >= 3 && minutes <= 10 ? 'دقائق' : 'دقيقة'} قراءة`;
 }
 

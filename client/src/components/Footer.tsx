@@ -1,5 +1,5 @@
 import { normalizePhone, type DayHours } from '@future/shared';
-import { ChevronLeft, Clock, MapPin, Phone } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, Phone, Stethoscope } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCatalog } from '../hooks/useCatalog';
 import { whatsappUrl } from '../lib/api';
@@ -8,15 +8,15 @@ import { Brand } from './ui';
 
 const weekdays = ['الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد'];
 const weekOrder = [6, 7, 1, 2, 3, 4, 5];
-const arabicNumber = new Intl.NumberFormat('ar-EG', { useGrouping: false });
-const arabicMinute = new Intl.NumberFormat('ar-EG', { minimumIntegerDigits: 2 });
+const arabicNumber = new Intl.NumberFormat('ar-EG-u-nu-latn', { useGrouping: false });
+const arabicMinute = new Intl.NumberFormat('ar-EG-u-nu-latn', { minimumIntegerDigits: 2 });
 
 const footerLinks = [
   ['/about', 'عن المركز'],
-  ['/programs', 'البرامج'],
-  ['/articles', 'المقالات'],
-  ['/booking/track', 'متابعة الحجز'],
-  ['/account', 'حسابي'],
+  ['/programs', 'البرامج العلاجية'],
+  ['/articles', 'المقالات والنصائح الطبية'],
+  ['/booking/track', 'متابعة وتأكيد الحجز'],
+  ['/account', 'حساب المريض'],
 ];
 
 const developerPhone = '01285523418';
@@ -62,23 +62,46 @@ export function Footer() {
 
   return (
     <footer className="site-footer" id="site-footer" dir="rtl">
+      <div className="footer-ambient-glow" aria-hidden="true" />
       <div className="footer-inner">
         <div className="footer-grid">
+          {/* Column 1: Clinic Identity & Medical Supervision */}
           <div className="footer-identity">
             <Brand />
-            <p className="footer-tagline">عيادة تغذية علاجية ومتابعة.</p>
-            <p className="footer-supervision">بإشراف د. رنا ياسر الشورى</p>
+
+            <div className="footer-doctor-badge">
+              <span className="doctor-badge-icon" aria-hidden="true">
+                <Stethoscope size={15} />
+              </span>
+              <div className="doctor-badge-text">
+                <span className="doctor-badge-role">إشراف طبي متكامل ·</span>
+                <strong className="doctor-badge-name">د. رنا ياسر الشورى</strong>
+              </div>
+            </div>
+
+            <p className="footer-bio">
+              عيادة متخصصة في التغذية العلاجية، نحت القوام، وتصميم برامج غذائية وصحية متكاملة تحت إشراف طبي متخصص.
+            </p>
+
+            <Link to="/booking" className="footer-cta-pill">
+              <span>احجز كشفك الآن</span>
+              <ArrowLeft size={15} aria-hidden="true" />
+            </Link>
           </div>
 
+          {/* Column 2: Site Navigation Guide */}
           <nav className="footer-discover" aria-labelledby="footer-discover-title">
-            <h2 className="footer-heading" id="footer-discover-title">
-              دليل الموقع
-            </h2>
+            <div className="footer-section-head">
+              <span className="footer-kicker">تصفح سريع</span>
+              <h2 className="footer-heading" id="footer-discover-title">
+                دليل الموقع
+              </h2>
+            </div>
             <ul className="footer-links">
               {footerLinks.map(([to, label]) => (
                 <li key={to}>
-                  <Link to={to}>
-                    <ChevronLeft aria-hidden="true" />
+                  <Link to={to} className="footer-link-item">
+                    <span className="footer-link-dot" aria-hidden="true" />
                     <span>{label}</span>
                   </Link>
                 </li>
@@ -86,81 +109,114 @@ export function Footer() {
             </ul>
           </nav>
 
+          {/* Column 3: Contact & Hours Concierge Card */}
           <div className="footer-contact">
-            <h2 className="footer-heading">العنوان والتواصل</h2>
-            <ul className="footer-contact-list">
-              <li>
-                <a
-                  className="footer-contact-line footer-clinic-phone"
-                  href={'tel:' + normalizePhone(primaryPhone)}
-                >
-                  <Phone aria-hidden="true" />
-                  <bdi dir="ltr">{primaryPhone}</bdi>
-                </a>
-              </li>
-              <li>
-                <Link className="footer-contact-line" to="/contact">
-                  <MapPin aria-hidden="true" />
-                  <span>{clinic?.address || 'كفر الزيات، شارع الجيش عند توكيل أورنج'}</span>
-                </Link>
-              </li>
-              <li>
-                {hours ? (
-                  <div className="footer-contact-line footer-hours">
-                    <Clock aria-hidden="true" />
-                    <div>
-                      <span>{hours.days}</span>
-                      <span>{hours.time}</span>
-                    </div>
-                  </div>
-                ) : (
-                  <Link className="footer-contact-line" to="/booking">
-                    <Clock aria-hidden="true" />
-                    <span>عرض المواعيد المتاحة</span>
-                  </Link>
-                )}
-              </li>
-              <li>
-                <a
-                  className="footer-contact-line footer-whatsapp"
-                  href={whatsappUrl(
-                    whatsappNumber,
-                    'أهلًا، أود الاستفسار عن مواعيد مركز المستقبل.',
-                  )}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <WhatsAppIcon />
-                  <span>واتساب العيادة</span>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
+            <div className="footer-contact-card">
+              <div className="contact-card-head">
+                <div>
+                  <span className="footer-kicker">رعاية مباشرة</span>
+                  <h2 className="footer-heading">العنوان والتواصل</h2>
+                </div>
+                <div className="contact-live-status">
+                  <span className="live-dot-pulse" aria-hidden="true" />
+                  <span>العيادة ترحب بكم</span>
+                </div>
+              </div>
 
-        <div className="footer-utility">
-          <p className="footer-copyright">
-            © {arabicNumber.format(new Date().getFullYear())} {clinic?.name || 'مركز المستقبل'}
-          </p>
-          <nav className="footer-policies" aria-label="سياسات المركز">
-            <Link to="/privacy">الخصوصية</Link>
-            <Link to="/appointment-policy">سياسة المواعيد</Link>
-          </nav>
-          <div className="footer-credit">
-            <p>
-              <span>تصميم وتطوير</span>
+              <ul className="footer-contact-list">
+                <li>
+                  <a
+                    className="footer-contact-row"
+                    href={'tel:' + normalizePhone(primaryPhone)}
+                  >
+                    <span className="contact-row-icon" aria-hidden="true">
+                      <Phone size={15} />
+                    </span>
+                    <div className="contact-row-content">
+                      <span className="contact-row-label">الاتصال المباشر</span>
+                      <strong className="contact-row-value" dir="ltr">{primaryPhone}</strong>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <Link className="footer-contact-row" to="/contact">
+                    <span className="contact-row-icon" aria-hidden="true">
+                      <MapPin size={15} />
+                    </span>
+                    <div className="contact-row-content">
+                      <span className="contact-row-label">مقر العيادة</span>
+                      <span className="contact-row-value">{clinic?.address || 'كفر الزيات، شارع الجيش عند توكيل أورنج'}</span>
+                    </div>
+                  </Link>
+                </li>
+                <li>
+                  {hours ? (
+                    <div className="footer-contact-row">
+                      <span className="contact-row-icon" aria-hidden="true">
+                        <Clock size={15} />
+                      </span>
+                      <div className="contact-row-content">
+                        <span className="contact-row-label">أوقات العمل</span>
+                        <span className="contact-row-value">{hours.days} · {hours.time}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <Link className="footer-contact-row" to="/booking">
+                      <span className="contact-row-icon" aria-hidden="true">
+                        <Clock size={15} />
+                      </span>
+                      <div className="contact-row-content">
+                        <span className="contact-row-label">أوقات العمل</span>
+                        <span className="contact-row-value">عرض المواعيد المتاحة</span>
+                      </div>
+                    </Link>
+                  )}
+                </li>
+              </ul>
+
               <a
-                className="footer-credit-name"
+                className="footer-whatsapp-btn"
                 href={whatsappUrl(
-                  developerPhone,
-                  'مرحبًا يوسف، أود الاستفسار عن تصميم وتطوير موقع.',
+                  whatsappNumber,
+                  'أهلًا، أود الاستفسار عن مواعيد مركز المستقبل.',
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                يوسف إسلام الوكيل<span className="sr-only"> — واتساب</span>
+                <WhatsAppIcon />
+                <span>واتساب العيادة للاستفسارات</span>
+                <ArrowLeft size={15} aria-hidden="true" />
               </a>
-            </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Utility Bar */}
+        <div className="footer-utility">
+          <p className="footer-copyright">
+            © {arabicNumber.format(new Date().getFullYear())} {clinic?.name || 'مركز المستقبل للتغذية والتخسيس'} · جميع الحقوق محفوظة
+          </p>
+
+          <nav className="footer-policies" aria-label="سياسات المركز">
+            <Link to="/privacy">الخصوصية</Link>
+            <span className="policy-divider" aria-hidden="true">·</span>
+            <Link to="/appointment-policy">سياسة المواعيد</Link>
+          </nav>
+
+          <div className="footer-credit">
+            <span className="credit-label">تصميم وتطوير:</span>
+            <a
+              className="footer-credit-name"
+              href={whatsappUrl(
+                developerPhone,
+                'مرحبًا يوسف، أود الاستفسار عن تصميم وتطوير موقع.',
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              يوسف إسلام الوكيل
+            </a>
+            <span className="credit-dot" aria-hidden="true">·</span>
             <a
               className="footer-credit-phone"
               href={'tel:' + normalizePhone(developerPhone)}

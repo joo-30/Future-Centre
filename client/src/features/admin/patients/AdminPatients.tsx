@@ -4,7 +4,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Activity,
   Bell,
-  Calculator,
   Calendar,
   Check,
   CheckCircle2,
@@ -32,8 +31,7 @@ import {
   X,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { StatusBadge } from '../../../components/StatusBadge';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { WhatsAppIcon } from '../../../components/icons/WhatsAppIcon';
 import { Button, ErrorState, Loading, Modal } from '../../../components/ui';
 import {
@@ -419,22 +417,6 @@ export function AdminPatients() {
         description="طلبات البرامج وحسابات العملاء وتفاصيل المتابعة في مكان واحد."
       >
         <div className="console-title-actions">
-          <Link
-            to="/admin/bmi"
-            className="btn light"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              textDecoration: 'none',
-              padding: '8px 14px',
-              borderRadius: '8px',
-              fontWeight: 700,
-            }}
-          >
-            <Calculator size={16} />
-            <span>حاسبة الـ BMI والسعرات</span>
-          </Link>
           <Button
             kind="outline"
             icon={false}
@@ -653,7 +635,6 @@ export function AdminPatients() {
                       </div>
                     </div>
                   </div>
-                  <StatusBadge status={r.status} />
                 </div>
 
                 <div className="request-card-body">
@@ -693,7 +674,7 @@ export function AdminPatients() {
                     rel="noopener noreferrer"
                     title="مراسلة العميل عبر واتساب"
                   >
-                    <WhatsAppIcon size={16} color="#ffffff" />
+                    <WhatsAppIcon size={16} color="#166534" />
                     <span>واتساب</span>
                   </a>
 

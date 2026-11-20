@@ -479,7 +479,7 @@
 .clinic-services {
   padding: clamp(38px, 4.5vw, 68px)
     max(clamp(16px, 4vw, 64px), calc((100% - 1320px) / 2));
-  background: #faf8f4;
+  background: #ffffff;
   color: #10382a;
   scroll-margin-block-start: 100px;
 }

@@ -114,10 +114,12 @@ router.post('/appointments/:reference/decision', async (req, res) => {
         'no_show',
         'reschedule',
         'decline_change',
+        'update_price',
       ]),
       reason: z.string().trim().max(250).optional(),
       date: dateSchema.optional(),
       time: timeSchema.optional(),
+      price: z.number().min(0).max(100000).nullable().optional(),
     })
     .strict()
     .parse(req.body);
@@ -129,6 +131,7 @@ router.post('/appointments/:reference/decision', async (req, res) => {
     d.reason,
     d.date,
     d.time,
+    d.price,
   );
   await Audit.create({
     actorId: req.authUser?._id,
@@ -210,9 +213,7 @@ router.get('/overview', async (_req, res) => {
         (rows) =>
           rows.filter(
             (a) =>
-              DateTime.fromISO(`${a.date}T${a.time}`, { zone: 'Africa/Cairo' }).plus({
-                minutes: a.duration,
-              }) <= DateTime.now(),
+              DateTime.fromISO(`${a.date}T${a.time}`, { zone: 'Africa/Cairo' }) <= cairoNow,
           ).length,
       ),
     Interest.countDocuments({ status: 'new' }),
@@ -225,6 +226,7 @@ router.get('/overview', async (_req, res) => {
   ]);
 
   let todayRevenue = 0;
+  let todayExpectedRevenue = 0;
   let todayCompleted = 0;
   let todayConfirmed = 0;
   let todayPending = 0;
@@ -235,7 +237,7 @@ router.get('/overview', async (_req, res) => {
       if (typeof a.price === 'number') todayRevenue += a.price;
     } else if (a.status === 'confirmed') {
       todayConfirmed++;
-      if (typeof a.price === 'number') todayRevenue += a.price;
+      if (typeof a.price === 'number') todayExpectedRevenue += a.price;
     } else if (a.status === 'pending') {
       todayPending++;
     }
@@ -268,6 +270,7 @@ router.get('/overview', async (_req, res) => {
     confirmedTotal,
     todayTotal,
     todayRevenue,
+    todayExpectedRevenue,
     todaySubscriptionRevenue,
     totalDailyRevenue,
     todayCompleted,
@@ -407,18 +410,16 @@ router.get('/booking-list', async (req, res) => {
 // Confirmed visits whose time has fully passed but whose outcome (attended / no-show)
 // was never recorded. Oldest first, so the backlog is cleared in order.
 router.get('/appointments/awaiting-outcome', async (_req, res) => {
-  const now = DateTime.now();
-  const today = now.setZone('Africa/Cairo').toISODate()!;
+  const now = DateTime.now().setZone('Africa/Cairo');
+  const today = now.toISODate()!;
   const candidates = await Appointment.find({ status: 'confirmed', date: { $lte: today } })
     .select('+phone +whatsapp')
     .sort({ date: 1, time: 1 })
     .lean();
-  const rows = candidates.filter(
-    (a) =>
-      DateTime.fromISO(`${a.date}T${a.time}`, { zone: 'Africa/Cairo' }).plus({
-        minutes: a.duration,
-      }) <= now,
-  );
+  const rows = candidates.filter((a) => {
+    const apptDT = DateTime.fromISO(`${a.date}T${a.time}`, { zone: 'Africa/Cairo' });
+    return apptDT <= now;
+  });
 
   const userIds = rows.map((a) => a.userId).filter(Boolean);
   const users =

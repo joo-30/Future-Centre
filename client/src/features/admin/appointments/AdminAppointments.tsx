@@ -19,6 +19,7 @@ import {
   Search,
   Stethoscope,
   UserRound,
+  UserX,
   X,
   Zap,
 } from 'lucide-react';
@@ -38,7 +39,6 @@ import {
 } from '../../../lib/api';
 import { adminApi } from '../../../lib/portal-api';
 import { ConsoleTitle } from '../components/ConsoleTitle';
-import { DailyOperationsPulse } from '../components/DailyOperationsPulse';
 import { refreshAdmin } from '../lib/cache';
 import { DietPrescriptionModal } from '../prescription/DietPrescriptionModal';
 import { AppointmentReview } from './AppointmentReview';
@@ -69,6 +69,7 @@ export function AdminAppointments() {
   const [agendaCollapsed, setAgendaCollapsed] = useState(false);
   const [capacityModalOpen, setCapacityModalOpen] = useState(false);
   const [remindersOpen, setRemindersOpen] = useState(false);
+  const [busyActionRef, setBusyActionRef] = useState<string>('');
 
   const capacityQuery = useQuery({
     queryKey: ['admin', 'capacity', 14],
@@ -200,16 +201,6 @@ export function AdminAppointments() {
     results.current?.focus({ preventScroll: true });
     results.current?.scrollIntoView({ block: 'start' });
   };
-  const reviewRequests = (rescheduling: boolean) => {
-    setDate('');
-    setService('');
-    setSearch('');
-    setDebounced('');
-    setStatus(rescheduling ? '' : 'pending');
-    setChanges(rescheduling);
-    setPage(1);
-    revealResults();
-  };
 
   const agendaBookedCount = agendaQuery.data?.appointments.length ?? 0;
   const agendaRemainingSeats = Math.max(0, effectiveAgendaLimit - agendaBookedCount);
@@ -254,14 +245,6 @@ export function AdminAppointments() {
             </div>
           <Button type="submit" kind="outline" icon={false}>بحث</Button>
         </form>
-        <div className="admin-appointment-review">
-          <button type="button" onClick={() => reviewRequests(false)}>
-            طلبات الحجز{counts && <bdi>{counts.pending}</bdi>}
-          </button>
-          <button type="button" onClick={() => reviewRequests(true)}>
-            طلبات التغيير{counts && <bdi>{counts.changes}</bdi>}
-          </button>
-        </div>
       </section>
 
       {awaitingQuery.data && (
@@ -536,15 +519,71 @@ export function AdminAppointments() {
                   </div>
                 </div>
                 <div className="today-card-actions">
+                  {a.status === 'confirmed' && (
+                    <div className="today-attendance-quick-bar">
+                      <button
+                        type="button"
+                        className="today-attend-btn is-complete"
+                        disabled={busyActionRef === a.reference}
+                        onClick={async () => {
+                          try {
+                            setBusyActionRef(a.reference);
+                            await adminApi.decision(a.reference, { action: 'complete' });
+                            refreshAdmin(client);
+                          } catch (err: any) {
+                            alert(err.message || 'تعذر تسجيل الحضور');
+                          } finally {
+                            setBusyActionRef('');
+                          }
+                        }}
+                        title="تسجيل حضور المريض الآن (تم الحضور وإتمام الكشف)"
+                      >
+                        <Check size={14} />
+                        <span>{busyActionRef === a.reference ? 'جاري التسجيل...' : 'تم الحضور'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="today-attend-btn is-noshow"
+                        disabled={busyActionRef === a.reference}
+                        onClick={async () => {
+                          if (!window.confirm(`هل تريد بالتأكيد تسجيل عدم حضور المريض (${a.name})؟`)) return;
+                          try {
+                            setBusyActionRef(a.reference);
+                            await adminApi.decision(a.reference, { action: 'no_show' });
+                            refreshAdmin(client);
+                          } catch (err: any) {
+                            alert(err.message || 'تعذر تسجيل عدم الحضور');
+                          } finally {
+                            setBusyActionRef('');
+                          }
+                        }}
+                        title="تسجيل عدم حضور المريض في الموعد"
+                      >
+                        <UserX size={13} />
+                        <span>لم يحضر</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {a.status === 'completed' && (
+                    <div className="today-attended-status-pill">
+                      <Check size={14} />
+                      <span>حضر بالفعل وتم الكشف</span>
+                    </div>
+                  )}
+
                   <div className="today-card-actions-top">
-                    <button
-                      type="button"
-                      className="today-rx-btn"
-                      onClick={() => setPrescriptionPatient({ name: a.name, phone: a.whatsapp || a.phone })}
-                      title="تحرير روشتة الدايت والنظام الغذائي للمريض"
-                    >
-                      <span>روشتة دايت</span>
-                    </button>
+                    {['confirmed', 'completed'].includes(a.status) && (
+                      <button
+                        type="button"
+                        className="today-rx-btn"
+                        onClick={() => setPrescriptionPatient({ name: a.name, phone: a.whatsapp || a.phone })}
+                        title="تحرير روشتة الدايت والنظام الغذائي للمريض"
+                      >
+                        <Printer size={13} />
+                        <span>روشتة دايت</span>
+                      </button>
+                    )}
                     <a
                       href={whatsappUrl(
                         a.whatsapp || a.phone,
@@ -555,7 +594,7 @@ export function AdminAppointments() {
                       className="today-whatsapp-btn"
                       title="مراسلة عبر واتساب مباشرة"
                     >
-                      <WhatsAppIcon size={14} color="#ffffff" />
+                      <WhatsAppIcon size={14} color="#166534" />
                       <span>واتساب</span>
                     </a>
                   </div>
@@ -609,15 +648,6 @@ export function AdminAppointments() {
               >
                 <WhatsAppIcon size={16} />
                 <span>تذكيرات مواعيد اليوم</span>
-              </Button>
-              <Button
-                kind="brand"
-                className="console-panel-add-manual-btn"
-                onClick={() => setManual(true)}
-                icon={false}
-              >
-                <Plus size={16} />
-                <span>إضافة موعد يدوي</span>
               </Button>
             </div>
           </div>
@@ -1011,6 +1041,15 @@ export function AdminAppointments() {
                         </td>
                         <td className="td-actions">
                           <div className="table-actions-cell">
+                            <button
+                              type="button"
+                              className={`table-details-btn ${a.status === 'pending' ? 'is-pending' : ''} ${selected === a.reference ? 'is-open' : ''}`}
+                              onClick={() => setSelected(a.reference)}
+                              title="عرض كافة تفاصيل الموعد"
+                            >
+                              <Zap size={14} />
+                              <span>{selected === a.reference ? 'مفتوح' : 'التفاصيل'}</span>
+                            </button>
                             <a
                               href={whatsappUrl(
                                 a.whatsapp || a.phone,
@@ -1021,32 +1060,25 @@ export function AdminAppointments() {
                               className="table-whatsapp-btn"
                               title="مراسلة المريض عبر واتساب مباشرة"
                             >
-                              <WhatsAppIcon size={15} color="#ffffff" />
+                              <WhatsAppIcon size={15} color="#166534" />
                               <span>واتساب</span>
                             </a>
-                            <button
-                              type="button"
-                              className="table-rx-action-btn"
-                              title="كتابة روشتة وبرنامج غذائي لهذا العميل"
-                              onClick={() =>
-                                setPrescriptionPatient({
-                                  name: a.name,
-                                  phone: a.whatsapp || a.phone,
-                                })
-                              }
-                            >
-                              <Printer size={15} />
-                              <span>روشتة</span>
-                            </button>
-                            <button
-                              type="button"
-                              className={`table-details-btn ${a.status === 'pending' ? 'is-pending' : ''} ${selected === a.reference ? 'is-open' : ''}`}
-                              onClick={() => setSelected(a.reference)}
-                              title="عرض كافة تفاصيل الموعد"
-                            >
-                              <Zap size={14} />
-                              <span>{selected === a.reference ? 'مفتوح' : 'التفاصيل'}</span>
-                            </button>
+                            {['confirmed', 'completed'].includes(a.status) && (
+                              <button
+                                type="button"
+                                className="table-rx-action-btn"
+                                title="كتابة روشتة وبرنامج غذائي لهذا العميل"
+                                onClick={() =>
+                                  setPrescriptionPatient({
+                                    name: a.name,
+                                    phone: a.whatsapp || a.phone,
+                                  })
+                                }
+                              >
+                                <Printer size={15} />
+                                <span>روشتة</span>
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -1110,6 +1142,15 @@ export function AdminAppointments() {
                     </div>
 
                     <div className="mbc-actions-grid">
+                      <button
+                        type="button"
+                        className={`mobile-details-btn ${a.status === 'pending' ? 'is-pending' : ''} ${selected === a.reference ? 'is-open' : ''}`}
+                        onClick={() => setSelected(a.reference)}
+                        title="عرض كافة تفاصيل الموعد"
+                      >
+                        <Zap size={14} />
+                        <span>{selected === a.reference ? 'مفتوح' : 'التفاصيل'}</span>
+                      </button>
                       <a
                         href={whatsappUrl(
                           a.whatsapp || a.phone,
@@ -1120,32 +1161,25 @@ export function AdminAppointments() {
                         className="mobile-whatsapp-btn"
                         title="مراسلة المريض عبر واتساب مباشرة"
                       >
-                        <WhatsAppIcon size={14} color="#ffffff" />
+                        <WhatsAppIcon size={14} color="#166534" />
                         <span>واتساب</span>
                       </a>
-                      <button
-                        type="button"
-                        className="mobile-rx-action-btn"
-                        title="كتابة روشتة وبرنامج غذائي لهذا العميل"
-                        onClick={() =>
-                          setPrescriptionPatient({
-                            name: a.name,
-                            phone: a.whatsapp || a.phone,
-                          })
-                        }
-                      >
-                        <Printer size={14} />
-                        <span>روشتة</span>
-                      </button>
-                      <button
-                        type="button"
-                        className={`mobile-details-btn ${a.status === 'pending' ? 'is-pending' : ''} ${selected === a.reference ? 'is-open' : ''}`}
-                        onClick={() => setSelected(a.reference)}
-                        title="عرض كافة تفاصيل الموعد"
-                      >
-                        <Zap size={14} />
-                        <span>{selected === a.reference ? 'مفتوح' : 'التفاصيل'}</span>
-                      </button>
+                      {['confirmed', 'completed'].includes(a.status) && (
+                        <button
+                          type="button"
+                          className="mobile-rx-action-btn"
+                          title="كتابة روشتة وبرنامج غذائي لهذا العميل"
+                          onClick={() =>
+                            setPrescriptionPatient({
+                              name: a.name,
+                              phone: a.whatsapp || a.phone,
+                            })
+                          }
+                        >
+                          <Printer size={14} />
+                          <span>روشتة</span>
+                        </button>
+                      )}
                     </div>
                   </article>
                 ))}
@@ -1195,7 +1229,6 @@ export function AdminAppointments() {
           </>
         )}
       </div>
-      <DailyOperationsPulse overview={overview.data} />
 
       <Modal open={manual} onClose={() => setManual(false)} title="إضافة موعد يدوي في العيادة" className="manual-booking-dialog">
         {manual && (

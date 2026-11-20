@@ -35,9 +35,16 @@ export function AppointmentReview({
   const [reason, setReason] = useState('');
   const [date, setDate] = useState(a.reschedule?.date || addDays(today(), 1));
   const [time, setTime] = useState(a.reschedule?.time || '');
+  const [paidPrice, setPaidPrice] = useState<string>(
+    a.price !== null && a.price !== undefined ? String(a.price) : '',
+  );
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    setPaidPrice(a.price !== null && a.price !== undefined ? String(a.price) : '');
+  }, [a.price]);
   const [prescriptionOpen, setPrescriptionOpen] = useState(false);
   const [patientHistoryOpen, setPatientHistoryOpen] = useState(false);
   const [inbodyOpen, setInbodyOpen] = useState(false);
@@ -55,9 +62,12 @@ export function AppointmentReview({
         action: mode,
         ...(reason ? { reason } : {}),
         ...(mode === 'reschedule' ? { date, time } : {}),
+        ...(mode === 'complete' || mode === 'update_price'
+          ? { price: paidPrice.trim() !== '' ? Number(paidPrice) : null }
+          : {}),
       });
       setMode('');
-      setSuccess('تم تحديث الموعد وحفظ الحالة.');
+      setSuccess('تم تحديث الموعد وحفظ الحالة بنجاح.');
       onDone();
     } catch (e) {
       setError((e as Error).message);
@@ -70,9 +80,10 @@ export function AppointmentReview({
     reject: 'رفض الطلب',
     cancel: 'إلغاء الموعد',
     reschedule: 'اعتماد وقت بديل',
-    complete: 'تسجيل الزيارة مكتملة',
+    complete: 'تسجيل الزيارة مكتملة (حضور)',
     no_show: 'تسجيل عدم الحضور',
     decline_change: 'رفض طلب التغيير',
+    update_price: 'تعديل رسوم الكشف',
   };
   return (
     <aside className="appointment-review">
@@ -120,7 +131,31 @@ export function AppointmentReview({
         </div>
         <div>
           <dt>قيمة الخدمة وقت الطلب</dt>
-          <dd>{a.price === null ? 'تُحدد مع المركز' : formatPrice(a.price) + ' ج.م'}</dd>
+          <dd style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+            <span>{a.price === null ? 'تُحدد مع المركز' : formatPrice(a.price) + ' ج.م'}</span>
+            <button
+              type="button"
+              className="icon-button"
+              style={{
+                padding: '3px 9px',
+                fontSize: '12px',
+                border: '1px solid var(--border, #cbd5e1)',
+                borderRadius: '6px',
+                background: 'var(--subtle, #f8fafc)',
+                cursor: 'pointer',
+              }}
+              title="تعديل الرسوم أو تسجيل الخصم"
+              onClick={() => {
+                setPaidPrice(a.price !== null && a.price !== undefined ? String(a.price) : '');
+                setReason('');
+                setError('');
+                setSuccess('');
+                setMode('update_price');
+              }}
+            >
+              تعديل السعر
+            </button>
+          </dd>
         </div>
       </dl>
       {a.reschedule && (
@@ -296,12 +331,70 @@ export function AppointmentReview({
                   onTime={setTime}
                 />
               </>
+            ) : mode === 'complete' ? (
+              <>
+                <p>تسجيل حضور المريض وإتمام كشف الزيارة بالعيادة.</p>
+                <div style={{ margin: '14px 0', padding: '12px', background: 'var(--subtle, #f8fafc)', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                  <label className="field" style={{ margin: 0 }}>
+                    <span style={{ fontWeight: 700, fontSize: '14px', display: 'block', marginBottom: '6px' }}>
+                      المبلغ المحصل / رسوم الكشف الفعلي (ج.م):
+                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100000"
+                        value={paidPrice}
+                        onChange={(e) => setPaidPrice(e.target.value)}
+                        placeholder="مثال: 200 أو 180"
+                        style={{
+                          padding: '10px 14px',
+                          borderRadius: '8px',
+                          border: '1px solid var(--border)',
+                          fontSize: '15px',
+                          fontWeight: 600,
+                          width: '160px',
+                        }}
+                      />
+                      <span style={{ fontSize: '14px', color: 'var(--muted)' }}>جنيه مصري</span>
+                    </div>
+                    <small style={{ display: 'block', marginTop: '6px', color: 'var(--muted)', fontSize: '12px' }}>
+                      سيدخل هذا المبلغ فوراً في إيرادات اليوم وتحليلات العيادة البيانية ويظهر في سجل المريض.
+                    </small>
+                  </label>
+                </div>
+              </>
+            ) : mode === 'update_price' ? (
+              <div style={{ margin: '14px 0' }}>
+                <label className="field">
+                  <span style={{ fontWeight: 700, fontSize: '14px', display: 'block', marginBottom: '6px' }}>
+                    تعديل رسوم الخدمة أو الكشف (ج.م):
+                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100000"
+                      value={paidPrice}
+                      onChange={(e) => setPaidPrice(e.target.value)}
+                      placeholder="المبلغ الجديد بالجنيه"
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border)',
+                        fontSize: '15px',
+                        fontWeight: 600,
+                        width: '160px',
+                      }}
+                    />
+                    <span style={{ fontSize: '14px', color: 'var(--muted)' }}>جنيه مصري</span>
+                  </div>
+                </label>
+              </div>
+            ) : mode === 'no_show' ? (
+              <p>يُسجل هذا القرار بعد انتهاء وقت الزيارة إذا لم يحضر المريض.</p>
             ) : (
-              <p>
-                {mode === 'complete' || mode === 'no_show'
-                  ? 'يُسجل هذا القرار بعد انتهاء وقت الزيارة.'
-                  : 'سيظهر القرار فورًا في صفحة متابعة العميل.'}
-              </p>
+              <p>سيظهر القرار فورًا في صفحة متابعة العميل.</p>
             )}
             {['reject', 'cancel', 'decline_change'].includes(mode) && (
               <label className="field">

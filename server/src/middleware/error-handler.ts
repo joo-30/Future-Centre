@@ -21,6 +21,10 @@ export const handleApiError = (
     return res
       .status(400)
       .json({ error: { code: 'INVALID_JSON', message: 'تعذر قراءة البيانات.' } });
+  if ((err as any)?.type === 'entity.too.large' || (err as any)?.status === 413)
+    return res.status(413).json({
+      error: { code: 'PAYLOAD_TOO_LARGE', message: 'حجم الصورة كبير جداً، يرجى اختيار صورة أصغر من 20 ميجابايت.' },
+    });
   console.error('Request failed:', err instanceof Error ? (err.stack || err.message) : err);
   res.status(500).json({
     error: {

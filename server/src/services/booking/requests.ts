@@ -215,24 +215,38 @@ export async function createBooking(
 }
 
 export async function findByToken(token: string) {
-  if (token && /^[A-Za-z0-9_-]{43}$/.test(token)) {
-    const appointment = await Appointment.findOne({ tokenHash: hash(token) })
+  if (!token) throw new ApiError(404, 'NOT_FOUND', 'رابط المتابعة غير صحيح أو لم يعد متاحًا.');
+  const trimmed = token.trim();
+  const candidates = [
+    trimmed,
+    trimmed.replace(/\s+/g, '+'),
+    trimmed.replace(/\s+/g, '-'),
+    trimmed.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''),
+  ];
+
+  for (const t of new Set(candidates)) {
+    if (t && /^[A-Za-z0-9_-]{43}$/.test(t)) {
+      const appointment = await Appointment.findOne({ tokenHash: hash(t) })
+        .select('+phone +idempotencyHash')
+        .lean();
+      if (appointment) return appointment;
+    }
+    const tokenHash = hash(t);
+    const found = await Appointment.findOne({ tokenHash })
       .select('+phone +idempotencyHash')
       .lean();
-    if (appointment) return appointment;
+    if (found) return found;
   }
 
   // Resilient fallback: support reference lookup directly (e.g. "6629", "#6629", "FC-6629")
-  if (token) {
-    const cleanRef = token.replace(/^[#\s]+|[#\s]+$/g, '').trim();
-    if (cleanRef) {
-      const byRef = await Appointment.findOne({
-        $or: [{ reference: cleanRef }, { reference: `FC-${cleanRef}` }],
-      })
-        .select('+phone +idempotencyHash')
-        .lean();
-      if (byRef) return byRef;
-    }
+  const cleanRef = trimmed.replace(/^[#\s]+|[#\s]+$/g, '').trim();
+  if (cleanRef) {
+    const byRef = await Appointment.findOne({
+      $or: [{ reference: cleanRef }, { reference: `FC-${cleanRef}` }],
+    })
+      .select('+phone +idempotencyHash')
+      .lean();
+    if (byRef) return byRef;
   }
 
   throw new ApiError(404, 'NOT_FOUND', 'رابط المتابعة غير صحيح أو لم يعد متاحًا.');

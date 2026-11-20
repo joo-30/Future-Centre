@@ -6,7 +6,6 @@ import { useCatalog } from '../../hooks/useCatalog';
 import { gsap, useGSAP } from '../../lib/motion';
 import { CareGuideQuiz } from './components/CareGuideQuiz';
 import { ArticlesSection } from './components/ArticlesSection';
-import { BookingInvitation } from './components/BookingInvitation';
 import { ClinicServices } from './components/ClinicServices';
 import { ClosingSection } from './components/ClosingSection';
 import { SuccessStoriesSection } from './components/SuccessStoriesSection';
@@ -64,6 +63,7 @@ export function Home() {
 
           const groups = [
             ['.clinic-services', '.clinic-section-heading, .clinic-service'],
+            ['.care-path-section', '.care-path-intro, .care-path-workspace'],
             [
               '.clinic-doctor-profile',
               '.clinic-doctor-identity, .clinic-doctor-approach, .clinic-doctor-credentials, .clinic-doctor-visual',
@@ -72,8 +72,6 @@ export function Home() {
               '.clinic-visit',
               '.clinic-section-heading, .clinic-visit-ribbon, .clinic-visit-steps li',
             ],
-            ['.booking-invitation', '.booking-invitation-inner'],
-            ['.care-path-section', '.care-path-intro, .care-path-workspace'],
             ['.journal-section', '.journal-section-heading, .journal-lead, .journal-note'],
             ['.closing-section', '.closing-overview, .closing-booking'],
           ];
@@ -173,6 +171,9 @@ export function Home() {
       </section>
 
       <ClinicServices services={data.services} demoPrices={data.clinic.demoPrices} />
+
+      {/* مرشد البداية التفاعلي مع د. رنا (مش متأكدة تبدأي منين؟) */}
+      <CareGuideQuiz whatsappNumber={data.clinic.whatsapp} />
 
       <section
         id="doctor-profile"
@@ -293,11 +294,6 @@ export function Home() {
 
       {/* قصص وتجارب النجاح والتحولات */}
       <SuccessStoriesSection />
-
-      <BookingInvitation whatsappNumber={data.clinic.whatsapp} />
-
-      {/* مرشد البداية التفاعلي مع د. رنا */}
-      <CareGuideQuiz whatsappNumber={data.clinic.whatsapp} />
 
       <ArticlesSection articles={data.articles} />
 

@@ -256,48 +256,7 @@
     color: #14442a !important;
   }
   .member-settings {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 12px !important;
-    padding-top: 14px !important;
-    margin-top: 6px !important;
-    border-top: 1px solid #edf4eb !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-  }
-  .member-settings button {
-    width: 100% !important;
-    min-width: 0 !important;
-    padding: 9px 12px !important;
-    gap: 6px !important;
-    font-size: 12.5px !important;
-    font-weight: 700 !important;
-    min-height: 42px !important;
-    justify-content: center !important;
-    align-items: center !important;
-    background: #f9fbf8 !important;
-    border: 1.5px solid #dce8d7 !important;
-    border-radius: 12px !important;
-    color: #2e5334 !important;
-    white-space: nowrap !important;
-    box-sizing: border-box !important;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02) !important;
-  }
-  .member-settings button span {
-    overflow: visible !important;
-    text-overflow: unset !important;
-    white-space: nowrap !important;
-  }
-  .member-settings button.btn-logout {
-    grid-column: 1 / -1 !important;
-    color: #b91c1c !important;
-    background: #fef2f2 !important;
-    border-color: #fecaca !important;
-  }
-  .member-settings svg {
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
+    display: none !important;
   }
   .member-content {
     width: 100%;

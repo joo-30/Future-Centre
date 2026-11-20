@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
 import { requireAdministrativeAccess } from './middleware/admin-access.js';
 import { handleApiError } from './middleware/error-handler.js';
@@ -35,6 +36,8 @@ export function createApp() {
       credentials: true,
     }),
   );
+  // Allow high-res story/review image uploads up to 25mb for admin stories
+  app.use('/api/admin/stories/upload', express.json({ limit: '25mb' }));
   app.use(express.json({ limit: '20kb' }));
   app.use('/api', loadSession, protectOrigin);
 
@@ -61,7 +64,26 @@ export function createApp() {
     res.status(404).json({ error: { code: 'NOT_FOUND', message: 'المسار المطلوب غير موجود.' } }),
   );
 
-  const clientDist = path.resolve('client/dist');
+  const candidateRoots = [
+    path.resolve(process.cwd()),
+    path.resolve(process.cwd(), '..'),
+    path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..'),
+    path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..'),
+  ];
+  let projectRoot = process.cwd();
+  for (const r of candidateRoots) {
+    if (existsSync(path.join(r, 'client', 'public'))) {
+      projectRoot = r;
+      break;
+    }
+  }
+
+  const clientPublic = path.join(projectRoot, 'client/public');
+  if (existsSync(clientPublic)) {
+    app.use(express.static(clientPublic));
+  }
+
+  const clientDist = path.join(projectRoot, 'client/dist');
   if (existsSync(clientDist)) {
     app.use(express.static(clientDist));
     app.get('/{*path}', (_req, res, next) => {

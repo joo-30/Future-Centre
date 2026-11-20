@@ -173,7 +173,9 @@ export function AdminLayout() {
 
                   return (
                     <NavLink key={path} to={path} end={path === '/admin'}>
-                      <Icon size={19} className="nav-item-icon" />
+                      <span className="nav-item-icon-box">
+                        <Icon size={18} className="nav-item-icon" />
+                      </span>
                       <span className="nav-item-label">{label}</span>
                       {badgeCount > 0 && (
                         <span
@@ -187,7 +189,6 @@ export function AdminLayout() {
                           {badgeCount}
                         </span>
                       )}
-                      <ArrowLeft size={16} className="nav-item-arrow" />
                     </NavLink>
                   );
                 })}
@@ -274,18 +275,6 @@ export function AdminLayout() {
             >
               <QrCode size={16} />
               <span>مسح كود المريض (QR)</span>
-            </button>
-
-            {/* User role relocated to sidebar profile card */}
-            <button
-              type="button"
-              className="console-topbar-logout"
-              onClick={handleLogout}
-              title="تسجيل الخروج من لوحة الإدارة"
-              aria-label="تسجيل الخروج"
-            >
-              <LogOut size={16} />
-              <span>تسجيل الخروج</span>
             </button>
           </div>
         </header>

@@ -3,12 +3,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Activity,
   AlertCircle,
-  Search,
+  Apple,
   ArrowLeft,
-  ArrowRight,
   Bell,
   CalendarDays,
   CheckCheck,
+  Coffee,
+  Droplets,
   FileText,
   Check,
   CheckCircle2,
@@ -16,15 +17,19 @@ import {
   ChevronRight,
   Clock,
   Copy,
-  Link2,
   LogOut,
   MapPin,
   Menu,
+  Moon,
+  Pill,
   Plus,
   Printer,
   Scale,
   ShieldCheck,
   Smartphone,
+  Sun,
+  Sunrise,
+  Target,
   Award,
   Ticket,
   UserRound,
@@ -35,7 +40,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { gsap, isReducedMotion, useGSAP } from '../../lib/motion';
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../components/Auth';
 import { PasswordField } from '../../components/forms/PasswordField';
 import { WhatsAppIcon } from '../../components/icons/WhatsAppIcon';
@@ -65,16 +70,16 @@ const ACCOUNT_TABS = [
   },
   {
     id: 'prescriptions',
-    label: 'الروشتات والبرامج الغذائية',
-    shortLabel: 'الروشتات والدايت',
+    label: 'الروشتات',
+    shortLabel: 'الروشتات',
     desc: 'أنظمة الدايت وجداول الوجبات المعتمدة من د. رنا',
     icon: FileText,
     badgeKey: 'prescriptions',
   },
   {
     id: 'appointments',
-    label: 'مواعيدي القادمة',
-    shortLabel: 'المواعيد القادمة',
+    label: 'مواعيدي',
+    shortLabel: 'مواعيدي',
     desc: 'كشفك القادم وتفاصيل الحضور وتعديل التوقيت',
     icon: CalendarDays,
     badgeKey: 'appointments',
@@ -89,23 +94,23 @@ const ACCOUNT_TABS = [
   },
   {
     id: 'programs',
-    label: 'برامجي وطلباتي',
-    shortLabel: 'برامجي وطلباتي',
+    label: 'برامجي',
+    shortLabel: 'برامجي',
     desc: 'باقات المتابعة واشتراكات البرامج العلاجية',
     icon: Award,
     badgeKey: 'programs',
   },
   {
     id: 'inbody',
-    label: 'سجل الـ InBody والقياسات',
-    shortLabel: 'فحوصات InBody',
+    label: 'قياسات InBody',
+    shortLabel: 'InBody',
     desc: 'تطور الوزن ونسبة الدهون والعضلات بيانيًا',
     icon: Scale,
     badgeKey: 'inbody',
   },
   {
     id: 'notifications',
-    label: 'الإشعارات والتنبيهات',
+    label: 'الإشعارات',
     shortLabel: 'الإشعارات',
     desc: 'سجل التنبيهات المباشرة بالروشتات والمواعيد والفحوصات',
     icon: Bell,
@@ -133,7 +138,6 @@ export function Account() {
   const [claim, setClaim] = useState(false);
   const [profile, setProfile] = useState(false);
   const [password, setPassword] = useState(false);
-  const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [copiedRef, setCopiedRef] = useState<string | null>(null);
@@ -142,35 +146,6 @@ export function Account() {
   const [isEnablingPush, setIsEnablingPush] = useState(false);
   const [isTestingPush, setIsTestingPush] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(() => isNotificationSoundEnabled());
-  const [lookupQuery, setLookupQuery] = useState('');
-  const [lookupBusy, setLookupBusy] = useState(false);
-  const [lookupSuccessMsg, setLookupSuccessMsg] = useState('');
-  const [lookupErrorMsg, setLookupErrorMsg] = useState('');
-
-  const handleQuickLookupOrClaim = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLookupErrorMsg('');
-    setLookupSuccessMsg('');
-    const clean = lookupQuery.trim().replace(/^[#№#\s]+/, '');
-    if (!clean) {
-      setLookupErrorMsg('يرجى كتابة كود الحجز (مثال: 1863 أو 6867)');
-      return;
-    }
-    setLookupBusy(true);
-    try {
-      try {
-        await accountApi.claim(clean);
-        await reload();
-      } catch {
-        // Proceed even if already claimed or in account
-      }
-      navigate('/booking/track?q=' + encodeURIComponent(clean));
-    } catch (err) {
-      setLookupErrorMsg('تعذر العثور على موعد بهذا الكود، يرجى التأكد من كتابة الرقم بشكل صحيح.');
-    } finally {
-      setLookupBusy(false);
-    }
-  };
 
   useEffect(() => {
     const handlePrefChange = (e: Event) => {
@@ -246,13 +221,6 @@ export function Account() {
       void client.invalidateQueries({ queryKey: ['account', 'notifications'] });
     },
   });
-
-  const currentIndex = ACCOUNT_TABS.findIndex((t) => t.id === tab);
-  const prevTab = currentIndex > 0 ? ACCOUNT_TABS[currentIndex - 1] : null;
-  const nextTab =
-    currentIndex >= 0 && currentIndex < ACCOUNT_TABS.length - 1
-      ? ACCOUNT_TABS[currentIndex + 1]
-      : null;
 
   const selectTab = (id: string) => {
     setParams(id === 'overview' ? {} : { tab: id });
@@ -343,16 +311,10 @@ export function Account() {
         { opacity: 1, y: 0, duration: 0.45 }
       )
         .fromTo(
-          '.account-code-lookup-card',
-          { opacity: 0, y: 14 },
-          { opacity: 1, y: 0, duration: 0.55 },
-          '-=0.25'
-        )
-        .fromTo(
-          '.member-overview-grid > *, .member-quick-actions',
+          '.member-overview-grid > *, .member-quick-actions, .account-latest-plan-banner',
           { opacity: 0, y: 14 },
           { opacity: 1, y: 0, duration: 0.5, stagger: 0.08 },
-          '-=0.3'
+          '-=0.2'
         );
     },
     { scope: accountPageRef, dependencies: [tab, accountQuery.isPending] }
@@ -741,7 +703,7 @@ export function Account() {
           </div>
           ${rx.goal ? `<div class="goal">🎯 الهدف العلاجي: ${rx.goal}</div>` : ''}
           <div class="metrics">
-            <div class="metric-cell"><span class="lbl">⚖️ الوزن الحالي</span><span class="val">${rx.weight || '—'} كجم</span></div>
+            <div class="metric-cell"><span class="lbl">⚖️ الوزن وقت الخطة</span><span class="val">${rx.weight || '—'} كجم</span></div>
             <div class="metric-cell highlight"><span class="lbl">🎯 الوزن المستهدف</span><span class="val">${rx.targetWeight || '—'} كجم</span></div>
             <div class="metric-cell"><span class="lbl">🔥 نسبة الدهون</span><span class="val">${rx.bodyFatPercent ? rx.bodyFatPercent + '%' : '—'}</span></div>
             <div class="metric-cell"><span class="lbl">💪 الكتلة العضلية</span><span class="val">${rx.muscleMass ? rx.muscleMass + ' كجم' : '—'}</span></div>
@@ -824,104 +786,6 @@ export function Account() {
     window.print();
   };
 
-  const isPhonePattern = (val: string) => {
-    const clean = val.replace(/[\s()\-]/g, '');
-    return /^(01|\+20|0020|\d{9,14})/.test(clean);
-  };
-
-  const renderCodeLookupCard = () => {
-    const isPhone = isPhonePattern(lookupQuery.trim());
-    const hasValue = lookupQuery.trim().length > 0;
-    const formattedUserPhone = user?.phone ? user.phone.replace(/^\+20/, '0') : '';
-
-    return (
-      <div className="account-code-lookup-card">
-        <div className="aclc-header">
-          <div className="aclc-icon-wrap">
-            {isPhone ? <Smartphone size={19} /> : <Search size={18} />}
-          </div>
-          <div>
-            <h3 className="aclc-title">الاستعلام الذكي عن الموعد والتذكرة</h3>
-            <p className="aclc-desc">
-              اكتبي رقم الموبايل أو كود الحجز لعرض تذكرتكِ الذكية ومتابعة موعدكِ فوراً:
-            </p>
-          </div>
-        </div>
-
-        <form onSubmit={handleQuickLookupOrClaim} className="aclc-form">
-          <div className="aclc-input-wrap">
-            {isPhone ? (
-              <Smartphone size={17} className="aclc-field-icon" />
-            ) : (
-              <Ticket size={17} className="aclc-field-icon" />
-            )}
-            <input
-              type="text"
-              className="aclc-input"
-              placeholder="اكتبي رقم الموبايل (مثال: 01012345678) أو كود الحجز (مثال: 1863)"
-              value={lookupQuery}
-              onChange={(e) => setLookupQuery(e.target.value)}
-              dir="rtl"
-            />
-            {hasValue && (
-              <span className={`aclc-detect-badge ${isPhone ? 'is-phone' : 'is-ticket'}`}>
-                {isPhone ? <Smartphone size={12} /> : <Ticket size={12} />}
-                <span>{isPhone ? 'رقم موبايل' : 'كود حجز'}</span>
-              </span>
-            )}
-          </div>
-          <button
-            type="submit"
-            className="aclc-submit-btn"
-            disabled={lookupBusy}
-          >
-            {lookupBusy ? (
-              <span>جارٍ الاستعلام...</span>
-            ) : (
-              <>
-                <Search size={16} />
-                <span>استعلام وعرض التذكرة ←</span>
-              </>
-            )}
-          </button>
-        </form>
-
-        {formattedUserPhone && (
-          <div className="aclc-quick-phone-row">
-            <span className="aclc-quick-label">اختصار سريع:</span>
-            <button
-              type="button"
-              className="aclc-quick-phone-btn"
-              onClick={() => {
-                setLookupQuery(formattedUserPhone);
-                navigate('/booking/track?q=' + encodeURIComponent(formattedUserPhone));
-              }}
-              title="البحث التلقائي عن المواعيد برقم هاتفي المسجل"
-            >
-              <Smartphone size={13} />
-              <span>استعلام برقم هاتفي المسجل ({formattedUserPhone})</span>
-            </button>
-          </div>
-        )}
-
-        {lookupSuccessMsg && (
-          <div className="aclc-feedback is-success" role="status">
-            <CheckCircle2 size={16} />
-            <span>{lookupSuccessMsg}</span>
-          </div>
-        )}
-        {lookupErrorMsg && (
-          <div className="aclc-feedback is-error" role="alert">
-            <AlertCircle size={16} />
-            <span>{lookupErrorMsg}</span>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-
-
   return (
     <main ref={accountPageRef} className="member-page">
       {toast && (
@@ -1000,7 +864,7 @@ export function Account() {
                 <strong>{user?.name || 'مريضة المركز'}</strong>
                 <div className="member-person-pills">
                   <div className="member-phone-pill">
-                    <bdi dir="ltr">{user?.phone}</bdi>
+                    <bdi dir="ltr">{user?.phone ? (user.phone.startsWith('+20') ? '0' + user.phone.slice(3) : user.phone) : ''}</bdi>
                   </div>
                   {user?.fileNumber && (
                     <div className="member-file-pill" title="رقم ملفك الطبي الدائم">
@@ -1032,7 +896,7 @@ export function Account() {
           <div className="sidebar-divider" />
 
           <div className="member-tabs-container">
-            <div className="sidebar-nav-label">أقسام العيادة</div>
+            <div className="sidebar-nav-label">أقسام حسابي</div>
             <button
               type="button"
               className="nav-arrow prev"
@@ -1109,7 +973,7 @@ export function Account() {
           {catalog && (
             <div className="sidebar-help-widget">
               <div className="sidebar-help-header">
-                <WhatsAppIcon size={15} color="#25D366" />
+                <WhatsAppIcon size={15} color="#166534" />
                 <span>مساعدة المريض</span>
               </div>
               <p>استفسار عن خطتك أو كشفك؟ تواصلي مباشرة مع العيادة.</p>
@@ -1242,28 +1106,36 @@ export function Account() {
                 </div>
               </div>
 
-              {renderCodeLookupCard()}
+              {rxList[0] && (
+                <div className="account-latest-plan-banner">
+                  <div className="alp-info">
+                    <span className="alp-badge">
+                      <FileText size={15} />
+                      <span>أحدث خطة غذائية معتمدة</span>
+                    </span>
+                    <strong className="alp-goal">{rxList[0].goal || 'خطة غذائية ومتابعة مخصصة'}</strong>
+                    <span className="alp-date">تاريخ الاعتماد: {dateLabel(rxList[0].date)}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="alp-action-btn"
+                    onClick={() => selectTab('prescriptions')}
+                  >
+                    <span>عرض تفاصيل الخطة والوجبات</span>
+                    <ArrowLeft size={15} />
+                  </button>
+                </div>
+              )}
 
               <div className="member-quick-actions">
                 <ButtonLink to="/booking" className="btn-action-primary">
                   <Plus size={18} />
                   <span>حجز موعد كشف جديد بالعيادة</span>
                 </ButtonLink>
-                <button
-                  type="button"
-                  className="btn-action-claim"
-                  onClick={() => {
-                    setMessage('');
-                    setClaim(true);
-                  }}
-                >
-                  <Link2 size={17} />
-                  <span>ربط حجز سابق برابط المتابعة</span>
-                </button>
               </div>
             </div>
           )}
-          {(tab === 'appointments' || tab === 'history' || (tab === 'overview' && upcoming.length > 0)) && (
+          {(tab === 'appointments' || tab === 'history') && (
             <section>
               <div className="section-heading" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                 <div>
@@ -1280,7 +1152,7 @@ export function Account() {
                 <div className="portal-empty">
                   <CalendarDays />
                   <h3>{tab === 'history' ? 'سجلّك يبدأ بأول زيارة.' : 'لا توجد مواعيد قادمة.'}</h3>
-                  <p>يمكنك طلب موعد جديد أو إضافة حجز ضيف برابط المتابعة الخاص به.</p>
+                  <p>يمكنك حجز موعد جديد بالعيادة بسهولة في أي وقت.</p>
                   <ButtonLink to="/booking" kind="outline">
                     اختاري موعدًا
                   </ButtonLink>
@@ -1411,39 +1283,18 @@ export function Account() {
           )}
 
           {/* قسم الروشتات والبرامج الغذائية */}
-          {(tab === 'prescriptions' ||
-            (tab === 'overview' &&
-              accountQuery.data.prescriptions &&
-              accountQuery.data.prescriptions.length > 0)) && (
+          {tab === 'prescriptions' && (
             <section className="member-prescriptions-section">
               <div className="section-heading">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Utensils size={20} color="var(--forest)" />
-                  <h2>
-                    {tab === 'overview' ? 'أحدث خطة غذائية وروشتة' : 'برامجك الغذائية وروشتات الدايت'}
-                  </h2>
+                  <h2>برامجك الغذائية وروشتات الدايت</h2>
                 </div>
-                {tab === 'overview' &&
-                  accountQuery.data.prescriptions &&
-                  accountQuery.data.prescriptions.length > 1 && (
-                    <button
-                      type="button"
-                      className="link"
-                      style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                      onClick={() => setParams({ tab: 'prescriptions' })}
-                    >
-                      عرض جميع الروشتات ({accountQuery.data.prescriptions.length})
-                      <ArrowLeft size={17} />
-                    </button>
-                  )}
               </div>
 
               {accountQuery.data.prescriptions && accountQuery.data.prescriptions.length > 0 ? (
                 <div className="member-prescriptions-list">
-                  {(tab === 'overview'
-                    ? accountQuery.data.prescriptions.slice(0, 1)
-                    : accountQuery.data.prescriptions
-                  ).map((rx) => (
+                  {accountQuery.data.prescriptions.map((rx) => (
                     <article key={rx.id} className="patient-prescription-card">
                       {/* Card Header with Clinic Logo */}
                       <div className="rx-card-top">
@@ -1473,7 +1324,10 @@ export function Account() {
                       {/* Goal banner */}
                       {rx.goal && (
                         <div className="rx-goal-banner">
-                          <strong>🎯 الهدف العلاجي:</strong>
+                          <strong style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            <Target size={15} />
+                            الهدف العلاجي:
+                          </strong>
                           <span>{rx.goal}</span>
                         </div>
                       )}
@@ -1482,7 +1336,7 @@ export function Account() {
                       <div className="rx-card-metrics">
                         {rx.weight && (
                           <div className="rx-mini-stat">
-                            <small>الوزن الحالي</small>
+                            <small>الوزن وقت الخطة</small>
                             <strong>{rx.weight} كجم</strong>
                           </div>
                         )}
@@ -1515,27 +1369,42 @@ export function Account() {
                       {/* Meals Schedule */}
                       <div className="rx-meals-accordion">
                         <div className="meal-row">
-                          <span className="meal-title">🌅 الإفطار</span>
+                          <span className="meal-title" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            <Sunrise size={15} />
+                            الإفطار
+                          </span>
                           <p className="meal-desc">{rx.breakfast || '—'}</p>
                         </div>
                         {rx.snack1 && (
                           <div className="meal-row snack">
-                            <span className="meal-title">🍎 سناك 1</span>
+                            <span className="meal-title" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                              <Apple size={15} />
+                              سناك 1
+                            </span>
                             <p className="meal-desc">{rx.snack1}</p>
                           </div>
                         )}
                         <div className="meal-row">
-                          <span className="meal-title">🥗 الغداء</span>
+                          <span className="meal-title" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            <Sun size={15} />
+                            الغداء
+                          </span>
                           <p className="meal-desc">{rx.lunch || '—'}</p>
                         </div>
                         {rx.snack2 && (
                           <div className="meal-row snack">
-                            <span className="meal-title">🍵 سناك 2</span>
+                            <span className="meal-title" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                              <Coffee size={15} />
+                              سناك 2
+                            </span>
                             <p className="meal-desc">{rx.snack2}</p>
                           </div>
                         )}
                         <div className="meal-row">
-                          <span className="meal-title">🌙 العشاء</span>
+                          <span className="meal-title" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            <Moon size={15} />
+                            العشاء
+                          </span>
                           <p className="meal-desc">{rx.dinner || '—'}</p>
                         </div>
                       </div>
@@ -1544,13 +1413,19 @@ export function Account() {
                       <div className="rx-guidelines-bar">
                         {rx.waterIntake && (
                           <div className="guide-item">
-                            <span>💧 الماء:</span>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                              <Droplets size={14} />
+                              الماء:
+                            </span>
                             <small>{rx.waterIntake}</small>
                           </div>
                         )}
                         {rx.supplements && (
                           <div className="guide-item">
-                            <span>💊 المكملات:</span>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                              <Pill size={14} />
+                              المكملات:
+                            </span>
                             <small>{rx.supplements}</small>
                           </div>
                         )}
@@ -1558,7 +1433,10 @@ export function Account() {
 
                       {rx.instructions && (
                         <div className="rx-instructions-note">
-                          <strong>⚠️ توجيهات الطبيب:</strong>
+                          <strong style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            <AlertCircle size={15} />
+                            توجيهات الطبيب:
+                          </strong>
                           <p>{rx.instructions}</p>
                         </div>
                       )}
@@ -1584,7 +1462,7 @@ export function Account() {
                             rel="noopener noreferrer"
                             className="rx-whatsapp-btn"
                           >
-                            <WhatsAppIcon size={15} color="#ffffff" />
+                            <WhatsAppIcon size={15} color="#166534" />
                             <span>استفسار عن الخطة</span>
                           </a>
                         )}
@@ -1605,7 +1483,7 @@ export function Account() {
               )}
             </section>
           )}
-          {(tab === 'overview' || tab === 'programs') && (
+          {tab === 'programs' && (
             <section>
               <div className="section-heading">
                 <h2>برامجك ومتابعتك</h2>
@@ -1654,21 +1532,10 @@ export function Account() {
             </section>
           )}
 
-          {(tab === 'overview' || tab === 'inbody') && (
+          {tab === 'inbody' && (
             <section>
               <div className="section-heading">
                 <h2>قياساتك وفحوصات الـ InBody</h2>
-                {tab === 'overview' && (
-                  <button
-                    type="button"
-                    className="link"
-                    style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                    onClick={() => setParams({ tab: 'inbody' })}
-                  >
-                    السجل الكامل
-                    <ArrowLeft size={17} />
-                  </button>
-                )}
               </div>
               {accountQuery.data.inbody && accountQuery.data.inbody.length > 0 ? (
                 <div>
@@ -2003,62 +1870,6 @@ export function Account() {
               })()}
             </section>
           )}
-
-          {/* شريط الانتقال السريع بين الأقسام */}
-          <nav className="tab-bottom-nav" aria-label="التنقل بين الأقسام">
-            {prevTab ? (
-              <button
-                type="button"
-                className="btn-tab-step prev"
-                onClick={() => selectTab(prevTab.id)}
-              >
-                <ArrowRight size={16} />
-                <span>السابق: {prevTab.shortLabel}</span>
-              </button>
-            ) : <div />}
-            {nextTab && (
-              <button
-                type="button"
-                className="btn-tab-step next"
-                onClick={() => selectTab(nextTab.id)}
-              >
-                <span>التالي: {nextTab.shortLabel}</span>
-                <ArrowLeft size={16} />
-              </button>
-            )}
-          </nav>
-
-          {catalog && (
-            <div className="member-help">
-              <WhatsAppIcon size={28} color="#25D366" />
-              <div>
-                <h3>نتابع معك خطوة بخطوة.</h3>
-                <p>استفسارك عن موعد أو برنامج؟ فريق المركز قريب منك.</p>
-              </div>
-              <a
-                className="btn-whatsapp"
-                style={{ padding: '8px 16px', borderRadius: '10px' }}
-                target="_blank"
-                rel="noopener noreferrer"
-                href={whatsappUrl(catalog.clinic.whatsapp, 'أحتاج مساعدة بخصوص حسابي بالمركز.')}
-              >
-                <WhatsAppIcon size={18} color="#ffffff" />
-                <span>تواصلي معنا عبر واتساب</span>
-              </a>
-            </div>
-          )}
-          <p className="field-hint">
-            الحجوزات القديمة لا تُربط برقم الهاتف تلقائيًا، حفاظًا على خصوصيتك.{' '}
-            <button
-              className="link"
-              onClick={() => {
-                setMessage('');
-                setClaim(true);
-              }}
-            >
-              أضيفي حجزك برابط المتابعة
-            </button>
-          </p>
         </div>
       </div>
       {[
@@ -2154,7 +1965,7 @@ export function Account() {
             <span className="avatar-large">{user?.name ? user.name.trim().slice(0, 1) : 'م'}</span>
             <div className="drawer-user-info">
               <strong>{user?.name || 'مريضة المركز'}</strong>
-              <bdi dir="ltr">{user?.phone}</bdi>
+              <bdi dir="ltr">{user?.phone ? (user.phone.startsWith('+20') ? '0' + user.phone.slice(3) : user.phone) : ''}</bdi>
               {user?.fileNumber && (
                 <div className="member-file-pill" style={{ marginTop: '4px' }}>
                   <span className="file-lbl">الملف الطبي:</span>
@@ -2166,7 +1977,7 @@ export function Account() {
           </div>
 
           <div className="drawer-tabs-list">
-            <span className="drawer-section-label">تصفح أقسام العيادة ({ACCOUNT_TABS.length})</span>
+            <span className="drawer-section-label">أقسام الحساب ({ACCOUNT_TABS.length})</span>
             {ACCOUNT_TABS.map(({ id, label, desc, icon: TabIcon, badgeKey }) => {
               const isActive = tab === id;
               const count = getTabCount(badgeKey);

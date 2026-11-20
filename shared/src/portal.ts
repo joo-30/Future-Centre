@@ -101,6 +101,36 @@ export interface ScheduleData {
   demoSchedule: boolean;
 }
 
+export interface AnalyticsPeriodDay {
+  date: string;
+  scheduledMinutes: number;
+  completed: number;
+  booked: number;
+  visitMinutes: number;
+  revenue?: number;
+  expectedRevenue?: number;
+}
+
+export interface AnalyticsPeriod {
+  range: 'today' | 'week' | 'month';
+  startDate: string;
+  endDate: string;
+  revenue: number;
+  expectedRevenue?: number;
+  appointmentRevenue?: number;
+  subscriptionRevenue?: number;
+  booked: number;
+  completed: number;
+  confirmed: number;
+  pending: number;
+  noShow: number;
+  attendanceRate: number;
+  services: { id: string; title: string; booked: number; completed: number }[];
+  scheduledMinutes: number;
+  visitMinutes: number;
+  days: AnalyticsPeriodDay[];
+}
+
 export interface ClinicAnalytics {
   date: string;
   today: string;
@@ -119,10 +149,11 @@ export interface ClinicAnalytics {
   };
   week: {
     received: number;
-    days: { date: string; scheduledMinutes: number; completed: number; visitMinutes: number }[];
+    days: { date: string; scheduledMinutes: number; completed: number; booked?: number; visitMinutes: number }[];
     subscriptionsStarted: number;
     subscriptionsActive: number;
   };
+  period?: AnalyticsPeriod;
 }
 
 export interface PatientClinicalNote {

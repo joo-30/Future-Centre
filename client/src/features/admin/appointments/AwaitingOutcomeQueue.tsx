@@ -63,11 +63,10 @@ export function AwaitingOutcomeQueue({
         </span>
         <div>
           <h2 id="awaiting-outcome-title">
-            مواعيد محتاجة تقفيل <bdi className="awaiting-outcome-count">{total}</bdi>
+            مواعيد بانتظار تسجيل الحضور (حان وقتها) <bdi className="awaiting-outcome-count">{total}</bdi>
           </h2>
           <p>
-            مواعيد مؤكدة عدّى وقتها ولسه ما اتسجلش فيها حضور. سجّلي النتيجة عشان سجل المريض
-            والتحليلات يبقوا صح.
+            مواعيد مؤكدة حان وقت كشفها اليوم أو في أيام سابقة ولم يُسجل حضورها بعد. اضغطي تم الحضور أو لم يحضر لتسجيل الكشف وتحديث دخل العيادة والتحليلات فوراً.
           </p>
         </div>
       </header>

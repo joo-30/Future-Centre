@@ -19,6 +19,7 @@ import {
   Phone,
   RotateCcw,
   ShieldCheck,
+  Ticket,
   UserRound,
   X,
 } from 'lucide-react';
@@ -310,11 +311,20 @@ export function Booking() {
       <form onSubmit={submit} noValidate>
         <fieldset disabled={isSubmitting} className="booking-fieldset">
           <div className="book-layout">
-            <section className="book-main">
+            <div className="book-main-col">
+              <section className="book-main">
               <header className="booking-ticket-heading" ref={formTop} tabIndex={-1}>
                 <div className="booking-ticket-topline">
-                  <span className="booking-ticket-step">{mobileStep === 1 ? '١' : '٢'} من ٢</span>
-                  <Link to="/booking/track">متابعة حجز <ArrowLeft size={17} aria-hidden="true" /></Link>
+                  <span className="booking-ticket-step">الخطوة {mobileStep === 1 ? '١' : '٢'} من ٢</span>
+                  <Link
+                    to="/booking/track"
+                    className="booking-track-pill"
+                    title="متابعة أو تعديل أو إلغاء حجز سابق"
+                  >
+                    <Ticket size={16} className="track-pill-icon" aria-hidden="true" />
+                    <span>متابعة حجز سابق</span>
+                    <ArrowLeft size={15} className="track-pill-arrow" aria-hidden="true" />
+                  </Link>
                 </div>
                 <h1>{mobileStep === 1 ? 'احجزي موعدكِ' : 'بيانات التواصل'}</h1>
                 <p>{mobileStep === 1
@@ -584,7 +594,7 @@ export function Booking() {
                                   : slot.reason === 'booked'
                                     ? 'محجوز'
                                     : slot.reason === 'past'
-                                      ? 'انتهى'
+                                      ? 'محجوز'
                                       : 'غير متاح'}
                             </small>
                           </button>
@@ -846,16 +856,17 @@ export function Booking() {
                 </div>
               </div>
             </section>
-            <figure className="booking-ticket-art" aria-hidden="true">
-              <img src="/assets/booking-ticket-sculpture.webp" alt="" width="840" height="1050" />
-            </figure>
+            <div className="legal-foot">
+              الأوقات بتوقيت المركز في مصر. <Link to="/appointment-policy">سياسة المواعيد</Link> ·{' '}
+              <Link to="/privacy">الخصوصية</Link>
+            </div>
           </div>
-        </fieldset>
-      </form>
-      <div className="legal-foot">
-        الأوقات بتوقيت المركز في مصر. <Link to="/appointment-policy">سياسة المواعيد</Link> ·{' '}
-        <Link to="/privacy">الخصوصية</Link>
-      </div>
-    </main>
+          <figure className="booking-ticket-art" aria-hidden="true">
+            <img src="/assets/booking-ticket-sculpture.webp" alt="" width="840" height="1050" />
+          </figure>
+        </div>
+      </fieldset>
+    </form>
+  </main>
   );
 }
