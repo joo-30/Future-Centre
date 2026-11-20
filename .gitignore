@@ -1,6 +1,8 @@
 node_modules/
 dist/
 .env
+# The client .env contains public build metadata only.
+!/client/.env
 .env.*.local
 .local/
 test-results/
