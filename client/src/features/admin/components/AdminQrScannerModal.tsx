@@ -15,6 +15,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Html5Qrcode } from 'html5-qrcode';
+import jsQR from 'jsqr';
 import { adminApi } from '../../../lib/portal-api';
 
 export interface QrScanResult {
@@ -111,6 +112,84 @@ export function parseQrData(raw: string): QrScanResult {
   return result;
 }
 
+// Multi-strategy QR Decoder for files & screenshots:
+// 1. Browser Native BarcodeDetector (hardware-accelerated ML)
+// 2. jsQR with multi-scale canvas inspection (handles 4K phone screenshots, low contrast, zoomed crops)
+// 3. Html5Qrcode fallback without DOM injection
+async function decodeQrFromFile(file: File): Promise<string> {
+  // Strategy 1: Browser Native BarcodeDetector (Chrome/Edge on Windows & Android)
+  if (typeof window !== 'undefined' && 'BarcodeDetector' in window) {
+    try {
+      const detector = new (window as any).BarcodeDetector({ formats: ['qr_code'] });
+      const bitmap = await createImageBitmap(file);
+      const barcodes = await detector.detect(bitmap);
+      if (barcodes && barcodes.length > 0 && barcodes[0]?.rawValue) {
+        return barcodes[0].rawValue;
+      }
+    } catch (err) {
+      console.warn('Native BarcodeDetector skipped:', err);
+    }
+  }
+
+  // Strategy 2: Multi-scale Canvas inspection with jsQR
+  try {
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = reject;
+      image.src = dataUrl;
+    });
+
+    // Test multiple scales: 100%, 50% (for massive 4K phone screenshots), and 75%
+    const scales = [1.0, 0.5, 0.75, 1.25];
+    for (const scale of scales) {
+      const w = Math.round(img.width * scale);
+      const h = Math.round(img.height * scale);
+      if (w <= 30 || h <= 30) continue;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, w, h);
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const code = jsQR(imgData.data, imgData.width, imgData.height, {
+          inversionAttempts: 'attemptBoth',
+        });
+        if (code?.data?.trim()) {
+          return code.data.trim();
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('jsQR image decode skipped:', err);
+  }
+
+  // Strategy 3: Html5Qrcode fallback without DOM rendering
+  const tempContainer = document.getElementById('admin-qr-file-temp-container');
+  if (tempContainer) {
+    const scanner = new Html5Qrcode('admin-qr-file-temp-container');
+    try {
+      const result = await scanner.scanFile(file, false);
+      if (result?.trim()) return result.trim();
+    } finally {
+      try {
+        scanner.clear();
+      } catch {}
+    }
+  }
+
+  throw new Error('لم يتم العثور على كود QR صالح في الصورة. يرجى التأكد من وضوح الكود أو استخدام الإدخال اليدوي.');
+}
+
 export function AdminQrScannerModal({
   isOpen,
   onClose,
@@ -122,6 +201,7 @@ export function AdminQrScannerModal({
   const [activeTab, setActiveTab] = useState<'camera' | 'upload' | 'manual'>('camera');
   const [cameraError, setCameraError] = useState<string>('');
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isFileScanning, setIsFileScanning] = useState(false);
   const [scannedFeedback, setScannedFeedback] = useState<string | null>(null);
   const [manualCode, setManualCode] = useState('');
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -135,6 +215,7 @@ export function AdminQrScannerModal({
     setCameraError('');
     setManualCode('');
     setIsVerifying(false);
+    setIsFileScanning(false);
     onClose();
   };
 
@@ -144,6 +225,7 @@ export function AdminQrScannerModal({
       setCameraError('');
       setManualCode('');
       setIsVerifying(false);
+      setIsFileScanning(false);
     }
   }, [isOpen]);
 
@@ -266,16 +348,21 @@ export function AdminQrScannerModal({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setIsFileScanning(true);
+    setCameraError('');
     try {
-      setCameraError('');
-      const scanner = new Html5Qrcode('admin-qr-file-temp-container');
-      const result = await scanner.scanFile(file, true);
+      const result = await decodeQrFromFile(file);
       e.target.value = '';
-      handleSuccess(result);
+      await handleSuccess(result);
     } catch (err) {
       console.warn('File QR decode failed:', err);
       e.target.value = '';
-      setCameraError('لم يتم العثور على كود QR صالح في الصورة. جربي صورة أخرى أكثر وضوحاً.');
+      setCameraError(
+        (err as Error).message ||
+          'لم يتم العثور على كود QR صالح في الصورة. يمكنكِ استخدام خيار كتابة الكود يدوياً.'
+      );
+    } finally {
+      setIsFileScanning(false);
     }
   };
 
@@ -328,7 +415,10 @@ export function AdminQrScannerModal({
           <button
             type="button"
             className={`admin-qr-tab-btn ${activeTab === 'camera' ? 'is-active' : ''}`}
-            onClick={() => setActiveTab('camera')}
+            onClick={() => {
+              setCameraError('');
+              setActiveTab('camera');
+            }}
           >
             <Camera size={16} />
             <span>كاميرا المسح المباشر</span>
@@ -336,7 +426,10 @@ export function AdminQrScannerModal({
           <button
             type="button"
             className={`admin-qr-tab-btn ${activeTab === 'upload' ? 'is-active' : ''}`}
-            onClick={() => setActiveTab('upload')}
+            onClick={() => {
+              setCameraError('');
+              setActiveTab('upload');
+            }}
           >
             <FileImage size={16} />
             <span>رفع صورة / سكرين شوت</span>
@@ -344,7 +437,10 @@ export function AdminQrScannerModal({
           <button
             type="button"
             className={`admin-qr-tab-btn ${activeTab === 'manual' ? 'is-active' : ''}`}
-            onClick={() => setActiveTab('manual')}
+            onClick={() => {
+              setCameraError('');
+              setActiveTab('manual');
+            }}
           >
             <Keyboard size={16} />
             <span>إدخال الكود يدوياً</span>
@@ -380,113 +476,153 @@ export function AdminQrScannerModal({
                 إغلاق النافذة
               </button>
             </div>
-          ) : activeTab === 'camera' ? (
-            <div className="qr-camera-viewport-wrap">
-              {cameraError ? (
-                <div className="qr-camera-error-box">
-                  <AlertCircle size={40} className="error-camera-icon" style={{ color: '#dc2626' }} />
-                  <p style={{ fontWeight: 600, color: '#991b1b' }}>{cameraError}</p>
-                  <div className="error-actions-row">
-                    {cameraError.includes('معلق') && (
+          ) : (
+            <>
+              {/* Camera Tab (Kept always mounted in DOM to prevent video stream teardown crashes) */}
+              <div
+                className="qr-camera-viewport-wrap"
+                style={{ display: activeTab === 'camera' ? 'block' : 'none' }}
+              >
+                {cameraError ? (
+                  <div className="qr-camera-error-box">
+                    <AlertCircle size={40} className="error-camera-icon" style={{ color: '#dc2626' }} />
+                    <p style={{ fontWeight: 600, color: '#991b1b' }}>{cameraError}</p>
+                    <div className="error-actions-row">
+                      {cameraError.includes('معلق') && (
+                        <button
+                          type="button"
+                          className="btn primary small"
+                          style={{ background: '#d97706', borderColor: '#b45309', color: '#ffffff' }}
+                          onClick={() => {
+                            handleClose();
+                            navigate('/admin');
+                          }}
+                        >
+                          <Clock size={15} />
+                          الانتقال للمواعيد المعلقة لاعتماد الطلب
+                        </button>
+                      )}
                       <button
                         type="button"
                         className="btn primary small"
-                        style={{ background: '#d97706', borderColor: '#b45309', color: '#ffffff' }}
+                        onClick={() => setCameraError('')}
+                      >
+                        <RefreshCw size={15} />
+                        إعادة المحاولة
+                      </button>
+                      <button
+                        type="button"
+                        className="btn light small"
                         onClick={() => {
-                          handleClose();
-                          navigate('/admin');
+                          setCameraError('');
+                          setActiveTab('upload');
                         }}
                       >
-                        <Clock size={15} />
-                        الانتقال للمواعيد المعلقة لاعتماد الطلب
+                        <FileImage size={15} />
+                        رفع صورة
                       </button>
-                    )}
-                    <button
-                      type="button"
-                      className="btn primary small"
-                      onClick={() => setCameraError('')}
-                    >
-                      <RefreshCw size={15} />
-                      إعادة المحاولة
-                    </button>
-                    <button
-                      type="button"
-                      className="btn light small"
-                      onClick={() => setActiveTab('upload')}
-                    >
-                      <FileImage size={15} />
-                      رفع صورة
-                    </button>
-                    <button
-                      type="button"
-                      className="btn light small"
-                      onClick={() => setActiveTab('manual')}
-                    >
-                      <Keyboard size={15} />
-                      كتابة الكود يدوياً
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="qr-live-scanner-box">
-                  <div id={readerElementId} className="qr-html5-camera-target" />
-                  <div className="qr-viewfinder-overlay">
-                    <div className="viewfinder-frame">
-                      <span className="vf-corner tl" />
-                      <span className="vf-corner tr" />
-                      <span className="vf-corner bl" />
-                      <span className="vf-corner br" />
-                      <div className="vf-laser-line" />
+                      <button
+                        type="button"
+                        className="btn light small"
+                        onClick={() => {
+                          setCameraError('');
+                          setActiveTab('manual');
+                        }}
+                      >
+                        <Keyboard size={15} />
+                        كتابة الكود يدوياً
+                      </button>
                     </div>
                   </div>
-                  <p className="qr-camera-tip">
-                    ضع الكود داخل المربع، سيتم التعرف عليه تلقائياً بدون الضغط على أي زر.
-                  </p>
-                </div>
-              )}
-            </div>
-          ) : activeTab === 'upload' ? (
-            <div className="qr-upload-pane">
-              <label className="qr-dropzone-box">
-                <FileImage size={44} className="dropzone-icon" />
-                <span className="dropzone-title">اضغطي هنا لاختيار صورة كود الـ QR</span>
-                <small className="dropzone-sub">
-                  يقبل صور الكاميرا، لقطات الشاشة (Screenshots)، أو ملفات PNG/JPG
-                </small>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => void handleFileUpload(e)}
-                  className="dropzone-file-input"
-                />
-              </label>
+                ) : (
+                  <div className="qr-live-scanner-box">
+                    <div id={readerElementId} className="qr-html5-camera-target" />
+                    <div className="qr-viewfinder-overlay">
+                      <div className="viewfinder-frame">
+                        <span className="vf-corner tl" />
+                        <span className="vf-corner tr" />
+                        <span className="vf-corner bl" />
+                        <span className="vf-corner br" />
+                        <div className="vf-laser-line" />
+                      </div>
+                    </div>
+                    <p className="qr-camera-tip">
+                      ضع الكود داخل المربع، سيتم التعرف عليه تلقائياً بدون الضغط على أي زر.
+                    </p>
+                  </div>
+                )}
+              </div>
 
-              {cameraError && <p className="qr-upload-error-text">{cameraError}</p>}
-              <div id="admin-qr-file-temp-container" style={{ display: 'none' }} />
-            </div>
-          ) : (
-            <form className="qr-manual-pane" onSubmit={handleManualSubmit}>
-              <label className="qr-manual-label">
-                رقم حجز المريض أو كود الاستدعاء:
-                <input
-                  type="text"
-                  dir="ltr"
-                  className="input qr-manual-input"
-                  placeholder="مثال: FC-2A3FC4AF أو رقم الهاتف"
-                  value={manualCode}
-                  onChange={(e) => setManualCode(e.target.value)}
-                  autoFocus
-                />
-              </label>
-              <button
-                type="submit"
-                className="btn primary qr-manual-submit-btn"
-                disabled={!manualCode.trim()}
+              {/* Upload Tab */}
+              <div
+                className="qr-upload-pane"
+                style={{ display: activeTab === 'upload' ? 'block' : 'none' }}
               >
-                <CheckCircle2 size={16} />
-                تأكيد ومطابقة الحجز
-              </button>
-            </form>
+                {isFileScanning ? (
+                  <div className="qr-scan-success-pane" style={{ padding: '36px 20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+                      <Loader2 size={46} className="spin-slow" style={{ color: 'var(--brand-emerald)' }} />
+                    </div>
+                    <h4>جارٍ فحص وتحليل صورة الـ QR بدقة...</h4>
+                    <p className="scanned-raw-code">نقوم باستخراج بيانات الحجز من لقطة الشاشة</p>
+                  </div>
+                ) : (
+                  <label className="qr-dropzone-box">
+                    <FileImage size={44} className="dropzone-icon" />
+                    <span className="dropzone-title">اضغطي هنا لاختيار صورة كود الـ QR</span>
+                    <small className="dropzone-sub">
+                      يقبل صور الكاميرا، لقطات الشاشة (Screenshots)، أو ملفات PNG/JPG/WebP
+                    </small>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => void handleFileUpload(e)}
+                      className="dropzone-file-input"
+                    />
+                  </label>
+                )}
+
+                {cameraError && activeTab === 'upload' && (
+                  <p className="qr-upload-error-text" style={{ marginTop: '12px' }}>{cameraError}</p>
+                )}
+              </div>
+
+              {/* Manual Tab */}
+              <div
+                style={{ display: activeTab === 'manual' ? 'block' : 'none' }}
+              >
+                <form className="qr-manual-pane" onSubmit={handleManualSubmit}>
+                  <label className="qr-manual-label">
+                    رقم حجز المريض أو كود الاستدعاء أو الهاتف:
+                    <input
+                      type="text"
+                      dir="ltr"
+                      className="input qr-manual-input"
+                      placeholder="مثال: FC-2A3FC4AF أو 8804 أو 010xxxxxxxx"
+                      value={manualCode}
+                      onChange={(e) => setManualCode(e.target.value)}
+                      autoFocus={activeTab === 'manual'}
+                    />
+                  </label>
+                  <button
+                    type="submit"
+                    className="btn primary qr-manual-submit-btn"
+                    disabled={!manualCode.trim()}
+                  >
+                    <CheckCircle2 size={16} />
+                    تأكيد ومطابقة الحجز
+                  </button>
+                </form>
+                {cameraError && activeTab === 'manual' && (
+                  <p className="qr-upload-error-text" style={{ marginTop: '12px' }}>{cameraError}</p>
+                )}
+              </div>
+
+              <div
+                id="admin-qr-file-temp-container"
+                style={{ width: '1px', height: '1px', opacity: 0, position: 'absolute', pointerEvents: 'none' }}
+              />
+            </>
           )}
         </div>
       </div>

@@ -75,7 +75,9 @@ export interface Overview {
   awaitingOutcome: number;
   newInterests: number;
   patients: number;
+  total?: number;
   confirmedTotal?: number;
+  completedTotal?: number;
   todayTotal?: number;
   todayRevenue?: number;
   todayExpectedRevenue?: number;

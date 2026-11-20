@@ -199,6 +199,8 @@ router.get('/overview', async (_req, res) => {
     todayAppts,
     allActiveSubs,
     todaySubs,
+    total,
+    completedTotal,
   ] = await Promise.all([
     Appointment.countDocuments({ status: 'pending' }),
     Appointment.countDocuments({ status: 'confirmed', date: today }),
@@ -223,6 +225,8 @@ router.get('/overview', async (_req, res) => {
     Appointment.find({ date: today }).select('status price').lean(),
     SubscriptionModel.find({ status: 'active' }).lean(),
     SubscriptionModel.find({ startDate: today }).select('price').lean(),
+    Appointment.countDocuments(),
+    Appointment.countDocuments({ status: 'completed' }),
   ]);
 
   let todayRevenue = 0;
@@ -276,6 +280,8 @@ router.get('/overview', async (_req, res) => {
     todayCompleted,
     todayConfirmed,
     todayPending,
+    total,
+    completedTotal,
     activeSubscriptionsCount: allActiveSubs.length,
     expiringSubscriptionsCount,
   });

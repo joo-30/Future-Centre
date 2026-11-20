@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Activity,
   Calendar,
-  CalendarCheck,
   CalendarDays,
   Check,
   CheckCircle2,
@@ -655,33 +654,42 @@ export function AdminAppointments() {
           {/* Modern Segmented Status Tabs */}
           <div className="admin-tabs-segmented" role="tablist" aria-label="تصفية حالة الحجز">
             {[
-              { key: '', label: 'كل المواعيد', icon: CalendarDays, count: appointmentsQuery.data?.total },
+              {
+                key: '',
+                label: 'كل المواعيد',
+                icon: CalendarDays,
+                count: counts?.total ?? appointmentsQuery.data?.total ?? 0,
+              },
               {
                 key: 'today',
                 label: 'مواعيد اليوم',
                 icon: Activity,
-  CalendarCheck,
                 count: counts?.todayTotal ?? counts?.confirmedToday ?? agendaQuery.data?.appointments.length ?? 0,
               },
               {
                 key: 'pending',
                 label: 'طلبات جديدة',
                 icon: Clock,
-                count: counts?.pending,
+                count: counts?.pending ?? 0,
                 isAlert: Boolean(counts?.pending && counts.pending > 0),
               },
               {
                 key: 'confirmed',
                 label: 'مواعيد مؤكدة',
                 icon: CheckCircle2,
-                count: counts?.confirmedTotal,
+                count: counts?.confirmedTotal ?? 0,
               },
-              { key: 'completed', label: 'مكتملة', icon: Check },
+              {
+                key: 'completed',
+                label: 'مكتملة',
+                icon: Check,
+                count: counts?.completedTotal ?? 0,
+              },
               {
                 key: 'changes',
                 label: 'طلبات التغيير',
                 icon: RefreshCw,
-                count: counts?.changes,
+                count: counts?.changes ?? 0,
                 isAlert: Boolean(counts?.changes && counts.changes > 0),
               },
             ].map((tab) => {
