@@ -21,7 +21,15 @@ export function createApp() {
   const app = express();
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
-  app.use(helmet({ referrerPolicy: { policy: 'no-referrer' } }));
+  app.use(helmet({
+    referrerPolicy: { policy: 'no-referrer' },
+    contentSecurityPolicy: {
+      directives: {
+        // The QR image fallback decodes user-selected images via an object URL.
+        imgSrc: ["'self'", 'data:', 'blob:'],
+      },
+    },
+  }));
 
   const isDev = config.NODE_ENV !== 'production';
   app.use(

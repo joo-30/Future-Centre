@@ -12,7 +12,7 @@ import {
   VolumeX,
   X,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Html5Qrcode } from 'html5-qrcode';
 import jsQR from 'jsqr';
@@ -122,9 +122,11 @@ async function decodeQrFromFile(file: File): Promise<string> {
     try {
       const detector = new (window as any).BarcodeDetector({ formats: ['qr_code'] });
       const bitmap = await createImageBitmap(file);
-      const barcodes = await detector.detect(bitmap);
-      if (barcodes && barcodes.length > 0 && barcodes[0]?.rawValue) {
-        return barcodes[0].rawValue;
+      try {
+        const barcodes = await detector.detect(bitmap);
+        if (barcodes?.[0]?.rawValue) return barcodes[0].rawValue;
+      } finally {
+        bitmap.close();
       }
     } catch (err) {
       console.warn('Native BarcodeDetector skipped:', err);
@@ -180,6 +182,8 @@ async function decodeQrFromFile(file: File): Promise<string> {
     try {
       const result = await scanner.scanFile(file, false);
       if (result?.trim()) return result.trim();
+    } catch (err) {
+      console.warn('QR file fallback skipped:', err);
     } finally {
       try {
         scanner.clear();
@@ -206,7 +210,10 @@ export function AdminQrScannerModal({
   const [manualCode, setManualCode] = useState('');
   const [soundEnabled, setSoundEnabled] = useState(true);
 
-  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const cameraCleanup = useRef(Promise.resolve());
+  const verifying = useRef(false);
+  const isShowingResult = isVerifying || Boolean(scannedFeedback);
+  const shouldRunCamera = isOpen && activeTab === 'camera' && !isShowingResult && !cameraError;
   const readerElementId = 'admin-qr-reader-container';
 
   // Comprehensive reset when modal is closed
@@ -232,7 +239,7 @@ export function AdminQrScannerModal({
   // Handle detection & verification
   const handleSuccess = async (decodedText: string) => {
     const trimmed = decodedText.trim();
-    if (!trimmed) return;
+    if (!trimmed || verifying.current || scannedFeedback) return;
 
     // 1. Pre-validation: does it have any valid format?
     const parsed = parseQrData(trimmed);
@@ -242,11 +249,7 @@ export function AdminQrScannerModal({
       return;
     }
 
-    // Stop camera while verifying
-    if (scannerRef.current && scannerRef.current.isScanning) {
-      scannerRef.current.stop().catch(() => {});
-    }
-
+    verifying.current = true;
     setIsVerifying(true);
     setCameraError('');
 
@@ -274,32 +277,23 @@ export function AdminQrScannerModal({
       setCameraError(errMsg);
       setScannedFeedback(null);
     } finally {
+      verifying.current = false;
       setIsVerifying(false);
     }
   };
 
-  // Start / Stop camera scanner when modal opens on 'camera' tab
+  const onCameraDecode = useEffectEvent((decodedText: string) => {
+    void handleSuccess(decodedText);
+  });
+
   useEffect(() => {
-    if (!isOpen || activeTab !== 'camera') {
-      if (scannerRef.current && scannerRef.current.isScanning) {
-        scannerRef.current
-          .stop()
-          .then(() => {
-            scannerRef.current?.clear();
-          })
-          .catch(() => {});
-      }
-      return;
-    }
-
-    let isMounted = true;
-    setCameraError('');
-
-    const initScanner = async () => {
+    if (!shouldRunCamera) return;
+    let cancelled = false;
+    let scanner: Html5Qrcode | undefined;
+    const started = cameraCleanup.current.then(async () => {
+      if (cancelled) return;
       try {
-        const scanner = new Html5Qrcode(readerElementId);
-        scannerRef.current = scanner;
-
+        scanner = new Html5Qrcode(readerElementId);
         await scanner.start(
           { facingMode: 'environment' },
           {
@@ -308,7 +302,7 @@ export function AdminQrScannerModal({
             aspectRatio: 1.0,
           },
           (decodedText) => {
-            if (isMounted) handleSuccess(decodedText);
+            if (!cancelled) onCameraDecode(decodedText);
           },
           () => {
             // Frame scan failure (no QR in view), ignore
@@ -316,49 +310,46 @@ export function AdminQrScannerModal({
         );
       } catch (err) {
         console.warn('QR Camera Start error:', err);
-        if (isMounted) {
+        if (!cancelled) {
           setCameraError(
             'تعذر تشغيل الكاميرا. يرجى التأكد من منح الإذن للمتصفح، أو استخدمي رفع الصورة أو الإدخال اليدوي.'
           );
         }
       }
-    };
-
-    // Give DOM a frame to mount reader div
-    const timer = setTimeout(() => {
-      void initScanner();
-    }, 150);
+    });
 
     return () => {
-      isMounted = false;
-      clearTimeout(timer);
-      if (scannerRef.current && scannerRef.current.isScanning) {
-        scannerRef.current
-          .stop()
-          .then(() => {
-            scannerRef.current?.clear();
-          })
-          .catch(() => {});
-      }
+      cancelled = true;
+      // The library can throw synchronously when two state transitions overlap.
+      // Finish this scanner's pending start/stop before reusing the camera element.
+      cameraCleanup.current = started.then(async () => {
+        if (!scanner) return;
+        try {
+          if (scanner.isScanning) await scanner.stop();
+          scanner.clear();
+        } catch (err) {
+          console.warn('QR camera cleanup failed:', err);
+        }
+      });
     };
-  }, [isOpen, activeTab]);
+  }, [shouldRunCamera]);
 
   // Handle file upload scan
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const input = e.currentTarget;
+    const file = input.files?.[0];
     if (!file) return;
+    input.value = '';
 
     setIsFileScanning(true);
     setCameraError('');
     try {
       const result = await decodeQrFromFile(file);
-      e.target.value = '';
       await handleSuccess(result);
     } catch (err) {
       console.warn('File QR decode failed:', err);
-      e.target.value = '';
       setCameraError(
-        (err as Error).message ||
+        (err instanceof Error ? err.message : '') ||
           'لم يتم العثور على كود QR صالح في الصورة. يمكنكِ استخدام خيار كتابة الكود يدوياً.'
       );
     } finally {
@@ -476,15 +467,15 @@ export function AdminQrScannerModal({
                 إغلاق النافذة
               </button>
             </div>
-          ) : (
-            <>
+          ) : null}
+          <div hidden={isShowingResult}>
               {/* Camera Tab (Kept always mounted in DOM to prevent video stream teardown crashes) */}
               <div
                 className="qr-camera-viewport-wrap"
                 style={{ display: activeTab === 'camera' ? 'block' : 'none' }}
               >
-                {cameraError ? (
-                  <div className="qr-camera-error-box">
+                {cameraError && activeTab === 'camera' && (
+                  <div className="qr-camera-error-box" role="alert">
                     <AlertCircle size={40} className="error-camera-icon" style={{ color: '#dc2626' }} />
                     <p style={{ fontWeight: 600, color: '#991b1b' }}>{cameraError}</p>
                     <div className="error-actions-row">
@@ -534,8 +525,8 @@ export function AdminQrScannerModal({
                       </button>
                     </div>
                   </div>
-                ) : (
-                  <div className="qr-live-scanner-box">
+                )}
+                  <div className="qr-live-scanner-box" style={cameraError ? { display: 'none' } : undefined}>
                     <div id={readerElementId} className="qr-html5-camera-target" />
                     <div className="qr-viewfinder-overlay">
                       <div className="viewfinder-frame">
@@ -550,7 +541,6 @@ export function AdminQrScannerModal({
                       ضع الكود داخل المربع، سيتم التعرف عليه تلقائياً بدون الضغط على أي زر.
                     </p>
                   </div>
-                )}
               </div>
 
               {/* Upload Tab */}
@@ -583,7 +573,7 @@ export function AdminQrScannerModal({
                 )}
 
                 {cameraError && activeTab === 'upload' && (
-                  <p className="qr-upload-error-text" style={{ marginTop: '12px' }}>{cameraError}</p>
+                  <p className="qr-upload-error-text" role="alert" style={{ marginTop: '12px' }}>{cameraError}</p>
                 )}
               </div>
 
@@ -622,8 +612,7 @@ export function AdminQrScannerModal({
                 id="admin-qr-file-temp-container"
                 style={{ width: '1px', height: '1px', opacity: 0, position: 'absolute', pointerEvents: 'none' }}
               />
-            </>
-          )}
+          </div>
         </div>
       </div>
     </div>
